@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-ui: "Montserrat", sans-serif;
+
+  --color-sacred-red: #A02D23;
+  --color-warm-cream: #FDFBF7;
+  --color-earth-brown: #5D5043;
+  --color-spiritual-gold: #D4AF37;
+}
+
+@layer base {
+  body {
+    @apply bg-warm-cream text-neutral-900 font-sans;
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      cursor: none;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif;
+  }
+}
+
+.glass-nav {
+  @apply bg-warm-cream/10 border-b border-warm-cream/20;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.sacred-button {
+  @apply px-8 py-3 bg-sacred-red text-warm-cream font-ui text-sm tracking-widest uppercase transition-all duration-300 hover:bg-neutral-900 hover:shadow-xl active:scale-95;
+}
+
+.line-decoration {
+  @apply h-[1px] bg-spiritual-gold/40 flex-1;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .chatbot-scrollbar::-webkit-scrollbar {
+    width: 2px;
+  }
+  
+  .chatbot-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .chatbot-scrollbar::-webkit-scrollbar-thumb {
+    background: #f97316;
+    border-radius: 10px;
+  }
+  
+  .chatbot-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #f97316 transparent;
+  }
+
+  .cinematic-grade {
+    @apply relative overflow-hidden;
+  }
+
+  .cinematic-grade::after {
+    content: '';
+    @apply absolute inset-0 bg-sacred-red mix-blend-overlay opacity-20 pointer-events-none transition-opacity duration-700;
+  }
+
+  .group:hover .cinematic-grade::after {
+    @apply opacity-0;
+  }
+}
+
+@keyframes grain {
+
+  0%,
+  100% {
+    opacity: 0.03;
+  }
+
+  50% {
+    opacity: 0.05;
+  }
+}
+
+.animate-grain {
+  animation: grain 0.5s steps(2) infinite;
+}
+
+/* Spotlight Card Styles */
+.card-spotlight {
+  position: relative;
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: rgba(255, 255, 255, 0.05);
+}
+
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-spotlight:hover::before,
+.card-spotlight:focus-within::before {
+  opacity: 0.6;
+}
+
+/* ScrollVelocity Styles */
+.parallax {
+  overflow: hidden;
+  letter-spacing: -2px;
+  line-height: 0.8;
+  margin: 0;
+  white-space: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.scroller {
+  display: flex;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.scroller span {
+  display: block;
+}
+
+/* Circular Gallery Styles */
+.circular-gallery {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.circular-gallery:active {
+  cursor: grabbing;
+}
+
+/* Flowing Menu Styles */
+.menu-wrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__item {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border-top: 1px solid;
+}
+
+.menu__item:first-child {
+  border-top: none;
+}
+
+.menu__item-link {
+  display: flex;
+  @apply font-serif;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2.5rem 0;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  transition: opacity 0.3s ease;
+}
+
+.menu__item-link:hover {
+  opacity: 0.4;
+}
+
+.marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: translate3d(0, 101%, 0);
+}
+
+.marquee__inner-wrap {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee__inner {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  width: fit-content;
+  will-change: transform;
+}
+
+.marquee__part {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.marquee span {
+  white-space: nowrap;
+  @apply font-serif italic;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1;
+  padding: 0 2vw;
+}
+
+.marquee__img {
+  width: 250px;
+  height: 50%;
+  margin: 0 2vw;
+  border-radius: 9999px;
+  background-size: cover;
+  background-position: center;
+  @apply border border-warm-cream/20;
+}
+
+/* TiltedCard Styles */
+.tilted-card-figure {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
+  /* Increased perspective for more depth */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tilted-card-mobile-alert {
+  position: absolute;
+  top: -2rem;
+  text-align: center;
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .tilted-card-mobile-alert {
+    display: block;
+  }
+
+  .tilted-card-caption {
+    display: none;
+  }
+}
+
+.tilted-card-inner {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.tilted-card-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  object-fit: cover;
+  border-radius: 9999px;
+  /* Fully circular for the Swamiji portrait */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.tilted-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  will-change: transform;
+  transform: translateZ(30px);
+}
+
+.tilted-card-caption {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 40px;
+  background-color: var(--color-warm-cream);
+  padding: 8px 16px;
+  font-size: 10px;
+  color: var(--color-sacred-red);
+  opacity: 0;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+/* ScrollStack Styles */
+.scroll-stack-scroller {
+  position: relative;
+  width: 100%;
+  overflow-y: visible;
+  /* Important for window scroll mode */
+  overflow-x: visible;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  perspective: 1500px;
+  /* Enhanced 3D depth */
+}
+
+.scroll-stack-inner {
+  padding: 10vh 0 40vh;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scroll-stack-card {
+  transform-origin: top center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  contain: paint;
+  /* Performance optimization */
+  width: 100%;
+  max-width: 1000px;
+  /* Aligns with the 5xl max-width container */
+  margin: 0 auto 50px auto;
+  border-radius: 40px;
+  box-sizing: border-box;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  position: relative;
+}
+
+.scroll-stack-end {
+  width: 100%;
+  height: 1px;
+}

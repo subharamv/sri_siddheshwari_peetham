@@ -45,6 +45,13 @@ import MagicRings from './components/MagicRings';
 import SpiritualChatbot from './components/SpiritualChatbot';
 import CardNav from './components/CardNav';
 import DonationPage from './components/DonationPage';
+import logoImage from './assets/Logo (1).webp';
+import mounaSwamiPortrait from './assets/mouna-swami-portrait-1.jpg';
+import vimalanandaPortrait from './assets/vimalananda-bharati-portrait.jpg';
+import trivikramaPortrait from './assets/trivikrama-ramananda-standing.jpg';
+import sivaChidanandaPortrait from './assets/siva-chidananda-standing.jpg';
+import peethadhipathiImage from './assets/peethadhipathi-updated.png';
+import datteshwaranandaImage from './assets/datteshwarananda-final.jpg';
 
 // --- Constants ---
 const AUDIO_TRACKS = [
@@ -391,42 +398,42 @@ const GURU_LINEAGE = [
     name: "Sri Mouna Swamy",
     title: "Founder & Silent Sage",
     description: "The founding light of Courtallam Peetham, who maintained absolute silence for over 50 years as a path to liberation.",
-    image: "./src/assets/mouna-swami-portrait-1.jpg"
+    image: mounaSwamiPortrait
   },
   {
     year: "1943 - 1950",
     name: "Sri Vimalananda Bharathi",
     title: "First Peethadhipathi (after Mounaswamy)",
     description: "A profound scholar of the Vedas who expanded the Peetham's reach and established the traditional Patasala structure.",
-    image: "./src/assets/vimalananda-bharati-portrait.jpg"
+    image: vimalanandaPortrait
   },
   {
     year: "1950 - 1991",
     name: "Sri Trivikrama Ramananda",
     title: "Second Peethadhipathi",
     description: "Known for his boundless love and service, he streamlined the Peetham's charitable activities and social welfare programs.",
-    image: "./src/assets/trivikrama-ramananda-standing.jpg"
+    image: trivikramaPortrait
   },
   {
     year: "1991 - 2002",
     name: "Sri Sivachidananda Bharathi Swamy",
     title: "Third Peethadhipathi",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
-    image: "./src/assets/siva-chidananda-standing.jpg"
+    image: sivaChidanandaPortrait
   },
   {
     year: "2002 - Present",
     name: "Sri Siddheswarananda Bharati Swamy",
     title: "Fourth Peethadhipathi (Current)",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
-    image: "./src/assets/peethadhipathi-updated.png"
+    image: peethadhipathiImage
   },
   {
     year: "Successor",
     name: "Sri Datteshwarananda Bharati",
     title: "Uttaradhikari (Successor)",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
-    image: "./src/assets/datteshwarananda-final.jpg"
+    image: datteshwaranandaImage
   }
 ];
 
@@ -731,7 +738,7 @@ const Navbar = ({ onDonate }: { onDonate: () => void }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-20 items-center">
               <div className="flex-shrink-0 flex items-center">
-                <img src="src/assets/Logo (1).webp" alt="logo" className="w-14 h-14 mr-[10px]" />
+                <img src={logoImage} alt="logo" className="w-14 h-14 mr-[10px]" />
                 <span className="font-serif text-2xl font-bold text-sacred-red tracking-tighter">
                   SRI SIDDHESHWARI <span className="font-light italic">PEETHAM</span>
                 </span>
@@ -772,7 +779,7 @@ const Navbar = ({ onDonate }: { onDonate: () => void }) => {
         style={{ pointerEvents: 'none' }}
       >
         <CardNav
-          logo="src/assets/Logo (1).webp"
+          logo={logoImage}
           logoAlt="Sri Siddheswari Peetham"
           logoTitle="SRI SIDDHESHWARI PEETHAM"
           items={CARD_NAV_ITEMS}
@@ -1373,7 +1380,7 @@ const SwamijiPortrait = () => {
       {/* Portrait on top */}
       <div className="relative z-10 w-full h-full">
         <TiltedCard
-          imageSrc="./src/assets/peethadhipathi-updated.png"
+          imageSrc={peethadhipathiImage}
           altText="Sri Siddheswarananda Bharathi Swamy"
           captionText="Sri Siddheswarananda Bharathi Swamy"
           containerHeight="100%"

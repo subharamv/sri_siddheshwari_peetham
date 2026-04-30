@@ -1,0 +1,401 @@
+/* ─────────────────────────────────────
+   Container (floats as a pill at the top)
+───────────────────────────────────── */
+.card-nav-container {
+  position: absolute;
+  top: 1.25em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 480px;   /* expands to 820px on desktop via media query */
+  z-index: 99;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+/* ─────────────────────────────────────
+   Pill shell
+───────────────────────────────────── */
+.card-nav {
+  display: block;
+  height: 60px;
+  padding: 0;
+  background-color: #fdfbf7;
+  border: 1px solid rgba(160, 45, 35, 0.18);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.14),
+    0 0 0 0.5px rgba(212, 175, 55, 0.18);
+  position: relative;
+  overflow: hidden;
+  will-change: height;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-nav.open {
+  border-color: rgba(160, 45, 35, 0.35);
+  box-shadow:
+    0 10px 48px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(212, 175, 55, 0.28);
+}
+
+/* ─────────────────────────────────────
+   Top bar
+───────────────────────────────────── */
+.card-nav-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  z-index: 2;
+}
+
+/* ─── Left group ─── */
+.card-nav-start {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ─── Right group ─── */
+.card-nav-end {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────
+   Brand (logo + title)
+   Mobile: left-aligned; Desktop: absolute center
+───────────────────────────────────── */
+.card-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-nav-logo {
+  height: 34px;
+  width: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.card-nav-logo-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a02d23;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─────────────────────────────────────
+   CTA button — hidden on mobile
+───────────────────────────────────── */
+.card-nav-cta-button {
+  display: none;
+  background-color: #a02d23;
+  color: #fdfbf7;
+  border: none;
+  border-radius: 0.55rem;
+  padding: 0 1.1rem;
+  height: 38px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  align-items: center;
+  transition: background-color 0.25s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-nav-cta-button:hover {
+  background-color: #1a1a1a;
+}
+
+/* ─────────────────────────────────────
+   Donate button — hidden on mobile
+───────────────────────────────────── */
+.card-nav-donate-button {
+  display: none;
+  background: transparent;
+  border: 1.5px solid #a02d23;
+  color: #a02d23;
+  border-radius: 0.55rem;
+  padding: 0 1.1rem;
+  height: 38px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  align-items: center;
+  margin-right: 6px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-nav-donate-button:hover {
+  background-color: #a02d23;
+  color: #fdfbf7;
+}
+
+/* ─────────────────────────────────────
+   Style toggle button — desktop only
+───────────────────────────────────── */
+.card-nav-style-toggle {
+  display: none;          /* hidden on mobile */
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid rgba(160, 45, 35, 0.28);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.card-nav-style-toggle:hover {
+  background-color: rgba(160, 45, 35, 0.08);
+  border-color: rgba(160, 45, 35, 0.5);
+}
+
+.card-nav-toggle-label {
+  display: none;
+}
+
+/* ─────────────────────────────────────
+   Hamburger
+───────────────────────────────────── */
+.hamburger-menu {
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 6px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.hamburger-menu:hover {
+  background-color: rgba(160, 45, 35, 0.08);
+}
+
+.hamburger-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: transform 0.28s ease, opacity 0.22s ease;
+  transform-origin: 50% 50%;
+}
+
+.hamburger-menu.open .hamburger-line:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.hamburger-menu.open .hamburger-line:last-child {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+/* ─────────────────────────────────────
+   Mobile layout
+   brand left, hamburger right
+───────────────────────────────────── */
+.card-nav-start { order: 2; }
+.card-nav-brand { order: 1; }
+.card-nav-end   { display: none; }
+
+/* ─────────────────────────────────────
+   Card content area
+───────────────────────────────────── */
+.card-nav-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 60px;
+  bottom: 0;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-nav.open .card-nav-content {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ─────────────────────────────────────
+   Individual nav cards
+───────────────────────────────────── */
+.nav-card {
+  height: auto;
+  min-height: 68px;
+  border-radius: calc(1rem - 4px);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px;
+  gap: 10px;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 55%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.nav-card-label {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  opacity: 0.92;
+}
+
+/* ─── Links row (mobile: wrap horizontally) ─── */
+.nav-card-links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+
+.nav-card-link {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.76;
+  transition: opacity 0.22s ease;
+}
+
+.nav-card-link:hover {
+  opacity: 1;
+}
+
+.nav-card-link-icon {
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────
+   Desktop (≥ 768px)
+───────────────────────────────────── */
+@media (min-width: 768px) {
+  /* Wider pill — 4 cards */
+  .card-nav-container {
+    max-width: 920px;
+    top: 1.5em;
+  }
+
+  /* Reorder: [start left] [brand center absolute] [end right] */
+  .card-nav-start {
+    order: 1;
+  }
+
+  .card-nav-brand {
+    flex: none;
+    order: 0;             /* removed from flow */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .card-nav-end {
+    display: flex;
+    order: 3;
+  }
+
+  /* Show CTA + donate + toggle */
+  .card-nav-cta-button {
+    display: inline-flex;
+  }
+
+  .card-nav-donate-button {
+    display: inline-flex;
+  }
+
+  .card-nav-style-toggle {
+    display: inline-flex;
+  }
+
+  .card-nav-toggle-label {
+    display: inline;
+  }
+
+  /* Horizontal card layout */
+  .card-nav-content {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .nav-card {
+    height: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .nav-card-label {
+    font-size: 26px;
+  }
+
+  /* Links stack vertically on desktop cards */
+  .nav-card-links {
+    flex-direction: column;
+    gap: 5px;
+    margin-top: auto;
+  }
+
+  .nav-card-link {
+    font-size: 11.5px;
+  }
+}

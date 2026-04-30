@@ -61,16 +61,16 @@
   .chatbot-scrollbar::-webkit-scrollbar {
     width: 2px;
   }
-  
+
   .chatbot-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .chatbot-scrollbar::-webkit-scrollbar-thumb {
     background: #f97316;
     border-radius: 10px;
   }
-  
+
   .chatbot-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #f97316 transparent;
@@ -337,6 +337,7 @@
 .scroll-stack-scroller {
   position: relative;
   width: 100%;
+  z-index: 0;
   overflow-y: visible;
   /* Important for window scroll mode */
   overflow-x: visible;
@@ -347,7 +348,7 @@
 }
 
 .scroll-stack-inner {
-  padding: 10vh 0 40vh;
+  padding: 6vh 0 24vh;
   min-height: 80vh;
   display: flex;
   flex-direction: column;

@@ -7,6 +7,26 @@ import ReactMarkdown from 'react-markdown';
 
 const STORAGE_KEY = 'ssp_chat_history';
 const DEFAULT_MODEL = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
+const MODEL_CONTEXT = 4096;
+const SYSTEM_PROMPT_TOKENS = 350; // conservative overhead for system prompt
+const MAX_RESPONSE_TOKENS = 512;
+// budget left for conversation history
+const MAX_HISTORY_TOKENS = MODEL_CONTEXT - SYSTEM_PROMPT_TOKENS - MAX_RESPONSE_TOKENS - 64;
+
+// Conservative: LLaMA tokenizes ~3 chars/token for mixed English/Sanskrit content
+const estimateTokens = (text: string) => Math.ceil(text.length / 3);
+
+function buildTrimmedHistory(history: { role: string; content: string }[]) {
+  const trimmed: typeof history = [];
+  let used = 0;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const cost = estimateTokens(history[i].content) + 10;
+    if (used + cost > MAX_HISTORY_TOKENS) break;
+    trimmed.unshift(history[i]);
+    used += cost;
+  }
+  return trimmed;
+}
 
 const SYSTEM_PROMPT = `You are a compassionate spiritual guide of Sri Siddheswari Peetham, a sacred institution rooted in the teachings of Mouna Swamy (the Silent Sage) in Courtallam, Tamil Nadu, India.
 
@@ -17,7 +37,22 @@ Your role is to:
 - Provide information about the Peetham's activities, festivals, and the lineage of Guru Parampara
 - Speak with warmth, humility, and spiritual depth
 
-Always maintain the serene, contemplative tone befitting a sacred space. Begin responses with occasional Sanskrit salutations when appropriate (e.g., "Om Namah Shivaya", "Jai Guru Dev"). Keep answers concise yet profound.`;
+
+Location: 
+
+Sri Siddheswari Peetham,
+Courtallam - 627 802,
+Tenkasi District, TN.
+
+
+Visit Courtallam
+Sri Siddheswari Peetham is located in Courtallam, Tamil Nadu, famed for its waterfalls and serene hills. Plan your trip using the essentials below.
+
+
+How to Reach
+Frequent buses from Tenkasi/Tirunelveli. Taxis available from nearby railheads. Roads remain motorable during monsoon. Check local advisories.
+See Map: https://maps.app.goo.gl/YNcAvUPf2qmtd9pL9
+`;
 
 type Message = {
   role: 'user' | 'assistant';
@@ -39,7 +74,7 @@ function loadHistory(): Message[] {
 function saveHistory(msgs: Message[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs.slice(-60)));
-  } catch {}
+  } catch { }
 }
 
 const ALL_MODELS = prebuiltAppConfig.model_list.map(m => m.model_id);
@@ -202,13 +237,15 @@ export default function SpiritualChatbot() {
     setInput('');
     setIsGenerating(true);
     abortRef.current = false;
-    const history = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
+    const rawHistory = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
+    const history = buildTrimmedHistory(rawHistory);
     const apiMessages = [{ role: 'system' as const, content: SYSTEM_PROMPT }, ...history];
     try {
       const chunks = await engineRef.current.chat.completions.create({
         messages: apiMessages,
         stream: true,
         temperature: 0.8,
+        max_tokens: MAX_RESPONSE_TOKENS,
       });
       let reply = '';
       for await (const chunk of chunks) {
@@ -436,7 +473,7 @@ export default function SpiritualChatbot() {
         </div>
 
         {/* Messages */}
-        <div className="relative flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar">
+        <div className="relative flex-1 overflow-y-auto px-4 py-4 space-y-4 chatbot-scrollbar">
           {messages.length === 0 && loadState === 'ready' && (
             <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
               <div className="mb-4 opacity-20">

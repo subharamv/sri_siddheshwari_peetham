@@ -29,9 +29,10 @@ import {
   Search,
   Volume2,
   VolumeX,
-  Video
+  Video,
+  MessageCircle
 } from 'lucide-react';
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useLayoutEffect } from 'react';
 import SpotlightCard from './components/SpotlightCard';
 import BlurText from './components/BlurText';
 import ScrollVelocity from './components/ScrollVelocity';
@@ -45,6 +46,10 @@ import MagicRings from './components/MagicRings';
 import SpiritualChatbot from './components/SpiritualChatbot';
 import CardNav from './components/CardNav';
 import DonationPage from './components/DonationPage';
+import AboutPage from './components/AboutPage';
+import VisitPage from './components/VisitPage';
+import ContactPage from './components/ContactPage';
+import SwamyPage from './components/SwamyPage';
 import logoImage from './assets/Logo (1).webp';
 import mounaSwamiPortrait from './assets/mouna-swami-portrait-1.jpg';
 import vimalanandaPortrait from './assets/vimalananda-bharati-portrait.jpg';
@@ -74,15 +79,18 @@ const CARD_NAV_ITEMS = [
   {
     label: 'Peetham',
     bgColor: '#6B1A14',
+    grad: 'linear-gradient(145deg, #5C0F09, #A02D23)',
     textColor: '#FDFBF7',
     links: [
       { label: 'Home', href: '#home', ariaLabel: 'Go to Home' },
       { label: 'About', href: '#about', ariaLabel: 'About the Peetham' },
+      { label: 'Visit', href: '#visit', ariaLabel: 'Visit the Peetham' },
     ],
   },
   {
     label: 'Dharma',
     bgColor: '#3E2B1C',
+    grad: 'linear-gradient(145deg, #2A1508, #6B4226)',
     textColor: '#FDFBF7',
     links: [
       { label: 'Swamiji', href: '#swamiji', ariaLabel: 'About Swamiji' },
@@ -93,6 +101,7 @@ const CARD_NAV_ITEMS = [
   {
     label: 'Sangha',
     bgColor: '#1E1209',
+    grad: 'linear-gradient(145deg, #0F0800, #3D2A00)',
     textColor: '#D4AF37',
     links: [
       { label: 'Calendar', href: '#calendar', ariaLabel: 'Event Calendar' },
@@ -102,6 +111,7 @@ const CARD_NAV_ITEMS = [
   {
     label: 'Spiritual',
     bgColor: '#2C1654',
+    grad: 'linear-gradient(145deg, #1A0940, #4A2E8B)',
     textColor: '#E8D5FF',
     links: [
       { label: 'Deities', href: '#deities', ariaLabel: 'Sacred Deities & Seva' },
@@ -398,6 +408,8 @@ const GURU_LINEAGE = [
     name: "Sri Mouna Swamy",
     title: "Founder & Silent Sage",
     description: "The founding light of Courtallam Peetham, who maintained absolute silence for over 50 years as a path to liberation.",
+    longDescription: "A luminous soul who renounced speech to speak through silence, Sri Mouna Swamy established the sacred Peetham at Courtallam as a beacon of Advaita Vedanta.",
+    swamiIndex: 0,
     image: mounaSwamiPortrait
   },
   {
@@ -405,6 +417,8 @@ const GURU_LINEAGE = [
     name: "Sri Vimalananda Bharathi",
     title: "First Peethadhipathi (after Mounaswamy)",
     description: "A profound scholar of the Vedas who expanded the Peetham's reach and established the traditional Patasala structure.",
+    longDescription: "A Vedic luminary who formalized the Peetham's scriptural mission, Sri Vimalananda Bharathi laid the foundation for the Veda Patasala and its living tradition of sacred learning.",
+    swamiIndex: 1,
     image: vimalanandaPortrait
   },
   {
@@ -412,6 +426,8 @@ const GURU_LINEAGE = [
     name: "Sri Trivikrama Ramananda",
     title: "Second Peethadhipathi",
     description: "Known for his boundless love and service, he streamlined the Peetham's charitable activities and social welfare programs.",
+    longDescription: "With four decades of tireless compassion, Sri Trivikrama Ramananda expanded the Peetham's seva reach, touching thousands of lives through food, healthcare, and dharmic education.",
+    swamiIndex: 2,
     image: trivikramaPortrait
   },
   {
@@ -419,6 +435,8 @@ const GURU_LINEAGE = [
     name: "Sri Sivachidananda Bharathi Swamy",
     title: "Third Peethadhipathi",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
+    longDescription: "A master of Yoga and Vedanta, Sri Sivachidananda Bharathi Swamy guided thousands of seekers inward, kindling the flame of self-inquiry across the Tamil Nadu region.",
+    swamiIndex: 3,
     image: sivaChidanandaPortrait
   },
   {
@@ -426,6 +444,8 @@ const GURU_LINEAGE = [
     name: "Sri Siddheswarananda Bharati Swamy",
     title: "Fourth Peethadhipathi (Current)",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
+    longDescription: "The current Peethadhipathi seamlessly bridges Vedic antiquity with modern inquiry, inspiring a global community of devotees through discourses, rituals, and compassionate service.",
+    swamiIndex: 4,
     image: peethadhipathiImage
   },
   {
@@ -433,6 +453,8 @@ const GURU_LINEAGE = [
     name: "Sri Datteshwarananda Bharati",
     title: "Uttaradhikari (Successor)",
     description: "The current Peethadhipathi, bridging ancient Vedic wisdom with modern scientific understanding.",
+    longDescription: "Designated successor and embodiment of the unbroken Guru Parampara, Sri Datteshwarananda Bharati carries forward the Peetham's sacred flame into the generations ahead.",
+    swamiIndex: 5,
     image: datteshwaranandaImage
   }
 ];
@@ -1562,105 +1584,115 @@ const HomamSection = () => {
           )}
         </div>
 
-        {/* Homam type cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
-          {HOMAM_TYPES.map(h => (
-            <motion.div
-              key={h.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:border-sacred-red/30 hover:bg-white/8 transition-all group"
-            >
-              <div className="text-3xl mb-3">{h.icon}</div>
-              <h3 className="font-serif text-2xl text-warm-cream mb-3 group-hover:text-spiritual-gold transition-colors">{h.name}</h3>
-              <p className="text-warm-cream/50 text-sm leading-relaxed mb-5">{h.description}</p>
-              <button
-                onClick={() => setForm(f => ({ ...f, type: h.id }))}
-                className="font-ui text-[10px] tracking-widest uppercase font-semibold text-sacred-red border border-sacred-red/40 px-4 py-2 rounded-lg hover:bg-sacred-red hover:text-white transition-all"
-              >
-                Book Seva
-              </button>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Booking form */}
-        <div className="max-w-2xl mx-auto">
-          <h3 className="font-serif text-3xl text-warm-cream text-center mb-8">Offer a Homam</h3>
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-12 px-6 bg-white/5 border border-spiritual-gold/30 rounded-2xl"
-            >
-              <div className="text-4xl mb-4">🙏</div>
-              <h4 className="font-serif text-2xl text-spiritual-gold mb-3">Request Received</h4>
-              <p className="text-warm-cream/50 text-sm">Our team will contact you to confirm the schedule. May the divine blessings be upon you.</p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-7 space-y-5">
-              <div>
-                <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Homam</label>
-                <select
-                  name="type"
-                  value={form.type}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm focus:outline-none focus:border-sacred-red/60 transition-colors"
+        {/* Two column: Homam types + Booking form */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          {/* Left: Homam type cards */}
+          <div>
+            <h3 className="font-serif text-3xl text-warm-cream mb-8">Available Homams</h3>
+            <div className="space-y-6">
+              {HOMAM_TYPES.map(h => (
+                <motion.div
+                  key={h.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:border-sacred-red/30 hover:bg-white/8 transition-all group"
                 >
-                  <option value="" disabled>Select a Homam</option>
-                  {HOMAM_TYPES.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Preferred Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={form.date}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm focus:outline-none focus:border-sacred-red/60 transition-colors"
-                />
-              </div>
-              {[
-                { name: 'name', label: 'Devotee Name', placeholder: 'Your full name' },
-                { name: 'gotra', label: 'Gotra', placeholder: 'Your gotra' },
-                { name: 'nakshatra', label: 'Nakshatra', placeholder: 'Your birth star' },
-              ].map(f => (
-                <div key={f.name}>
-                  <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">{f.label}</label>
-                  <input
-                    type="text"
-                    name={f.name}
-                    value={(form as Record<string, string>)[f.name]}
+                  <div className="flex items-start gap-5">
+                    <div className="text-4xl flex-shrink-0 mt-1">{h.icon}</div>
+                    <div className="flex-1">
+                      <h4 className="font-serif text-2xl text-warm-cream mb-2 group-hover:text-spiritual-gold transition-colors">{h.name}</h4>
+                      <p className="text-warm-cream/50 text-sm leading-relaxed mb-5">{h.description}</p>
+                      <button
+                        onClick={() => setForm(f => ({ ...f, type: h.id }))}
+                        className="font-ui text-[10px] tracking-widest uppercase font-semibold text-sacred-red border border-sacred-red/40 px-4 py-2 rounded-lg hover:bg-sacred-red hover:text-white transition-all"
+                      >
+                        Book Seva
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Booking form */}
+          <div>
+            <h3 className="font-serif text-3xl text-warm-cream mb-8">Offer a Homam</h3>
+            {submitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12 px-6 bg-white/5 border border-spiritual-gold/30 rounded-2xl"
+              >
+                <div className="text-4xl mb-4">🙏</div>
+                <h4 className="font-serif text-2xl text-spiritual-gold mb-3">Request Received</h4>
+                <p className="text-warm-cream/50 text-sm">Our team will contact you to confirm the schedule. May the divine blessings be upon you.</p>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-7 space-y-5 sticky top-24">
+                <div>
+                  <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Homam</label>
+                  <select
+                    name="type"
+                    value={form.type}
                     onChange={handleChange}
-                    placeholder={f.placeholder}
-                    className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm placeholder-white/20 focus:outline-none focus:border-sacred-red/60 transition-colors"
+                    required
+                    className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm focus:outline-none focus:border-sacred-red/60 transition-colors"
+                  >
+                    <option value="" disabled>Select a Homam</option>
+                    {HOMAM_TYPES.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Preferred Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={form.date}
+                    onChange={handleChange}
+                    required
+                    className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm focus:outline-none focus:border-sacred-red/60 transition-colors"
                   />
                 </div>
-              ))}
-              <div>
-                <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Sankalpa / Notes</label>
-                <textarea
-                  name="sankalpa"
-                  value={form.sankalpa}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="Your intention or prayer..."
-                  className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm placeholder-white/20 focus:outline-none focus:border-sacred-red/60 transition-colors resize-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-sacred-red text-white font-ui text-xs tracking-widest uppercase font-semibold py-3.5 rounded-xl hover:bg-neutral-900 transition-all active:scale-[0.98]"
-              >
-                Submit Request
-              </button>
-            </form>
-          )}
+                {[
+                  { name: 'name', label: 'Devotee Name', placeholder: 'Your full name' },
+                  { name: 'gotra', label: 'Gotra', placeholder: 'Your gotra' },
+                  { name: 'nakshatra', label: 'Nakshatra', placeholder: 'Your birth star' },
+                ].map(f => (
+                  <div key={f.name}>
+                    <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">{f.label}</label>
+                    <input
+                      type="text"
+                      name={f.name}
+                      value={(form as Record<string, string>)[f.name]}
+                      onChange={handleChange}
+                      placeholder={f.placeholder}
+                      className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm placeholder-white/20 focus:outline-none focus:border-sacred-red/60 transition-colors"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label className="block font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Sankalpa / Notes</label>
+                  <textarea
+                    name="sankalpa"
+                    value={form.sankalpa}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Your intention or prayer..."
+                    className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-warm-cream text-sm placeholder-white/20 focus:outline-none focus:border-sacred-red/60 transition-colors resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-sacred-red text-white font-ui text-xs tracking-widest uppercase font-semibold py-3.5 rounded-xl hover:bg-neutral-900 transition-all active:scale-[0.98]"
+                >
+                  Submit Request
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -1734,18 +1766,35 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(AUDIO_TRACKS[0].id);
   const [trackMenuOpen, setTrackMenuOpen] = useState(false);
-  const [page, setPage] = useState<'home' | 'donate'>(() =>
-    typeof window !== 'undefined' && window.location.hash === '#donate' ? 'donate' : 'home'
-  );
+  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact'>(() => {
+    if (typeof window === 'undefined') return 'home';
+    const h = window.location.hash;
+    if (h === '#donate') return 'donate';
+    if (h === '#about') return 'about';
+    if (h === '#visit') return 'visit';
+    if (h === '#contact') return 'contact';
+    if (h.startsWith('#swami')) return 'swami';
+    return 'home';
+  });
+  const [selectedSwamiIndex, setSelectedSwamiIndex] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const h = window.location.hash;
+    if (h.startsWith('#swami-')) {
+      const idx = parseInt(h.replace('#swami-', ''), 10);
+      return isNaN(idx) ? 0 : Math.max(0, Math.min(idx, 5));
+    }
+    return 0;
+  });
   const [activeGuruIndex, setActiveGuruIndex] = useState(0);
-  const [isGuruFixed, setIsGuruFixed] = useState(false);
-  const [guruHeaderHeight, setGuruHeaderHeight] = useState(0);
   const NAVBAR_HEIGHT = 80;
+  const STACK_TOP = NAVBAR_HEIGHT + 200; // increased top offset so the sticky panel starts below the top bar
+  const PANEL_BOTTOM_SPACING = 40;
   const heroRef = useRef(null);
 
   const aboutRef = useRef(null);
   const guruSectionRef = useRef<HTMLDivElement>(null);
   const guruHeaderRef = useRef<HTMLDivElement>(null);
+  const guruPlaceholderRef = useRef<HTMLDivElement>(null);
   const guruCardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const scrollToGuruCard = (index: number) => {
@@ -1779,12 +1828,87 @@ export default function App() {
     }
   };
 
+  const goToSwamiPage = (index: number) => {
+    setSelectedSwamiIndex(index);
+    setPage('swami');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#swami-${index}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToAboutPage = () => {
+    setPage('about');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#about');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToVisitPage = () => {
+    setPage('visit');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#visit');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToContactPage = () => {
+    setPage('contact');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#contact');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     const onHashChange = () => {
-      setPage(window.location.hash === '#donate' ? 'donate' : 'home');
+      const hash = window.location.hash;
+      if (hash === '#donate') {
+        setPage('donate');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#about') {
+        setPage('about');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash.startsWith('#swami-')) {
+        const idx = parseInt(hash.replace('#swami-', ''), 10);
+        if (!isNaN(idx)) {
+          setSelectedSwamiIndex(Math.max(0, Math.min(idx, 5)));
+          setPage('swami');
+          // On mobile especially, we want to scroll to top when switching swamis
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+      } else if (hash.startsWith('#swami')) {
+        // Handle #swami without index
+        setSelectedSwamiIndex(0);
+        setPage('swami');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#visit') {
+        setPage('visit');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#contact') {
+        setPage('contact');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else {
+        setPage('home');
+      }
     };
     window.addEventListener('hashchange', onHashChange);
+    // Call once to handle initial hash
+    onHashChange();
     return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Prevent browser restoring scroll position on refresh for anchor/hash pages
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.history.scrollRestoration = 'manual';
+    if (page !== 'home') {
+      window.scrollTo(0, 0);
+    }
+    return () => {
+      window.history.scrollRestoration = 'auto';
+    };
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -1805,6 +1929,7 @@ export default function App() {
     const handleScroll = () => {
       const el = guruSectionRef.current;
       const header = guruHeaderRef.current;
+      const placeholder = guruPlaceholderRef.current;
       if (!el || !header) return;
 
       const sectionRect = el.getBoundingClientRect();
@@ -1816,29 +1941,34 @@ export default function App() {
       const stickyEnd = sectionTop + sectionHeight - topOffset - headerHeight;
       const isFixed = window.scrollY >= stickyStart && window.scrollY < stickyEnd;
 
-      setIsGuruFixed(isFixed);
-      setGuruHeaderHeight(headerHeight);
+      // Direct DOM mutation — no React re-render, no layout shift between frames
+      if (isFixed) {
+        header.style.position = 'fixed';
+        header.style.top = `${topOffset}px`;
+        header.style.left = '0';
+        header.style.right = '0';
+        if (placeholder) placeholder.style.height = `${headerHeight}px`;
+      } else {
+        header.style.position = '';
+        header.style.top = '';
+        header.style.left = '';
+        header.style.right = '';
+        if (placeholder) placeholder.style.height = '0px';
+      }
 
-      const scrollable = el.scrollHeight - window.innerHeight;
-      const scrolled = window.scrollY - sectionTop;
-      const progress = Math.max(0, Math.min(1, scrolled / Math.max(1, scrollable)));
-      const fallbackIndex = Math.min(Math.round(progress * (GURU_LINEAGE.length - 1)), GURU_LINEAGE.length - 1);
+      // Derive card positions analytically from known layout constants.
+      // card i absolute Y = sectionTop + headerHeight + mt(640) + i * (54vh + itemDistance(70))
+      // card i becomes active 40% into its pin phase so the panel lags slightly behind the card entering
+      const cardHeight = 0.54 * window.innerHeight;
+      const card0Top = sectionTop + headerHeight + 640;
+      let newActiveIndex = 0;
+      for (let i = 0; i < GURU_LINEAGE.length; i++) {
+        const cardTop = card0Top + i * (cardHeight + 70);
+        // Changed threshold from 0.4 to 0.15 for more immediate coordination
+        if (window.scrollY >= cardTop - 300 - 24 * i + cardHeight * 0.15) newActiveIndex = i;
+      }
+      setActiveGuruIndex(newActiveIndex);
 
-      const headerOffset = NAVBAR_HEIGHT + 12 + headerHeight + 24;
-      const bestMatch = guruCardRefs.current.reduce(
-        (best, card, cardIndex) => {
-          if (!card) return best;
-          const top = card.getBoundingClientRect().top;
-          const distance = Math.abs(top - headerOffset);
-          if (best === null || distance < best.distance) {
-            return { index: cardIndex, distance };
-          }
-          return best;
-        },
-        null as { index: number; distance: number } | null
-      );
-
-      setActiveGuruIndex(bestMatch?.index ?? fallbackIndex);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -1852,7 +1982,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen relative" style={{ overflowX: 'clip' }}>
       <CustomCursor />
       {/* Film Grain Overlay */}
       <div
@@ -1934,10 +2064,25 @@ export default function App() {
         </button>
       </div>
 
-      <SpiritualChatbot />
+      {page !== 'swami' && <SpiritualChatbot />}
       <Navbar onDonate={goToDonatePage} />
 
-      {page === 'home' ? (
+      {page === 'swami' ? (
+        <SwamyPage
+          swamiIndex={selectedSwamiIndex}
+          onBack={goToHomePage}
+          onSelectSwami={goToSwamiPage}
+          onDonate={goToDonatePage}
+        />
+      ) : page === 'donate' ? (
+        <DonationPage onBack={goToHomePage} />
+      ) : page === 'about' ? (
+        <AboutPage onBack={goToHomePage} />
+      ) : page === 'visit' ? (
+        <VisitPage onBack={goToHomePage} />
+      ) : page === 'contact' ? (
+        <ContactPage onBack={goToHomePage} />
+      ) : (
         <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-[60vh]">
           {/* Hero Section */}
           <section id="home" ref={heroRef} className="relative min-h-[100svh] pt-24 pb-32 flex items-center justify-center overflow-hidden">
@@ -2064,7 +2209,7 @@ export default function App() {
           <InfiniteMarquee />
 
           {/* About Section */}
-          <section id="about" ref={aboutRef} className="py-16 md:py-24 px-4 max-w-7xl mx-auto">
+          <section id="about-teaser" ref={aboutRef} className="py-16 md:py-24 px-4 max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24">
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -2080,7 +2225,7 @@ export default function App() {
                     Our philosophy centers on the transformative power of Mouna (Silence), which allows the soul to hear the whisper of the divine and find peace amidst the chaos of the modern world.
                   </p>
                   <div className="pt-2">
-                    <a href="#" className="inline-flex items-center gap-2 text-sacred-red font-semibold group">
+                    <a href="#about" onClick={(event) => { event.preventDefault(); goToAboutPage(); }} className="inline-flex items-center gap-2 text-sacred-red font-semibold group">
                       Learn about our history <ChevronRight className="transition-transform group-hover:translate-x-1" size={20} />
                     </a>
                   </div>
@@ -2107,8 +2252,7 @@ export default function App() {
             <div ref={guruSectionRef} className="relative mt-8 mb-[40vh]">
               <div
                 ref={guruHeaderRef}
-                className={`z-[110] bg-warm-cream/95 backdrop-blur-md pt-4 pb-3 border-b border-sacred-red/5 ${isGuruFixed ? 'fixed left-0 right-0' : 'sticky'}`}
-                style={{ top: `${NAVBAR_HEIGHT + 12}px` }}
+                className="z-[110] bg-warm-cream/95 backdrop-blur-md pt-4 pb-3 border-b border-sacred-red/5"
               >
                 <div className="max-w-7xl mx-auto px-4">
                   <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-2">
@@ -2121,70 +2265,133 @@ export default function App() {
                     </h2>
                     <div className="h-[1px] bg-spiritual-gold/40 flex-1" />
                   </div>
-                  <div className="-mt-3">
+                  <div className="mt-3">
                     <GuruHorizontalTimeline gurus={GURU_LINEAGE} activeIndex={activeGuruIndex} onSelect={scrollToGuruCard} />
                   </div>
                 </div>
               </div>
-              {isGuruFixed && (
-                <div style={{ height: guruHeaderHeight }} aria-hidden="true" className="w-full" />
-              )}
+              <div ref={guruPlaceholderRef} style={{ height: '0px' }} aria-hidden="true" />
 
-              <div className="max-w-5xl mx-auto px-4 mt-160">
-                <ScrollStack
-                  itemDistance={70}
-                  itemScale={0.04}
-                  itemStackDistance={24}
-                  stackPosition="20%"
-                  useWindowScroll={true}
-                  className="relative"
-                >
-                  {GURU_LINEAGE.map((guru, index) => (
-                    <ScrollStackItem
-                      key={index}
-                      ref={(el) => { guruCardRefs.current[index] = el; }}
+              <div className="mt-[640px] px-4 max-w-7xl mx-auto">
+                <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-14 xl:gap-20 items-start">
+
+                  {/* Left: stacking cards */}
+                  <div>
+                    <ScrollStack
+                      itemDistance={70}
+                      itemScale={0.04}
+                      itemStackDistance={24}
+                      stackPosition={300}
+                      useWindowScroll={true}
+                      className="relative"
                     >
-                      <div className="h-[54vh] w-[80%] md:w-[70%] lg:w-[65%] mx-auto rounded-[32px] overflow-hidden relative shadow-[0_20px_60px_rgba(0,0,0,0.1)] group/card border border-white/5">
-                        <img
-                          src={guru.image}
-                          alt={guru.name}
-                          className="absolute inset-0 w-full h-full object-cover transition-all duration-[1.5s] group-hover/card:scale-110 group-hover/card:rotate-1"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/30 to-transparent" />
+                      {GURU_LINEAGE.map((guru, index) => (
+                        <ScrollStackItem
+                          key={index}
+                          ref={(el) => { guruCardRefs.current[index] = el; }}
+                        >
+                          <div className="h-[54vh] w-[88%] md:w-[75%] lg:w-full mx-auto rounded-[32px] overflow-hidden relative shadow-[0_20px_60px_rgba(0,0,0,0.1)] group/card border border-white/5">
+                            <img
+                              src={guru.image}
+                              alt={guru.name}
+                              className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1.5s] group-hover/card:scale-110 group-hover/card:rotate-1"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/30 to-transparent" />
 
-                        <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
+                            <div className="absolute inset-x-0 bottom-0 p-8 md:p-10">
+                              <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                              >
+                                <span className="font-ui text-spiritual-gold text-base tracking-[0.2em] font-bold block mb-1 drop-shadow-lg">
+                                  {guru.year}
+                                </span>
+                                <h3 className="text-3xl md:text-4xl font-serif text-warm-cream leading-tight mb-4 drop-shadow-2xl">
+                                  {guru.name}
+                                </h3>
+                                <p className="text-warm-cream/70 text-sm max-w-xl font-sans leading-relaxed border-l border-spiritual-gold/30 pl-4 italic">
+                                  {guru.description}
+                                </p>
+                                {/* Mobile-only Read More */}
+                                <button
+                                  onClick={() => goToSwamiPage(index)}
+                                  className="lg:hidden inline-flex items-center gap-2 mt-5 text-spiritual-gold font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:opacity-80 transition-opacity"
+                                >
+                                  Read more about Swami
+                                  <ChevronRight size={13} />
+                                </button>
+                              </motion.div>
+                            </div>
+
+                            {/* Decorative Year Watermark */}
+                            <div className="absolute top-8 right-8 font-serif text-4xl pointer-events-none select-none" style={{ color: 'rgba(253, 251, 247, 0.1)' }}>
+                              {guru.year.split(' ')[0]}
+                            </div>
+                          </div>
+                        </ScrollStackItem>
+                      ))}
+                    </ScrollStack>
+                  </div>
+
+                  {/* Right: sticky text panel — desktop only */}
+                  <div className="hidden lg:block sticky self-start" style={{ top: `${STACK_TOP}px` }}>
+                    <div
+                      className="no-scrollbar"
+                      style={{
+                        marginTop: '20px',
+                        maxHeight: `calc(100vh - ${STACK_TOP + PANEL_BOTTOM_SPACING}px)`,
+                        transition: 'max-height 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
+                        overflowY: 'auto',
+                        paddingRight: '1rem'
+                      }}
+                    >
+                      <div className="relative flex flex-col justify-center py-8">
+                        {/* Decorative vertical rule */}
+                        <div className="absolute -left-7 top-0 bottom-0 w-[1px] bg-gradient-to-b from-spiritual-gold/40 via-spiritual-gold/15 to-transparent pointer-events-none" />
+
+                        <AnimatePresence mode="wait">
                           <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                            key={activeGuruIndex}
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
                           >
-                            <span className="font-ui text-spiritual-gold text-base md:text-lg tracking-[0.4em] font-bold block mb-4 drop-shadow-lg">
-                              {guru.year}
+                            <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-3">
+                              {GURU_LINEAGE[activeGuruIndex].year}
                             </span>
-                            <h3 className="text-4xl md:text-6xl font-serif text-warm-cream leading-tight mb-6 drop-shadow-2xl">
-                              {guru.name}
-                            </h3>
-                            <p className="text-warm-cream/70 text-sm md:text-base max-w-xl font-sans leading-relaxed border-l border-spiritual-gold/30 pl-4 italic">
-                              {guru.description}
+                            <p className="font-ui text-xs tracking-[0.18em] uppercase text-neutral-500 font-medium mb-2">
+                              {GURU_LINEAGE[activeGuruIndex].title}
                             </p>
+                            <h3 className="text-3xl xl:text-4xl font-serif text-neutral-900 leading-tight mb-5">
+                              {GURU_LINEAGE[activeGuruIndex].name}
+                            </h3>
+                            <div className="h-[1px] bg-spiritual-gold/30 mb-5" />
+                            <p className="text-neutral-600 text-sm leading-relaxed font-sans">
+                              {GURU_LINEAGE[activeGuruIndex].longDescription}
+                            </p>
+                            <button
+                              onClick={() => goToSwamiPage(activeGuruIndex)}
+                              className="inline-flex items-center gap-2 mt-7 text-sacred-red font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:gap-3 transition-all duration-200"
+                            >
+                              Read more about Swami
+                              <ChevronRight size={13} />
+                            </button>
                           </motion.div>
-                        </div>
-
-                        {/* Decorative Year Watermark */}
-                        <div className="absolute top-8 right-8 font-serif text-4xl md:text-4xl pointer-events-none select-none" style={{ color: 'rgba(253, 251, 247, 0.1)' }}>
-                          {guru.year.split(' ')[0]}
-                        </div>
+                        </AnimatePresence>
                       </div>
-                    </ScrollStackItem>
-                  ))}
-                </ScrollStack>
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </div>
           </section>
 
           {/* Swamiji Section */}
-          <section id="swamiji" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
+          <section id="" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
                 <div className="lg:col-span-5 order-2 lg:order-1">
@@ -2232,7 +2439,7 @@ export default function App() {
                         <img
                           src={activity.image}
                           alt={activity.title}
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                          className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110"
                           referrerPolicy="no-referrer"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-sacred-red/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -2308,65 +2515,91 @@ export default function App() {
             />
           </div>
         </div>
-      ) : (
-        <DonationPage onBack={goToHomePage} />
       )}
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 w-full z-0 h-[60vh] bg-neutral-900 pt-20 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
-          <div className="lg:col-span-2">
-            <span className="font-serif text-3xl font-bold text-warm-cream tracking-tighter mb-8 block">
+      <footer className="fixed bottom-0 left-0 w-full z-0 h-[60vh] bg-neutral-900 pt-16 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between overflow-y-auto">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-2">
+            <span className="font-serif text-2xl lg:text-3xl font-bold text-warm-cream tracking-tighter mb-4 block">
               SRI SIDDHESHWARI <span className="font-light italic opacity-50">PEETHAM</span>
             </span>
-            <p className="text-warm-cream/40 max-w-sm mb-8 leading-relaxed">
+            <p className="text-warm-cream/40 max-w-sm mb-6 leading-relaxed text-sm">
               Preserving the sacred traditions of Hindu Dharma and the teachings of the lineage of Mouna Swamys through meditation, service, and wisdom.
             </p>
-            <div className="flex gap-6">
-              <a href="#" className="w-10 h-10 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
-                <Facebook size={18} />
+            <div className="flex gap-3">
+              <a href="https://www.facebook.com/people/Courtallam-Sri-Siddheshwari-Peetam-Mounaswamy-mutt/61576632191990/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
+                <Facebook size={16} />
               </a>
-              <a href="#" className="w-10 h-10 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
-                <Instagram size={18} />
+              <a href="https://www.instagram.com/sri_siddheshwari_peetam" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
+                <Instagram size={16} />
               </a>
-              <a href="#" className="w-10 h-10 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
-                <Youtube size={18} />
+              <a href="https://www.youtube.com/@SriSiddeswaripeetham" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
+                <Youtube size={16} />
+              </a>
+              <a href="https://chat.whatsapp.com/CjrsFyJSZMHGIUG2ICwfLt?mode=ac_t" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-warm-cream/10 rounded-full flex items-center justify-center text-warm-cream/40 hover:text-sacred-red hover:border-sacred-red transition-all">
+                <MessageCircle size={16} />
               </a>
             </div>
           </div>
 
+          {/* Peetham */}
           <div>
-            <h4 className="font-ui text-xs tracking-widest uppercase text-warm-cream mb-8">Navigation</h4>
-            <ul className="space-y-4">
-              {NAVIGATION.map(item => (
-                <li key={item.name}>
-                  <a href={item.href} className="text-warm-cream/40 hover:text-sacred-red transition-colors">{item.name}</a>
-                </li>
-              ))}
+            <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Peetham</h4>
+            <ul className="space-y-3">
+              <li><a href="#home" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Home</a></li>
+              <li><a href="#about" onClick={(e) => { e.preventDefault(); goToAboutPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">About</a></li>
+              <li><a href="#visit" onClick={(e) => { e.preventDefault(); goToVisitPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Visit</a></li>
+              <li><a href="#contact" onClick={(e) => { e.preventDefault(); goToContactPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Contact</a></li>
             </ul>
           </div>
 
+          {/* Dharma */}
           <div>
-            <h4 className="font-ui text-xs tracking-widest uppercase text-warm-cream mb-8">Contact Us</h4>
-            <ul className="space-y-6">
-              <li className="flex gap-4 items-start text-warm-cream/40">
-                <MapPin size={20} className="text-sacred-red flex-shrink-0" />
-                <span>Sri Siddheswari Peetham,<br />Courtallam - 627 802,<br />Tenkasi District, TN.</span>
-              </li>
-              <li className="flex gap-4 items-center text-warm-cream/40">
-                <Phone size={20} className="text-sacred-red" />
-                <span>+91 4633 283256</span>
-              </li>
-              <li className="flex gap-4 items-center text-warm-cream/40">
-                <Mail size={20} className="text-sacred-red" />
-                <span>info@srisiddheshwaripeetham.com</span>
-              </li>
+            <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Dharma</h4>
+            <ul className="space-y-3">
+              <li><a href="#swamiji" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Swamiji</a></li>
+              <li><a href="#teachings" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Teachings</a></li>
+              <li><a href="#discourses" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Discourses</a></li>
+              <li><a href="#deities" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Deities</a></li>
             </ul>
+          </div>
+
+          {/* Sangha */}
+          <div>
+            <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Sangha</h4>
+            <ul className="space-y-3">
+              <li><a href="#calendar" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Calendar</a></li>
+              <li><a href="#activities" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
+              <li><a href="#homam" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Homam</a></li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Contact</h4>
+            <div className="space-y-4 text-warm-cream/40 text-sm">
+              <div className="flex gap-2 items-start">
+                <MapPin size={16} className="text-sacred-red mt-0.5 flex-shrink-0" />
+                <span>Sri Siddheswari Peetham,<br />Courtallam - 627 802,<br />Tenkasi District, TN.</span>
+              </div>
+              <div className="flex gap-2 items-center">
+                <Phone size={16} className="text-sacred-red flex-shrink-0" />
+                <a href="tel:+919443184738" className="hover:text-warm-cream/80 transition-colors">+91 9443184738</a>
+              </div>
+              <div className="flex gap-2 items-center">
+                <Mail size={16} className="text-sacred-red flex-shrink-0" />
+                <a href="mailto:feedback@srisiddheshwaripeetham.com" className="hover:text-warm-cream/80 transition-colors">feedback@srisiddheshwaripeetham.com</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto pt-10 border-t border-warm-cream/5 text-center text-warm-cream/20 font-ui text-[10px] tracking-widest uppercase mb-4">
-          © {new Date().getFullYear()} Sri Siddheswari Peetham. All Rights Reserved.
+        {/* Bottom bar */}
+        <div className="max-w-7xl mx-auto pt-8 border-t border-warm-cream/5 text-center mb-2">
+          <p className="text-warm-cream/20 font-ui text-[10px] tracking-widest uppercase">
+            © {new Date().getFullYear()} Sri Siddheswari Peetham. All Rights Reserved.
+          </p>
         </div>
       </footer>
     </div>

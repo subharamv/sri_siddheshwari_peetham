@@ -16,8 +16,10 @@ const MAX_HISTORY_TOKENS = MODEL_CONTEXT - SYSTEM_PROMPT_TOKENS - MAX_RESPONSE_T
 // Conservative: LLaMA tokenizes ~3 chars/token for mixed English/Sanskrit content
 const estimateTokens = (text: string) => Math.ceil(text.length / 3);
 
-function buildTrimmedHistory(history: { role: string; content: string }[]) {
-  const trimmed: typeof history = [];
+type ChatHistoryEntry = { role: 'user' | 'assistant'; content: string };
+
+function buildTrimmedHistory(history: ChatHistoryEntry[]) {
+  const trimmed: ChatHistoryEntry[] = [];
   let used = 0;
   for (let i = history.length - 1; i >= 0; i--) {
     const cost = estimateTokens(history[i].content) + 10;
@@ -237,9 +239,12 @@ export default function SpiritualChatbot() {
     setInput('');
     setIsGenerating(true);
     abortRef.current = false;
-    const rawHistory = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
+    const rawHistory = [...messages, userMsg].map(m => ({ role: m.role, content: m.content } as ChatHistoryEntry));
     const history = buildTrimmedHistory(rawHistory);
-    const apiMessages = [{ role: 'system' as const, content: SYSTEM_PROMPT }, ...history];
+    const apiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...history,
+    ];
     try {
       const chunks = await engineRef.current.chat.completions.create({
         messages: apiMessages,

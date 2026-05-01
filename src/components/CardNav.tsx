@@ -12,6 +12,7 @@ interface CardNavLink {
 interface CardNavItem {
   label: string;
   bgColor: string;
+  grad?: string;
   textColor: string;
   links?: CardNavLink[];
 }
@@ -227,8 +228,12 @@ const CardNav = ({
             <div
               key={`${item.label}-${idx}`}
               className="nav-card"
-              style={{ backgroundColor: item.bgColor, color: item.textColor }}
+              style={{ background: item.grad || item.bgColor, color: item.textColor }}
             >
+              {/* Dot pattern overlay — mirrors deity card */}
+              <div className="nav-card-dot-overlay" />
+              {/* OM watermark */}
+              <span className="nav-card-om" style={{ color: item.textColor }}>ॐ</span>
               <div className="nav-card-label">{item.label}</div>
               <div className="nav-card-links">
                 {item.links?.map((lnk, i) => (
@@ -247,6 +252,39 @@ const CardNav = ({
               </div>
             </div>
           ))}
+
+          {/* Mobile-only action row */}
+          <div className="nav-mobile-actions">
+            <a
+              href={ctaHref}
+              className="nav-mobile-btn nav-mobile-btn--filled"
+              style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+              onClick={isExpanded ? toggleMenu : undefined}
+            >
+              {ctaLabel}
+            </a>
+            {donateLabel && (
+              onDonate ? (
+                <button
+                  type="button"
+                  className="nav-mobile-btn nav-mobile-btn--outline"
+                  style={{ borderColor: buttonBgColor, color: buttonBgColor }}
+                  onClick={() => { toggleMenu(); onDonate(); }}
+                >
+                  {donateLabel}
+                </button>
+              ) : (
+                <a
+                  href={donateHref}
+                  className="nav-mobile-btn nav-mobile-btn--outline"
+                  style={{ borderColor: buttonBgColor, color: buttonBgColor }}
+                  onClick={isExpanded ? toggleMenu : undefined}
+                >
+                  {donateLabel}
+                </a>
+              )
+            )}
+          </div>
         </div>
       </nav>
     </div>

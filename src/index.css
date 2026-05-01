@@ -58,6 +58,26 @@
     scrollbar-width: none;
   }
 
+  /* 1px swami selector scrollbar */
+  .swami-selector::-webkit-scrollbar {
+    height: 1px;
+    width: 0.5px;
+  }
+
+  .swami-selector::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .swami-selector::-webkit-scrollbar-thumb {
+    background: rgba(160, 45, 35, 0.4);
+    border-radius: 1px;
+  }
+
+  .swami-selector {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160, 45, 35, 0.4) transparent;
+  }
+
   .chatbot-scrollbar::-webkit-scrollbar {
     width: 2px;
   }

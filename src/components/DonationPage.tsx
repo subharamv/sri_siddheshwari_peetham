@@ -1,11 +1,13 @@
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen, Gift, Heart, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, ChevronLeft, Gift, Heart, ShieldCheck, Sparkles } from 'lucide-react';
 import React from 'react';
 import ScrollVelocity from './ScrollVelocity';
 
 interface DonationPageProps {
     onBack?: () => void;
 }
+
+
 
 const FEATURE_CARDS = [
     {
@@ -58,6 +60,17 @@ const PROGRAM_CARDS = [
 const DonationPage = ({ onBack }: DonationPageProps) => {
     return (
         <section className="relative z-10 bg-neutral-950 text-warm-cream mb-[60vh]">
+            {onBack && (
+                <button
+                    type="button"
+                    onClick={onBack}
+                    aria-label="Back to Home"
+                    className="hidden lg:flex fixed top-9 left-8 z-[100] items-center gap-2 rounded-full bg-neutral-950/80 backdrop-blur-sm border border-white/10 text-warm-cream/70 hover:text-warm-cream hover:border-white/30 hover:bg-[#A02d23] transition-all shadow-lg px-4 py-2"
+                >
+                    <ChevronLeft size={16} />
+                    <span className="font-ui text-[10px] tracking-[0.2em] uppercase">Home</span>
+                </button>
+            )}
             <div className="max-w-7xl mx-auto px-4 py-24">
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-14">
                     <div className="max-w-3xl">
@@ -90,7 +103,7 @@ const DonationPage = ({ onBack }: DonationPageProps) => {
                         <button
                             type="button"
                             onClick={onBack}
-                            className="inline-flex items-center gap-2 rounded-full border border-warm-cream/20 bg-neutral-900 px-5 py-3 text-sm uppercase tracking-[0.35em] text-warm-cream transition hover:bg-warm-cream/5"
+                            className="inline-flex items-center gap-2 rounded-full border border-warm-cream/20 bg-neutral-900 px-5 py-3 text-sm uppercase tracking-[0.35em] text-warm-cream transition hover:bg-[#A02d23]"
                         >
                             <ArrowRight size={16} /> Back to Home
                         </button>

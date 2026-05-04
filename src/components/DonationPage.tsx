@@ -59,7 +59,7 @@ const PROGRAM_CARDS = [
 
 const DonationPage = ({ onBack }: DonationPageProps) => {
     return (
-        <section className="relative z-10 bg-neutral-950 text-warm-cream mb-[60vh]">
+        <section className="relative z-10 bg-neutral-950 text-warm-cream">
             {onBack && (
                 <button
                     type="button"

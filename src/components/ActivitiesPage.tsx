@@ -208,7 +208,7 @@ const ActivitiesPage = ({ onBack }: ActivitiesPageProps) => {
   };
 
   return (
-    <section className="relative z-10 bg-neutral-950 text-warm-cream mb-[60vh]">
+    <section className="relative z-10 bg-neutral-950 text-warm-cream">
       {/* Back button — top left */}
       {onBack && (
         <button

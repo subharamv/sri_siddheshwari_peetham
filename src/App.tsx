@@ -2143,10 +2143,12 @@ export default function App() {
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     window.history.scrollRestoration = 'manual';
-    if (page !== 'home') {
-      window.scrollTo(0, 0);
-    }
   }, []);
+
+  // Ensure scroll is at top when page changes, but not on every render
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -2340,7 +2342,7 @@ export default function App() {
       ) : page === 'publications' ? (
         <PublicationsPage onBack={goToHomePage} />
       ) : (
-        <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-[60vh]">
+        <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {/* Hero Section */}
           <section id="home" ref={heroRef} className="relative min-h-[100svh] pt-24 pb-32 flex items-center justify-center overflow-hidden">
             <div className="absolute inset-0 z-0">

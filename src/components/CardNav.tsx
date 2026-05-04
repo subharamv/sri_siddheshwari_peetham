@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ArrowUpRight, AlignJustify } from 'lucide-react';
 import './CardNav.css';
@@ -93,63 +93,100 @@ const CardNav = ({
     return 300;
   };
 
-  const createTimeline = () => {
-    const navEl = navRef.current;
-    if (!navEl) return null;
-
-    // Query cards live from the DOM so every card — regardless of count — is captured
-    const cards = navEl.querySelectorAll<HTMLElement>('.nav-card');
-
-    gsap.set(navEl, { height: 60, overflow: 'hidden' });
-    gsap.set(cards, { y: 50, opacity: 0 });
-
-    const tl = gsap.timeline({ paused: true });
-    tl.to(navEl, { height: calculateHeight, duration: 0.45, ease });
-    tl.to(cards, { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 }, '-=0.1');
-
-    return tl;
+  const toggleMenu = () => {
+    const tl = tlRef.current;
+    if (!tl) return;
+    
+    if (!isExpanded) {
+      setIsHamburgerOpen(true);
+      setIsExpanded(true);
+      tl.play();
+    } else {
+      setIsHamburgerOpen(false);
+      tl.reverse();
+    }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
-    const tl = createTimeline();
-    tlRef.current = tl;
-    return () => { tl?.kill(); tlRef.current = null; };
-  }, [ease, items]);
+    const ctx = gsap.context(() => {
+      const navEl = navRef.current;
+      if (!navEl) return;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+      const cards = navEl.querySelectorAll<HTMLElement>('.nav-card');
+
+      gsap.set(navEl, { height: 60, overflow: 'hidden' });
+      gsap.set(cards, { y: 50, opacity: 0 });
+
+      const tl = gsap.timeline({ 
+        paused: true,
+        onReverseComplete: () => {
+          setIsExpanded(false);
+          setIsHamburgerOpen(false);
+        }
+      });
+
+      tl.to(navEl, { 
+        height: calculateHeight, 
+        duration: 0.45, 
+        ease 
+      });
+      tl.to(cards, { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.4, 
+        ease, 
+        stagger: 0.08 
+      }, '-=0.1');
+
+      tlRef.current = tl;
+
+      if (isExpanded) {
+        tl.progress(1);
+        setIsHamburgerOpen(true);
+      }
+    }, navRef);
+
+    return () => ctx.revert();
+  }, [items, ease]);
+
   useLayoutEffect(() => {
     const handleResize = () => {
       if (!tlRef.current) return;
       if (isExpanded) {
         const newHeight = calculateHeight();
         gsap.set(navRef.current, { height: newHeight });
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) { newTl.progress(1); tlRef.current = newTl; }
+        tlRef.current.invalidate().progress(1);
       } else {
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) tlRef.current = newTl;
+        tlRef.current.invalidate().progress(0);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [isExpanded]);
 
-  const toggleMenu = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    if (!isExpanded) {
-      setIsHamburgerOpen(true);
-      setIsExpanded(true);
-      tl.play(0);
-    } else {
-      setIsHamburgerOpen(false);
-      tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
-      tl.reverse();
-    }
-  };
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (isExpanded) {
+        setIsHamburgerOpen(false);
+        tlRef.current?.reverse();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node) && isExpanded) {
+        setIsHamburgerOpen(false);
+        tlRef.current?.reverse();
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
 
   return (
     <div className={`card-nav-container ${className}`}>

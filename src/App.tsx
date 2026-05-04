@@ -30,7 +30,12 @@ import {
   Volume2,
   VolumeX,
   Video,
-  MessageCircle
+  MessageCircle,
+  Lock,
+  Sparkles,
+  BookOpen,
+  Sprout,
+  UtensilsCrossed
 } from 'lucide-react';
 import React, { useState, useRef, useMemo, useEffect, useLayoutEffect } from 'react';
 import SpotlightCard from './components/SpotlightCard';
@@ -50,6 +55,8 @@ import AboutPage from './components/AboutPage';
 import VisitPage from './components/VisitPage';
 import ContactPage from './components/ContactPage';
 import SwamyPage from './components/SwamyPage';
+import ActivitiesPage from './components/ActivitiesPage';
+import PublicationsPage from './components/PublicationsPage';
 import logoImage from './assets/Logo (1).webp';
 import mounaSwamiPortrait from './assets/mouna-swami-portrait-1.jpg';
 import vimalanandaPortrait from './assets/vimalananda-bharati-portrait.jpg';
@@ -57,6 +64,15 @@ import trivikramaPortrait from './assets/trivikrama-ramananda-standing.jpg';
 import sivaChidanandaPortrait from './assets/siva-chidananda-standing.jpg';
 import peethadhipathiImage from './assets/peethadhipathi-updated.png';
 import datteshwaranandaImage from './assets/datteshwarananda-final.jpg';
+import mounaSwamiImage from './assets/mouna-swamy.jpg';
+import dandayudhapaniImage from './assets/dandayudhapani.jpg';
+import courtallomTempleImage from './assets/courtallam-temple-gopuram-and-peetham-campus.png';
+import mounasamadhiImage from './assets/mounaswamy-samadhi-mandir.jpg';
+import himalaya from './assets/himalaya.jpg';
+import swamiMeditation from './assets/swami_meditation.webp';
+import pathalingaCaves from './assets/pathalinga_caves.jpg';
+import deitiesShrines from './assets/deities-shrines-card.webp';
+import naadiGanapathi from './assets/naadi-ganapathi-exact.jpg';
 
 // --- Constants ---
 const AUDIO_TRACKS = [
@@ -96,6 +112,7 @@ const CARD_NAV_ITEMS = [
       { label: 'Swamiji', href: '#swamiji', ariaLabel: 'About Swamiji' },
       { label: 'Teachings', href: '#teachings', ariaLabel: 'Teachings' },
       { label: 'Discourses', href: '#discourses', ariaLabel: 'Discourses' },
+      { label: 'Publications', href: '#publications', ariaLabel: 'Books & Publications' },
     ],
   },
   {
@@ -105,7 +122,7 @@ const CARD_NAV_ITEMS = [
     textColor: '#D4AF37',
     links: [
       { label: 'Calendar', href: '#calendar', ariaLabel: 'Event Calendar' },
-      { label: 'Activities', href: '#activities', ariaLabel: 'Activities' },
+      { label: 'Activities', href: '#activities-page', ariaLabel: 'Activities' },
     ],
   },
   {
@@ -385,19 +402,19 @@ const ACTIVITIES = [
   {
     title: "Annadhanam",
     description: "Serving the community through the sacred tradition of providing free meals to those in need.",
-    icon: Heart,
+    icon: UtensilsCrossed,
     image: "https://srisiddheshwaripeetham.com/annadanam-seva-peetham.jpg"
   },
   {
     title: "Go Seva",
     description: "Support cow protection and care. Cows are sacred in our tradition, and their welfare brings divine blessings and prosperity.",
-    icon: Eye,
+    icon: Sprout,
     image: "https://srisiddheshwaripeetham.com/go-seva-cow-protection.png"
   },
   {
     title: "Veda Patasala",
     description: "Nurturing the future of Sanatana Dharma by preserving and teaching ancient Vedic scriptures.",
-    icon: Music,
+    icon: BookOpen,
     image: "https://vedapatashala.in/images/gallery/veda2.webp"
   }
 ];
@@ -717,7 +734,7 @@ const ClassicNavGroup = ({ group, isDark }: { group: typeof CARD_NAV_ITEMS[numbe
   );
 };
 
-const Navbar = ({ onDonate }: { onDonate: () => void }) => {
+const Navbar = ({ onDonate, onNavigate }: { onDonate: () => void; onNavigate: (href: string) => void }) => {
   const [isDark, setIsDark] = useState(false);
   const [navStyle, setNavStyle] = useState<'card' | 'classic'>(() =>
     (localStorage.getItem('ssp-nav-style') as 'card' | 'classic') || 'card'
@@ -804,7 +821,13 @@ const Navbar = ({ onDonate }: { onDonate: () => void }) => {
           logo={logoImage}
           logoAlt="Sri Siddheswari Peetham"
           logoTitle="SRI SIDDHESHWARI PEETHAM"
-          items={CARD_NAV_ITEMS}
+          items={CARD_NAV_ITEMS.map(item => ({
+            ...item,
+            links: item.links?.map(lnk => ({
+              ...lnk,
+              onClick: lnk.href ? () => onNavigate(lnk.href!) : undefined,
+            })),
+          }))}
           baseColor="#FDFBF7"
           menuColor="#A02D23"
           buttonBgColor="#A02D23"
@@ -1532,6 +1555,193 @@ const DeitiesSection = () => (
   </section>
 );
 
+// ── Timeline Section ───────────────────────────────────────────────────────────
+const TimelineSection = () => {
+  const timelineEvents = [
+    {
+      year: '1868',
+      title: 'Birth of Sri Mounaswamy',
+      description: 'Born in Nunnevari Palem, Prakasam District, Andhra Pradesh as Pichayya',
+      image: mounaSwamiPortrait
+    },
+    {
+      year: '1894',
+      title: 'Renunciation',
+      description: 'Left worldly life after deep contemplation on Brahman and Arishadvargas',
+      image: swamiMeditation
+    },
+    {
+      year: '1894-1906',
+      title: 'Himalayan Journey',
+      description: 'Penance in Himalayas, service to Venkatachala Yogi, Sanyasa Deeksha from Achyutananda Saraswati Swami',
+      image: himalaya
+    },
+    {
+      year: '1906',
+      title: 'Tiruvannamalai',
+      description: 'Penance in Pathalalinga caves, association with Ramana Maharshi',
+      image: pathalingaCaves
+    },
+    {
+      year: '1910',
+      title: 'Peetham Establishment',
+      description: 'Founded Sri Dattatreya Matam, installed Sri Dandayudhapani with miraculous events',
+      image: dandayudhapaniImage
+    },
+    {
+      year: '1916',
+      title: 'Main Deity Installation',
+      description: 'Installed Sri Raja Rajeswari Devi and Sri Kameswara Swamy as principal deities',
+      image: deitiesShrines
+    },
+    {
+      year: '1936',
+      title: 'Peetham Reorganization',
+      description: 'Reorganized as Sri Siddheswari Peetham following Shankara Sampradaya',
+      image: courtallomTempleImage
+    },
+    {
+      year: '1938',
+      title: 'Naadi Ganapathi Miracle',
+      description: 'Installed Naadi Ganapathi idol with natural pulse-like sound',
+      image: naadiGanapathi
+    },
+    {
+      year: '1943',
+      title: 'Mahasamadhi',
+      description: 'Sri Mounaswamy attained Mahasamadhi on December 28, 1943',
+      image: mounaSwamiImage
+    },
+    {
+      year: '1951',
+      title: 'Samadhi Lingam',
+      description: 'Neelakanteswara Lingam established on Sri Mounaswamy\'s Samadhi',
+      image: mounasamadhiImage
+    },
+  ];
+
+  return (
+    <section id="timeline" className="bg-neutral-950 py-16 md:py-24 border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-4">
+        <SectionHeading subtitle="Historical Journey" title="Timeline of Sri Siddheswari Peetham" centered dark />
+        <p className="text-center text-warm-cream/50 text-base max-w-2xl mx-auto -mt-6 mb-14 leading-relaxed">
+          From the birth of Sri Mounaswamy to the establishment of a living spiritual sanctuary, witness the divine unfoldment of our sacred lineage.
+        </p>
+
+        <div className="relative max-w-4xl mx-auto">
+          {/* Vertical line */}
+          <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-sacred-red/20" />
+
+          <div className="space-y-12">
+            {timelineEvents.map((event, i) => (
+              <motion.div
+                key={event.year}
+                initial={{ opacity: 0, x: i % 2 === 0 ? -24 : 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className={`flex items-center gap-8 ${i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+              >
+                <div className={`flex-1 ${i % 2 === 0 ? 'text-right' : 'text-left'}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-sacred-red/30 flex-shrink-0">
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className={`${i % 2 === 0 ? 'text-right' : 'text-left'}`}>
+                      <p className="font-ui text-xs tracking-widest uppercase text-sacred-red font-semibold">{event.year}</p>
+                      <h4 className="font-serif text-lg text-warm-cream">{event.title}</h4>
+                    </div>
+                  </div>
+                  <p className="text-warm-cream/60 text-sm leading-relaxed">{event.description}</p>
+                </div>
+                <div className="w-4 h-4 rounded-full bg-sacred-red ring-4 ring-sacred-red/20 z-10 flex-shrink-0" />
+                <div className="flex-1" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ── Miracles Section ───────────────────────────────────────────────────────────
+const MiraclesSection = () => {
+  const omIcon = <span className="text-white text-2xl font-bold" style={{ fontFamily: 'serif', letterSpacing: '-1px' }}>ॐ</span>;
+
+  const miracles = [
+    {
+      title: 'Naadi Ganapathi',
+      description: 'In 1938, Sri Mounaswamy installed the idol of Sri Ganapathi. After the rituals concluded, devotees observed a pulse-like sound emanating from the idol. Scientists and local authorities inspected and confirmed the phenomenon, declaring that the sound was naturally occurring.',
+      icon: omIcon,
+      image: 'https://srisiddheshwaripeetham.com/naadi-ganapathi-exact.jpg'
+    },
+    {
+      title: 'Divine Manifestation of Money',
+      description: 'Sri Mounaswamy sustained his physical body with temple prasadam. The money required for purchasing prasadam was manifested by simply shaking his hands, demonstrating his complete surrender to divine will.',
+      icon: omIcon,
+      image: 'https://srisiddheshwaripeetham.com/_next/image?url=%2Fmounaswami%2Fmouna-swami-tapas.jpg&w=828&q=75'
+    },
+    {
+      title: 'Locked Temple Samadhi',
+      description: 'Mounaswamy frequently immersed in deep Samadhi. Unwilling to disturb him, temple authorities used to lock the doors from outside. Even if the doors were locked, Mounaswamy would still enter and exit, astounding devotees.',
+      icon: omIcon,
+      image: 'https://srisiddheshwaripeetham.com/_next/image?url=%2FSiddheswarananda%20Bharati%2Fsiddheswarananda-bharati-current.jpg&w=828&q=75'
+    },
+    {
+      title: 'Divine Light During Installation',
+      description: 'During the installation of Sri Dandayudhapani in 1910, Sri Mounaswamy miraculously created nine gems with his bare hands. A divine ray of light emanated from the idol and remained for a long time, blessing all devotees.',
+      icon: omIcon,
+      image: 'https://srisiddheshwaripeetham.com/sri-raja-rajeswari-exact.png'
+    }
+  ];
+
+  return (
+    <section id="miracles" className="bg-warm-cream py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-4">
+        <SectionHeading subtitle="Divine Experiences" title="Miracles & Spiritual Phenomena" centered />
+        <p className="text-center text-neutral-500 text-base max-w-2xl mx-auto -mt-6 mb-14 leading-relaxed">
+          Witness the divine manifestations and miraculous events that have graced Sri Siddheswari Peetham through the grace of Sri Mounaswamy and our sacred deities.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {miracles.map((miracle, i) => (
+            <motion.div
+              key={miracle.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="aspect-video bg-neutral-100 relative overflow-hidden">
+                <img
+                  src={miracle.image}
+                  alt={miracle.title}
+                  className="w-full h-full object-cover object-top"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute top-4 left-4 w-12 h-12 bg-sacred-red rounded-full flex items-center justify-center text-2xl">
+                  {miracle.icon}
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl text-neutral-900 mb-3">{miracle.title}</h3>
+                <p className="text-neutral-600 text-sm leading-relaxed">{miracle.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // ── Homam Section ──────────────────────────────────────────────────────────────
 const HomamSection = () => {
   const [form, setForm] = useState({ type: '', date: '', name: '', gotra: '', nakshatra: '', sankalpa: '' });
@@ -1766,13 +1976,15 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(AUDIO_TRACKS[0].id);
   const [trackMenuOpen, setTrackMenuOpen] = useState(false);
-  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact'>(() => {
+  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications'>(() => {
     if (typeof window === 'undefined') return 'home';
     const h = window.location.hash;
     if (h === '#donate') return 'donate';
     if (h === '#about') return 'about';
     if (h === '#visit') return 'visit';
     if (h === '#contact') return 'contact';
+    if (h === '#activities-page') return 'activities';
+    if (h === '#publications') return 'publications';
     if (h.startsWith('#swami')) return 'swami';
     return 'home';
   });
@@ -1861,8 +2073,24 @@ export default function App() {
     }
   };
 
+  const goToActivitiesPage = () => {
+    setPage('activities');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#activities-page');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToPublicationsPage = () => {
+    setPage('publications');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#publications');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
-    const onHashChange = () => {
+    const syncPageFromHash = () => {
       const hash = window.location.hash;
       if (hash === '#donate') {
         setPage('donate');
@@ -1875,11 +2103,9 @@ export default function App() {
         if (!isNaN(idx)) {
           setSelectedSwamiIndex(Math.max(0, Math.min(idx, 5)));
           setPage('swami');
-          // On mobile especially, we want to scroll to top when switching swamis
           window.scrollTo({ top: 0, behavior: 'auto' });
         }
       } else if (hash.startsWith('#swami')) {
-        // Handle #swami without index
         setSelectedSwamiIndex(0);
         setPage('swami');
         window.scrollTo({ top: 0, behavior: 'auto' });
@@ -1889,26 +2115,37 @@ export default function App() {
       } else if (hash === '#contact') {
         setPage('contact');
         window.scrollTo({ top: 0, behavior: 'auto' });
-      } else {
+      } else if (hash === '#activities-page') {
+        setPage('activities');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#publications') {
+        setPage('publications');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (!hash || hash === '#home') {
         setPage('home');
       }
+      // Non-page hashes (section anchors like #teachings, #deities) are left as-is
     };
-    window.addEventListener('hashchange', onHashChange);
-    // Call once to handle initial hash
-    onHashChange();
-    return () => window.removeEventListener('hashchange', onHashChange);
+
+    // hashchange fires for anchor-based navigation and direct hash changes
+    window.addEventListener('hashchange', syncPageFromHash);
+    // popstate fires for browser back/forward after history.replaceState/pushState
+    window.addEventListener('popstate', syncPageFromHash);
+    // Sync on mount to handle direct load / refresh with a hash in the URL
+    syncPageFromHash();
+    return () => {
+      window.removeEventListener('hashchange', syncPageFromHash);
+      window.removeEventListener('popstate', syncPageFromHash);
+    };
   }, []);
 
-  // Prevent browser restoring scroll position on refresh for anchor/hash pages
+  // Lock scroll restoration so the browser doesn't jump to a cached position on refresh
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     window.history.scrollRestoration = 'manual';
     if (page !== 'home') {
       window.scrollTo(0, 0);
     }
-    return () => {
-      window.history.scrollRestoration = 'auto';
-    };
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -2065,7 +2302,23 @@ export default function App() {
       </div>
 
       {page !== 'swami' && <SpiritualChatbot />}
-      <Navbar onDonate={goToDonatePage} />
+      <Navbar onDonate={goToDonatePage} onNavigate={(href) => {
+        const handlers: Record<string, () => void> = {
+          '#donate': goToDonatePage,
+          '#about': goToAboutPage,
+          '#visit': goToVisitPage,
+          '#contact': goToContactPage,
+          '#swamiji': () => goToSwamiPage(0),
+          '#activities-page': goToActivitiesPage,
+          '#publications': goToPublicationsPage,
+        };
+        const fn = handlers[href];
+        if (fn) {
+          fn();
+        } else if (href) {
+          window.location.hash = href;
+        }
+      }} />
 
       {page === 'swami' ? (
         <SwamyPage
@@ -2082,6 +2335,10 @@ export default function App() {
         <VisitPage onBack={goToHomePage} />
       ) : page === 'contact' ? (
         <ContactPage onBack={goToHomePage} />
+      ) : page === 'activities' ? (
+        <ActivitiesPage onBack={goToHomePage} />
+      ) : page === 'publications' ? (
+        <PublicationsPage onBack={goToHomePage} />
       ) : (
         <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-[60vh]">
           {/* Hero Section */}
@@ -2120,7 +2377,7 @@ export default function App() {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span className="font-ui text-xs tracking-[0.4em] uppercase text-[#2D1A0A]/80 mb-6 block">
-                  Established in 1918 • Courtallam
+                  Established 1910 • Courtallam, Agasthya Kshethram
                 </span>
                 <motion.h1
                   initial="hidden"
@@ -2193,7 +2450,7 @@ export default function App() {
                   </div>
                 </motion.h1>
                 <p className="text-[#2D1A0A]/70 font-sans text-lg md:text-xl max-w-xl mx-auto mb-12 leading-relaxed">
-                  Experience the profound presence of divinity at Mouna Swamy Mutt, where ancient traditions meet universal wisdom.
+                  Founded by Sri Mounaswamy in Courtallam's sacred Agasthya Kshethram, Sri Siddheswari Peetham preserves Sri Vidya tradition and the grace of Sri Raja Rajeswari Devi.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                   <button className="sacred-button shadow-2xl shadow-sacred-red/20 active:scale-95 transition-transform">Explore Peetham</button>
@@ -2414,6 +2671,8 @@ export default function App() {
           <TeachingsSlider />
           <DiscoursesSection />
           <DeitiesSection />
+          <TimelineSection />
+          <MiraclesSection />
           <HomamSection />
           <CalendarSection />
 
@@ -2570,7 +2829,7 @@ export default function App() {
             <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Sangha</h4>
             <ul className="space-y-3">
               <li><a href="#calendar" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Calendar</a></li>
-              <li><a href="#activities" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
+              <li><a href="#activities-page" onClick={(e) => { e.preventDefault(); goToActivitiesPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
               <li><a href="#homam" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Homam</a></li>
             </ul>
           </div>

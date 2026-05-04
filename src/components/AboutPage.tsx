@@ -10,17 +10,17 @@ interface AboutPageProps {
 const FEATURES = [
     {
         title: 'Sacred Location',
-        description: 'Nestled in Courtallam, the Peetham sits in the holy Agasthya Kshethram near the healing waterfalls.',
+        description: 'Nestled in Courtallam, Tirunelveli district, Tamil Nadu, revered as "Agasthya Kshethram"—the sacred abode of the great sage Agasthya, alongside his consort Lopamudra.',
         icon: <MapPin size={20} className="text-sacred-red" />,
     },
     {
-        title: 'Vedic Traditions',
-        description: 'Following Sri Adi Shankaracharya’s path, the Peetham preserves Veda Dharma, meditation, and devotional ritual.',
+        title: 'Sri Vidya Tradition',
+        description: 'Following the ancient Sri Vidya upasana, the Peetham preserves the teachings of Sri Raja Rajeswari Devi and the Dattatreya-Shankara Sampradaya.',
         icon: <BookOpen size={20} className="text-sacred-red" />,
     },
     {
         title: 'Natural Healing',
-        description: 'Courtallam’s medicinal springs and mountain herbs complement every spiritual retreat and pilgrimage.',
+        description: 'Courtallam\'s majestic waterfalls and medicinal springs complement the spiritual practices, offering both physical and divine healing.',
         icon: <Leaf size={20} className="text-sacred-red" />,
     },
 ];
@@ -108,7 +108,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                             transition={{ duration: 0.8, delay: 0.1 }}
                             className="font-serif text-5xl md:text-6xl font-bold tracking-tight leading-tight"
                         >
-                            A sacred lineage of silence, service, and spiritual sanctuary.
+                            A sacred lineage since 1910, preserving Sri Vidya and Agasthya's grace.
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 16 }}
@@ -116,7 +116,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="mt-6 text-base md:text-lg text-warm-cream/70 max-w-2xl leading-relaxed"
                         >
-                            Founded by H.H. Sri Sivachidananda Saraswati Swamy (Mounaswamy), the Peetham honors Sri Raja Rajeswari Ambal, preserves Vedic wisdom, and welcomes seekers to Courtallam’s healing fold.
+                            Founded by H.H. Sri Sivachidananda Saraswati Swamy (Mounaswamy), Sri Siddheswari Peetham honors Sri Raja Rajeswari Ambal in Courtallam's Agasthya Kshethram, blending ancient Sri Vidya tradition with compassionate service. Sri Siddheswari Peetham continues to be a sacred center for seekers of wisdom and spiritual upliftment. The Peetham not only preserves the rich traditions of Sanatana Dharma but also radiates the blessings of Sri Raja Rajeswari Ambal and Sri Sivachidananda Saraswathi Swamy (Mounaswamy), guiding the devotees towards the inner peace and spiritual enlightenment.
                         </motion.p>
                     </div>
                 </div>
@@ -152,35 +152,61 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                             <Sparkles size={20} />
                             <p className="text-xs tracking-[0.35em] uppercase">Sacred Foundation</p>
                         </div>
-                        <h2 className="text-4xl font-serif font-bold mb-6">From Sri Dattatreya Matam to a living Peetham.</h2>
+                        <h2 className="text-4xl font-serif font-bold mb-6">Sacred Location & Establishment History</h2>
                         <div className="space-y-6 text-warm-cream/70 leading-relaxed text-base">
-                            <p>
-                                Sri Siddheswari Peetham was established in 1910 by H.H. Sri Sivachidananda Saraswati Swamy (Mounaswamy) as Sri Dattatreya Matam. The first deity worshipped was Sri Dandayudhapani Swamy, and in 1916 Sri Raja Rajeswari Devi and Sri Kameswara Swamy were consecrated as the principal deities.
-                            </p>
-                            <p>
-                                The Peetham’s spiritual heart is Sri Raja Rajeswari Ambal, also known as Sri Siddeshwari Devi, whose grace continues to guide devotees through ritual, meditation, and seva.
-                            </p>
-                            <p>
-                                This sanctuary remains devoted to preserving Sanatana Dharma, ancient Vedic practice, and the gentle discipline of silence for all who seek deeper peace.
-                            </p>
-                        </div>
-                        <div className="mt-10 rounded-3xl border border-warm-cream/10 bg-neutral-950 p-6">
-                            <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-2">Parivara Deities</p>
-                            <p className="text-sm leading-relaxed text-warm-cream/70">
-                                Sri Dandayudha Pani, Sri Ayyappa Swami, Sri Swetha Kali Devi, Sri Kalabhairava Swamy, Sri Naadi Ganapathi, Sri Sanjeevaraya Hanuman, Sri Pathala Pratyangira Devi, Sri Varahi Devi, Sri Naga Devatha, Sri Seetha Rama, Sri Yoga Narasimha, Sri Santana Venu Gopala Swamy, Sri Radha Krishna, Sri Shiridi Sai Baba, Sri Valli Devasena Sametha Subramanya Swami, Sri Navagraha, Sri Shankaracharya, Sri Dakshinamoorthy, Sri Dattatreya, Guru Brindavanam.
-                            </p>
+                            <div>
+                                <h3 className="text-lg font-semibold text-warm-cream mb-2">Sacred Location</h3>
+                                <p>
+                                    Nestled in the serene town of Courtallam, Tirunelveli district, Tamil Nadu, Sri Siddheswari Peetham stands as a beacon of spirituality and devotion. Courtallam, celebrated for its majestic waterfalls and natural beauty, is revered as "Agasthya Kshethram"—the sacred abode of the great sage Agasthya. According to Puranas and mythological scriptures, Sage Agasthya made Courtallam his permanent dwelling along with his consort Lopamudra, a distinguished Sri Vidyopasaka.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-warm-cream mb-2">Establishment History</h3>
+                                <p>
+                                    Sri Siddheswari Peetham was established in the year 1910 by H.H. Sri Sivachidananda Saraswati Swamy (Mounaswamy). Initially founded as Sri Dattatreya Matam, the first deity consecrated was Sri Dandayudhapani Swamy. In 1916, the divine presence of Sri Rajarajeswari Devi and Sri Kameswara Swami was enshrined, marking them as the principal deities of the Peetham. In 1936, following the Shankara Sampradaya, the institution was reorganized as Sri Siddheswari Peetham.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-warm-cream mb-2">Main Deity</h3>
+                                <p>
+                                    At the heart of the Peetham lies the Sri Raja Rajeswari Ambal (Sri Siddeshwari Devi), who is venerated as the principal deity. The Peetham follows the ancient Sri Vidya tradition and includes sacred Sri Chakra Maha Meru worship.
+                                </p>
+                            </div>
                         </div>
                         <div className="mt-10 space-y-6">
-
                             <div className="rounded-3xl border border-warm-cream/10 bg-neutral-950 p-6">
-                                <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-2">Tradition</p>
-                                <p className="font-semibold text-warm-cream">Mouna, puja, and Veda Dharma</p>
+                                <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-3">Parivara Deities</p>
+                                <div className="space-y-3 text-sm">
+                                    <div>
+                                        <span className="font-medium text-warm-cream">Shaiva / Shakti:</span>
+                                        <span className="text-warm-cream/70 ml-2">Sri Dandayudhapani, Sri Swetha Kali Devi, Sri Kalabhairava Swamy, Sri Pathala Pratyangira Devi, Sri Varahi Devi</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-warm-cream">Vaishnava:</span>
+                                        <span className="text-warm-cream/70 ml-2">Sri Seetarama, Sri Yoga Narasimha, Sri Santana Venu Gopala Swamy, Sri Radha Krishna</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-warm-cream">Ganapathi & Others:</span>
+                                        <span className="text-warm-cream/70 ml-2">Sri Nadi Ganapathi, Sri Sanjeevaraya Hanuman, Sri Nagadevatha, Sri Navagaraha</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-warm-cream">Regional & Saints:</span>
+                                        <span className="text-warm-cream/70 ml-2">Sri Ayyappa Swami, Sri Shiridi Sai Baba, Sri Valli devasena sametha subramanya swami</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-warm-cream">Guru Parampara:</span>
+                                        <span className="text-warm-cream/70 ml-2">Sri Shankaracharya, Sri Dakshinamoorthy, Sri Dattatreya, Guru Brindavanam</span>
+                                    </div>
+                                </div>
                             </div>
-                            <a href="mailto:feedback@srisiddheshwaripeetham.com" className="inline-flex items-center justify-between gap-3 rounded-3xl border border-sacred-red/30 bg-sacred-red/10 px-6 py-4 text-sm text-warm-cream hover:bg-sacred-red/20 transition-colors">
-                                <span>Contact the Peetham</span>
-                                <ArrowRight size={18} />
-                            </a>
+                            <div className="rounded-3xl border border-warm-cream/10 bg-neutral-950 p-6">
+                                <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-2">Spiritual Significance</p>
+                                <p className="text-sm leading-relaxed text-warm-cream/70">
+                                    Sri Vidya tradition, Dattatreya-Shankara Sampradaya, Chakra Meru worship, and Agasthya connection
+                                </p>
+                            </div>
                         </div>
+
                     </motion.div>
 
                     <motion.div
@@ -204,12 +230,24 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                             />
                         </div>
                         <p className="text-sm leading-relaxed text-warm-cream/70">
-                            Sri Raja Rajeswari Devi, venerated as Sri Siddeshwari Devi, was installed on October 3, 1916. Her divine blessings continue to inspire pilgrimage, peace, and spiritual upliftment at the Peetham.
+                            Sri Raja Rajeswari Devi, venerated as Sri Siddeshwari Devi, embodies the cosmic power of creation and is worshipped for material and spiritual abundance. Installed on October 3, 1916, she represents the Sri Vidya tradition and divine grace that guides devotees toward inner peace and spiritual enlightenment.
                         </p>
-                        <div className="rounded-3xl mt-10 border border-warm-cream/10 bg-neutral-950 p-6">
+                        <div className="rounded-3xl border border-warm-cream/10 bg-neutral-950 p-6">
+                            <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-3">Main Deity</p>
+                            <p className="font-semibold text-warm-cream">Sri Raja Rajeswari Devi</p>
+                        </div>
+                        <div className="rounded-3xl mt-5 border border-warm-cream/10 bg-neutral-950 p-6">
+                            <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-3">Core Deities</p>
+                            <p className="font-semibold text-warm-cream">Sri Kameswara Swamy, Sri Dandayudhapani</p>
+                        </div>
+                        <div className="rounded-3xl mt-5 border border-warm-cream/10 bg-neutral-950 p-6">
                             <p className="text-xs uppercase tracking-[0.35em] text-sacred-red/70 mb-2">Location</p>
                             <p className="font-semibold text-warm-cream">Courtallam, Tamil Nadu</p>
                         </div>
+                        <a href="mailto:feedback@srisiddheshwaripeetham.com" className="inline-flex items-center mt-5 justify-between gap-3 rounded-3xl border border-sacred-red/30 bg-sacred-red/10 px-6 py-4 text-sm text-warm-cream hover:bg-sacred-red/20 transition-colors">
+                            <span>Contact the Peetham</span>
+                            <ArrowRight size={18} />
+                        </a>
                     </motion.div>
                 </div>
 
@@ -293,7 +331,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                         ))}
                     </div>
                 </motion.div>
-            </div>
+            </div >
 
             <div className="bg-neutral-900 overflow-hidden py-14 border-b border-warm-cream/5 mt-10">
                 <ScrollVelocity
@@ -303,7 +341,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                     numCopies={4}
                 />
             </div>
-        </section>
+        </section >
     );
 };
 

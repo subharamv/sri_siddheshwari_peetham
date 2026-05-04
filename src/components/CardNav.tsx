@@ -7,6 +7,7 @@ interface CardNavLink {
   label: string;
   href?: string;
   ariaLabel?: string;
+  onClick?: () => void;
 }
 
 interface CardNavItem {
@@ -240,10 +241,16 @@ const CardNav = ({
                   <a
                     key={`${lnk.label}-${i}`}
                     className="nav-card-link"
-                    href={lnk.href || '#'}
+                    href={lnk.onClick ? undefined : (lnk.href || '#')}
                     aria-label={lnk.ariaLabel}
                     style={{ color: item.textColor }}
-                    onClick={isExpanded ? toggleMenu : undefined}
+                    onClick={(e) => {
+                      if (lnk.onClick) {
+                        e.preventDefault();
+                        lnk.onClick();
+                      }
+                      if (isExpanded) toggleMenu();
+                    }}
                   >
                     <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" size={15} />
                     {lnk.label}

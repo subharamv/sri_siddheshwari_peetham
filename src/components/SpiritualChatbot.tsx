@@ -233,7 +233,7 @@ const SwamiCards = () => (
         <div key={s.name} className="flex flex-col items-center gap-1.5" style={{ width: 76 }}>
           <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0"
             style={{ border: '2px solid rgba(212,175,55,0.45)', boxShadow: '0 0 14px rgba(212,175,55,0.18)' }}>
-            <img src={s.img} alt={s.name} className="w-full h-full object-cover object-top" />
+            <img src={s.img} alt={s.name} loading="lazy" className="w-full h-full object-cover object-top" />
           </div>
           <p className="text-center leading-tight"
             style={{ color: 'rgba(253,251,247,0.85)', fontFamily: 'Cormorant Garamond, serif', fontSize: '10px', lineHeight: '1.3', maxWidth: 72 }}>
@@ -256,7 +256,7 @@ const DeityCards = () => (
         <div key={d.name} className="flex flex-col items-center gap-1.5" style={{ width: 68 }}>
           <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
             style={{ border: '2px solid rgba(212,175,55,0.4)', boxShadow: '0 0 10px rgba(212,175,55,0.14)' }}>
-            <img src={d.img} alt={d.name} className="w-full h-full object-cover" />
+            <img src={d.img} alt={d.name} loading="lazy" className="w-full h-full object-cover" />
           </div>
           <p className="text-center leading-tight"
             style={{ color: 'rgba(253,251,247,0.8)', fontFamily: 'Cormorant Garamond, serif', fontSize: '10px', lineHeight: '1.3', maxWidth: 64 }}>
@@ -273,7 +273,7 @@ const PortraitCard = ({ img, name, title }: { img: string; name: string; title: 
     style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)' }}>
     <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0"
       style={{ border: '2px solid rgba(212,175,55,0.4)', boxShadow: '0 0 14px rgba(212,175,55,0.15)' }}>
-      <img src={img} alt={name} className="w-full h-full object-cover object-top" />
+      <img src={img} alt={name} loading="lazy" className="w-full h-full object-cover object-top" />
     </div>
     <div className="min-w-0">
       <p style={{ color: '#D4AF37', fontFamily: 'Cormorant Garamond, serif', fontSize: '13px', fontWeight: 600, lineHeight: 1.3 }}>{name}</p>
@@ -748,7 +748,7 @@ export default function SpiritualChatbot({ onNavigate }: { onNavigate?: (href: s
                   >
                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
                       style={{ border: '1.5px solid rgba(212,175,55,0.35)' }}>
-                      <img src={cat.img} alt={cat.label} className="w-full h-full object-cover" />
+                      <img src={cat.img} alt={cat.label} loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <span className="font-medium">{cat.label}</span>
                   </button>
@@ -858,7 +858,7 @@ export default function SpiritualChatbot({ onNavigate }: { onNavigate?: (href: s
                         onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}>
                         <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0"
                           style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
-                          <img src={cat.img} alt={cat.label} className="w-full h-full object-cover" />
+                          <img src={cat.img} alt={cat.label} loading="lazy" className="w-full h-full object-cover" />
                         </div>
                         <span className="font-medium truncate">{cat.label}</span>
                       </button>

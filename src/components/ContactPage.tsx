@@ -177,6 +177,7 @@ const ContactPage = ({ onBack }: ContactPageProps) => {
                             <img
                                 src="https://srisiddheshwaripeetham.com/_next/image?url=%2Fcourtallam-temple-gopuram-and-peetham-campus.png&w=1920&q=75"
                                 alt="Sri Siddheswari Peetham Campus"
+                                loading="lazy"
                                 className="w-full h-auto object-cover"
                                 referrerPolicy="no-referrer"
                             />

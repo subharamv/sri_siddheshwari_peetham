@@ -34,6 +34,7 @@ interface CardNavProps {
   donateLabel?: string;
   donateHref?: string;
   onDonate?: () => void;
+  onCtaClick?: () => void;
   onStyleToggle?: () => void;
   closeSignal?: number;
 }
@@ -50,10 +51,11 @@ const CardNav = ({
   buttonBgColor = '#A02D23',
   buttonTextColor = '#FDFBF7',
   ctaLabel = 'Contact',
-  ctaHref = '#contact',
+  ctaHref = '/contact',
   donateLabel,
-  donateHref = '#donate',
+  donateHref = '/donate',
   onDonate,
+  onCtaClick,
   onStyleToggle,
   closeSignal,
 }: CardNavProps) => {
@@ -234,7 +236,7 @@ const CardNav = ({
 
           {/* Center: brand — absolute on desktop, static (left) on mobile */}
           <div className="card-nav-brand">
-            {logo && <img src={logo} alt={logoAlt} className="card-nav-logo" />}
+            {logo && <img src={logo} alt={logoAlt} loading="lazy" className="card-nav-logo" />}
             {logoTitle && <span className="card-nav-logo-title">{logoTitle}</span>}
           </div>
 
@@ -264,6 +266,7 @@ const CardNav = ({
               href={ctaHref}
               className="card-nav-cta-button"
               style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+              onClick={(e) => { if (onCtaClick) { e.preventDefault(); onCtaClick(); } }}
             >
               {ctaLabel}
             </a>
@@ -309,14 +312,14 @@ const CardNav = ({
 
           {/* Mobile-only action row */}
           <div className="nav-mobile-actions">
-            <a
-              href={ctaHref}
-              className="nav-mobile-btn nav-mobile-btn--filled"
-              style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
-              onClick={isExpanded ? toggleMenu : undefined}
-            >
-              {ctaLabel}
-            </a>
+              <a
+                href={ctaHref}
+                className="nav-mobile-btn nav-mobile-btn--filled"
+                style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+                onClick={(e) => { if (isExpanded) toggleMenu(); if (onCtaClick) { e.preventDefault(); onCtaClick(); } }}
+              >
+                {ctaLabel}
+              </a>
             {donateLabel && (
               onDonate ? (
                 <button

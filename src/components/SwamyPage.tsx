@@ -93,11 +93,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: mounaSwamiPortrait, caption: 'Sri Mouna Swamy — The Silent Sage' },
-      { image: 'https://picsum.photos/seed/courtallam1/600/400', caption: 'Courtallam Peetham' },
-      { image: 'https://picsum.photos/seed/sacred2/600/400', caption: 'Morning Puja Rituals' },
-      { image: 'https://picsum.photos/seed/temple3/600/400', caption: 'Ancient Temple Gopuram' },
-      { image: 'https://picsum.photos/seed/vedic4/600/400', caption: 'Vedic Chanting' },
-      { image: 'https://picsum.photos/seed/nature5/600/400', caption: 'Courtallam Falls' },
     ],
     image: mounaSwamiPortrait,
   },
@@ -133,11 +128,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: vimalanandaPortrait, caption: 'Sri Vimalananda Bharathi' },
-      { image: 'https://picsum.photos/seed/patasala1/600/400', caption: 'Veda Patasala — Morning Study' },
-      { image: 'https://picsum.photos/seed/library2/600/400', caption: 'Ancient Manuscript Collection' },
-      { image: 'https://picsum.photos/seed/discourse3/600/400', caption: 'Vedic Discourse' },
-      { image: 'https://picsum.photos/seed/temple4/600/400', caption: 'Temple Corridor' },
-      { image: 'https://picsum.photos/seed/ceremony5/600/400', caption: 'Puja Ceremony' },
     ],
     image: vimalanandaPortrait,
   },
@@ -173,11 +163,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: trivikramaPortrait, caption: 'H.H Sri Trivikramaramananda Bharathi Swamy' },
-      { image: 'https://picsum.photos/seed/lalitha1/600/400', caption: 'Lalitha Sahasranama Recitation' },
-      { image: 'https://picsum.photos/seed/archana2/600/400', caption: 'Archana to Siddheswari Ammavaru' },
-      { image: 'https://picsum.photos/seed/discourse3/600/400', caption: 'Veda Dharma Discourse' },
-      { image: 'https://picsum.photos/seed/travel4/600/400', caption: 'Pilgrimage Journey' },
-      { image: 'https://picsum.photos/seed/successor5/600/400', caption: 'Succession Ceremony' },
     ],
     image: trivikramaPortrait,
   },
@@ -213,11 +198,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: sivaChidanandaPortrait, caption: 'H.H Sri Sivachidananda Bharathi Swamy' },
-      { image: 'https://picsum.photos/seed/legal1/600/400', caption: 'Legal Guidance for the Peetham' },
-      { image: 'https://picsum.photos/seed/temple2/600/400', caption: 'Temple Reconstruction' },
-      { image: 'https://picsum.photos/seed/vasthu3/600/400', caption: 'Vasthu Shastra Planning' },
-      { image: 'https://picsum.photos/seed/harmony4/600/400', caption: 'Interfaith Harmony' },
-      { image: 'https://picsum.photos/seed/successor5/600/400', caption: 'Successor Initiation Ceremony' },
     ],
     image: sivaChidanandaPortrait,
   },
@@ -251,11 +231,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: peethadhipathiImage, caption: 'H.H Sri Siddheswarananda Bharati Swamy' },
-      { image: 'https://picsum.photos/seed/poetry1/600/400', caption: 'Poetic Discourse' },
-      { image: 'https://picsum.photos/seed/mantra2/600/400', caption: 'Mantra Blessing' },
-      { image: 'https://picsum.photos/seed/vision3/600/400', caption: 'Divine Vision' },
-      { image: 'https://picsum.photos/seed/kali4/600/400', caption: 'Swayam Siddha Kali Peetham' },
-      { image: 'https://picsum.photos/seed/service5/600/400', caption: 'Devotee Blessing' },
     ],
     image: peethadhipathiImage,
   },
@@ -288,11 +263,6 @@ const SWAMI_FULL_DATA: SwamiData[] = [
     ],
     gallery: [
       { image: datteshwaranandaImage, caption: 'H.H Sri Datteshwarananda Bharati Swamy' },
-      { image: 'https://picsum.photos/seed/future1/600/400', caption: 'Youth Spiritual Camp' },
-      { image: 'https://picsum.photos/seed/training2/600/400', caption: 'Vedic Training Session' },
-      { image: 'https://picsum.photos/seed/puja3/600/400', caption: 'Ritual Initiation Ceremony' },
-      { image: 'https://picsum.photos/seed/community4/600/400', caption: 'Community Outreach' },
-      { image: 'https://picsum.photos/seed/lineage5/600/400', caption: 'With Sri Siddheswarananda Swamy' },
     ],
     image: datteshwaranandaImage,
   },
@@ -334,7 +304,7 @@ function DesktopSwamiSidebar({
                 : 'border-white/15 grayscale opacity-40 hover:opacity-100 hover:grayscale-0 hover:border-white/50 hover:scale-105'
                 }`}
             >
-              <img src={swami.image} alt={swami.name} className="w-full h-full object-cover object-top" />
+              <img src={swami.image} alt={swami.name} loading="lazy" className="w-full h-full object-cover object-top" />
               {/* Active gold ring pulse */}
               {active && (
                 <span className="absolute inset-0 rounded-full border border-spiritual-gold/40 animate-ping" />
@@ -427,7 +397,7 @@ function MobileSwamiBar({
                     : 'border-white/10 grayscale opacity-50 group-hover:opacity-80 group-hover:grayscale-0'
                     }`}
                 >
-                  <img src={swami.image} alt={swami.name} className="w-full h-full object-cover object-top" />
+                  <img src={swami.image} alt={swami.name} loading="lazy" className="w-full h-full object-cover object-top" />
                 </div>
               </button>
             );
@@ -452,7 +422,7 @@ function MobileSwamiBar({
           className="fixed left-0 top-1/2 -translate-y-1/2 z-[10005] flex flex-col items-center gap-1.5 bg-neutral-900 backdrop-blur-md border border-l-0 border-white/10 rounded-r-xl px-1.5 py-3 shadow-xl"
         >
           <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-spiritual-gold/60">
-            <img src={activeSwami.image} alt={activeSwami.name} className="w-full h-full object-cover object-top" />
+            <img src={activeSwami.image} alt={activeSwami.name} loading="lazy" className="w-full h-full object-cover object-top" />
           </div>
           <motion.div animate={{ rotate: drawerOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronRight size={12} className="text-warm-cream/60" />
@@ -508,7 +478,7 @@ function MobileSwamiBar({
                       className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all ${active ? 'bg-white/5' : 'hover:bg-white/[0.03]'}`}
                     >
                       <div className={`w-8 h-8 rounded-full overflow-hidden border-2 flex-shrink-0 ${active ? 'border-spiritual-gold' : 'border-white/10'}`}>
-                        <img src={swami.image} alt={swami.name} className={`w-full h-full object-cover object-top ${active ? '' : 'grayscale opacity-60'}`} />
+                        <img src={swami.image} alt={swami.name} loading="lazy" className={`w-full h-full object-cover object-top ${active ? '' : 'grayscale opacity-60'}`} />
                       </div>
                       <div className="text-left min-w-0">
                         <p className={`font-ui text-[7px] tracking-[0.15em] uppercase leading-none mb-0.5 ${active ? 'text-spiritual-gold font-bold' : 'text-warm-cream/35'}`}>
@@ -640,6 +610,7 @@ export default function SwamyPage({ swamiIndex, onBack, onSelectSwami, onDonate 
           <motion.img
             src={swami.image}
             alt={swami.name}
+            loading="lazy"
             style={{ y: heroImgY, scale: 1.3 }}
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
@@ -778,7 +749,7 @@ export default function SwamyPage({ swamiIndex, onBack, onSelectSwami, onDonate 
                         title={s.name}
                         className={`transition-all duration-300 rounded-full overflow-hidden border-2 flex-shrink-0 ${i === activeIndex ? 'w-9 h-9 border-sacred-red' : 'w-6 h-6 border-neutral-200 opacity-50 hover:opacity-80'}`}
                       >
-                        <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                        <img src={s.image} alt={s.name} loading="lazy" className="w-full h-full object-cover" />
                       </button>
                     ))}
                   </div>
@@ -864,6 +835,7 @@ export default function SwamyPage({ swamiIndex, onBack, onSelectSwami, onDonate 
                     <img
                       src={item.image}
                       alt={item.caption}
+                      loading="lazy"
                       className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -912,6 +884,7 @@ export default function SwamyPage({ swamiIndex, onBack, onSelectSwami, onDonate 
                           <img
                             src={s.image}
                             alt={s.name}
+                            loading="lazy"
                             className={`w-full h-full object-cover object-top transition-all duration-500 ${isActive ? '' : isPast ? 'grayscale brightness-90' : 'grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100'}`}
                           />
                           {isActive && (

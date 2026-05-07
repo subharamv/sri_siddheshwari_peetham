@@ -68,12 +68,12 @@ const GALLERY_IMAGES = [
         caption: 'H.H. Sri Siddheswarananda Bharati Swamy — Current Peethadhipathi',
     },
     {
-        src: 'https://srisiddheshwaripeetham.com/_next/image?url=%2Fmounaswami%2Fmouna-swami-tapas.jpg&w=828&q=75',
-        caption: 'The sacred atmosphere of Sri Siddheswari Peetham',
+        src: 'https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png',
+        caption: 'Courtallam Temple Gopuram — Sri Siddheswari Peetham Campus',
     },
     {
-        src: 'https://srisiddheshwaripeetham.com/_next/image?url=%2FSiddheswarananda%20Bharati%2Fsiddheswarananda-bharati-current.jpg&w=828&q=75',
-        caption: 'Courtallam’s devotional landscape',
+        src: 'https://srisiddheshwaripeetham.com/annadanam-seva-peetham.jpg',
+        caption: 'Raja Rajeswari Annadaana Samaajam — Sacred Annadanam Seva',
     },
 ];
 
@@ -225,6 +225,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                             <img
                                 src="https://srisiddheshwaripeetham.com/sri-raja-rajeswari-exact.png"
                                 alt="Sri Raja Rajeswari Devi"
+                                loading="lazy"
                                 className="w-full h-auto object-cover"
                                 referrerPolicy="no-referrer"
                             />
@@ -323,6 +324,7 @@ const AboutPage = ({ onBack }: AboutPageProps) => {
                                 <img
                                     src={item.src}
                                     alt={item.caption}
+                                    loading="lazy"
                                     className="h-48 w-full object-cover object-top transition-transform duration-700 hover:scale-105"
                                     referrerPolicy="no-referrer"
                                 />

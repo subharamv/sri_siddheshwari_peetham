@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'motion/react';
 import {
   X,
@@ -42,7 +43,6 @@ import SpotlightCard from './components/SpotlightCard';
 import BlurText from './components/BlurText';
 import ScrollVelocity from './components/ScrollVelocity';
 import TiltedCard from './components/TiltedCard';
-import CircularGallery from './components/CircularGallery';
 import FlowingMenu from './components/FlowingMenu';
 import ScrollStack, { ScrollStackItem } from './components/ScrollStack';
 import Grainient from './components/Grainient/Grainient';
@@ -89,13 +89,13 @@ const AUDIO_TRACKS = [
 ];
 
 const NAVIGATION = [
-  { name: 'Home', href: '#home' },
-  { name: 'About', href: '#about' },
-  { name: 'Swamiji', href: '#swamiji' },
-  { name: 'Teachings', href: '#teachings' },
-  { name: 'Discourses', href: '#discourses' },
-  { name: 'Calendar', href: '#calendar' },
-  { name: 'Activities', href: '#activities' },
+  { name: 'Home', href: '/' },
+  { name: 'About', href: '/about' },
+  { name: 'Swamiji', href: '/swami' },
+  { name: 'Teachings', href: '/teachings' },
+  { name: 'Discourses', href: '/discourses' },
+  { name: 'Calendar', href: '/calendar' },
+  { name: 'Activities', href: '/activities' },
 ];
 
 const CARD_NAV_ITEMS = [
@@ -105,9 +105,9 @@ const CARD_NAV_ITEMS = [
     grad: 'linear-gradient(145deg, #5C0F09, #A02D23)',
     textColor: '#FDFBF7',
     links: [
-      { label: 'Home', href: '#home', ariaLabel: 'Go to Home' },
-      { label: 'About', href: '#about', ariaLabel: 'About the Peetham' },
-      { label: 'Visit', href: '#visit', ariaLabel: 'Visit the Peetham' },
+      { label: 'Home', href: '/', ariaLabel: 'Go to Home' },
+      { label: 'About', href: '/about', ariaLabel: 'About the Peetham' },
+      { label: 'Visit', href: '/visit', ariaLabel: 'Visit the Peetham' },
     ],
   },
   {
@@ -116,10 +116,10 @@ const CARD_NAV_ITEMS = [
     grad: 'linear-gradient(145deg, #2A1508, #6B4226)',
     textColor: '#FDFBF7',
     links: [
-      { label: 'Swamiji', href: '#swamiji', ariaLabel: 'About Swamiji' },
-      { label: 'Teachings', href: '#teachings', ariaLabel: 'Teachings' },
-      { label: 'Discourses', href: '#discourses', ariaLabel: 'Discourses' },
-      { label: 'Publications', href: '#publications', ariaLabel: 'Books & Publications' },
+      { label: 'Swamiji', href: '/swami', ariaLabel: 'About Swamiji' },
+      { label: 'Teachings', href: '/teachings', ariaLabel: 'Teachings' },
+      { label: 'Discourses', href: '/discourses', ariaLabel: 'Discourses' },
+      { label: 'Publications', href: '/publications', ariaLabel: 'Books & Publications' },
     ],
   },
   {
@@ -128,9 +128,9 @@ const CARD_NAV_ITEMS = [
     grad: 'linear-gradient(145deg, #0F0800, #3D2A00)',
     textColor: '#D4AF37',
     links: [
-      { label: 'Calendar', href: '#calendar', ariaLabel: 'Event Calendar' },
-      { label: 'Activities', href: '#activities-page', ariaLabel: 'Activities' },
-      { label: 'My Bookings', href: '#booking-status', ariaLabel: 'View Seva Booking Status' },
+      { label: 'Calendar', href: '/calendar', ariaLabel: 'Event Calendar' },
+      { label: 'Activities', href: '/activities', ariaLabel: 'Activities' },
+      { label: 'My Bookings', href: '/bookings', ariaLabel: 'View Seva Booking Status' },
     ],
   },
   {
@@ -139,8 +139,8 @@ const CARD_NAV_ITEMS = [
     grad: 'linear-gradient(145deg, #1A0940, #4A2E8B)',
     textColor: '#E8D5FF',
     links: [
-      { label: 'Deities', href: '#deities', ariaLabel: 'Sacred Deities & Seva' },
-      { label: 'Homam', href: '#homam', ariaLabel: 'Vedic Homam Rituals' },
+      { label: 'Deities', href: '/deities', ariaLabel: 'Sacred Deities & Seva' },
+      { label: 'Homam', href: '/homam', ariaLabel: 'Vedic Homam Rituals' },
     ],
   },
 ];
@@ -154,7 +154,7 @@ const DISCOURSES = [
     date: "2024-03-10",
     duration: "45:20",
     type: "video",
-    thumbnail: "https://picsum.photos/seed/talk1/600/400",
+    thumbnail: "https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png",
     url: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Placeholder
   },
   {
@@ -165,7 +165,7 @@ const DISCOURSES = [
     date: "2024-02-15",
     duration: "1:12:00",
     type: "audio",
-    thumbnail: "https://picsum.photos/seed/talk2/600/400",
+    thumbnail: "https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png",
     url: "#"
   },
   {
@@ -176,7 +176,7 @@ const DISCOURSES = [
     date: "2024-01-20",
     duration: "38:45",
     type: "video",
-    thumbnail: "https://picsum.photos/seed/talk3/600/400",
+    thumbnail: "https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png",
     url: "https://www.youtube.com/embed/dQw4w9WgXcQ"
   },
   {
@@ -187,7 +187,7 @@ const DISCOURSES = [
     date: "2023-12-05",
     duration: "52:10",
     type: "audio",
-    thumbnail: "https://picsum.photos/seed/talk4/600/400",
+    thumbnail: "https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png",
     url: "#"
   },
   {
@@ -198,7 +198,7 @@ const DISCOURSES = [
     date: "2023-11-22",
     duration: "1:05:30",
     type: "video",
-    thumbnail: "https://picsum.photos/seed/talk5/600/400",
+    thumbnail: "https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png",
     url: "https://www.youtube.com/embed/dQw4w9WgXcQ"
   }
 ];
@@ -482,17 +482,6 @@ const GURU_LINEAGE = [
     swamiIndex: 5,
     image: datteshwaranandaImage
   }
-];
-
-const GALLERY_IMAGES = [
-  { image: "https://picsum.photos/seed/sacred1/800/800", text: "Temple Morning" },
-  { image: "https://picsum.photos/seed/sacred2/800/800", text: "Vedic Rituals" },
-  { image: "https://picsum.photos/seed/sacred3/800/800", text: "Peetham Sanctity" },
-  { image: "https://picsum.photos/seed/sacred4/800/800", text: "Silent Meditation" },
-  { image: "https://picsum.photos/seed/sacred5/800/800", text: "Dharma Service" },
-  { image: "https://picsum.photos/seed/sacred6/800/800", text: "Guru Krupa" },
-  { image: "https://picsum.photos/seed/sacred7/800/800", text: "Evening Arathi" },
-  { image: "https://picsum.photos/seed/sacred8/800/800", text: "Divine Peace" }
 ];
 
 const DEITIES = [
@@ -785,7 +774,7 @@ const Navbar = ({ onDonate, onNavigate, closeSignal }: { onDonate: () => void; o
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-20 items-center">
               <div className="flex-shrink-0 flex items-center">
-                <img src={logoImage} alt="logo" className="w-14 h-14 mr-[10px]" />
+                <img src={logoImage} alt="Sri Siddheswari Peetham Logo" loading="lazy" className="w-14 h-14 mr-[10px]" />
                 <span className="font-serif text-2xl font-bold text-sacred-red tracking-tighter">
                   SRI SIDDHESHWARI <span className="font-light italic">PEETHAM</span>
                 </span>
@@ -841,9 +830,10 @@ const Navbar = ({ onDonate, onNavigate, closeSignal }: { onDonate: () => void; o
           buttonBgColor="#A02D23"
           buttonTextColor="#FDFBF7"
           ctaLabel="Contact"
-          ctaHref="#contact"
+          ctaHref="/contact"
           donateLabel="Donate"
           onDonate={onDonate}
+          onCtaClick={() => onNavigate('/contact')}
           onStyleToggle={toggleNavStyle}
           closeSignal={closeSignal}
         />
@@ -1341,7 +1331,7 @@ const InteractiveDarshan = () => {
       <div
         className="absolute inset-0 z-0 bg-cover bg-center origin-center transition-transform duration-700 group-hover/darshan:scale-105"
         style={{
-          backgroundImage: 'url("https://picsum.photos/seed/sanctum/1920/1080")',
+          backgroundImage: 'url("https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png")',
           WebkitMaskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`,
           maskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`
         }}
@@ -1546,6 +1536,7 @@ const DeityCard = ({
         <motion.img
           src={deity.image}
           alt={deity.name}
+          loading="lazy"
           className="h-full w-full object-cover object-top drop-shadow-[0_20px_35px_rgba(0,0,0,0.5)] z-10"
           whileHover={{ scale: 1.05 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -1743,6 +1734,7 @@ const TimelineSection = () => {
                       <img
                         src={event.image}
                         alt={event.title}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
@@ -1818,6 +1810,7 @@ const MiraclesSection = () => {
                 <img
                   src={miracle.image}
                   alt={miracle.title}
+                  loading="lazy"
                   className="w-full h-full object-cover object-top"
                   referrerPolicy="no-referrer"
                 />
@@ -2049,6 +2042,7 @@ const GuruHorizontalTimeline = ({
                 <img
                   src={guru.image}
                   alt={guru.name}
+                  loading="lazy"
                   className={`w-full h-full object-cover transition-all duration-500 ${past || current ? '' : 'grayscale opacity-30'
                     }`}
                 />
@@ -2071,18 +2065,34 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(AUDIO_TRACKS[0].id);
   const [trackMenuOpen, setTrackMenuOpen] = useState(false);
+  const PATH_PAGE_MAP: Record<string, 'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications' | 'booking-status' | 'admin'> = {
+    '/': 'home',
+    '/about': 'about',
+    '/donate': 'donate',
+    '/visit': 'visit',
+    '/contact': 'contact',
+    '/swami': 'swami',
+    '/activities': 'activities',
+    '/publications': 'publications',
+    '/bookings': 'booking-status',
+    '/admin': 'admin',
+  };
+
+  const getPageFromPath = () => {
+    const p = window.location.pathname;
+    if (p.startsWith('/swami/')) return 'swami' as const;
+    return PATH_PAGE_MAP[p] || 'home';
+  };
+
+  const getSwamiIndexFromPath = () => {
+    const match = window.location.pathname.match(/^\/swami\/(\d+)$/);
+    if (match) return Math.max(0, Math.min(parseInt(match[1], 10), 5));
+    return 0;
+  };
+
   const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications' | 'booking-status' | 'admin'>(() => {
     if (typeof window === 'undefined') return 'home';
-    const h = window.location.hash;
-    if (h === '#donate') return 'donate';
-    if (h === '#about') return 'about';
-    if (h === '#visit') return 'visit';
-    if (h === '#contact') return 'contact';
-    if (h === '#activities-page') return 'activities';
-    if (h === '#publications') return 'publications';
-    if (h === '#admin') return 'admin';
-    if (h.startsWith('#swami')) return 'swami';
-    return 'home';
+    return getPageFromPath();
   });
 
   // ── Admin auth state ──────────────────────────────────────────────────────────
@@ -2110,13 +2120,20 @@ export default function App() {
   };
   const [selectedSwamiIndex, setSelectedSwamiIndex] = useState(() => {
     if (typeof window === 'undefined') return 0;
-    const h = window.location.hash;
-    if (h.startsWith('#swami-')) {
-      const idx = parseInt(h.replace('#swami-', ''), 10);
-      return isNaN(idx) ? 0 : Math.max(0, Math.min(idx, 5));
-    }
-    return 0;
+    return getSwamiIndexFromPath();
   });
+
+  const syncPageFromURL = React.useCallback(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/swami/')) {
+      const idx = getSwamiIndexFromPath();
+      setSelectedSwamiIndex(idx);
+      setPage('swami');
+    } else {
+      setPage(PATH_PAGE_MAP[path] || 'home');
+    }
+  }, []);
+
   const [activeGuruIndex, setActiveGuruIndex] = useState(0);
 
   // ── Seva Booking Modal state ──────────────────────────────────────────────
@@ -2133,7 +2150,7 @@ export default function App() {
   const closeBookingModal = () => setBookingModal(s => ({ ...s, open: false }));
 
   const NAVBAR_HEIGHT = 80;
-  const STACK_TOP = NAVBAR_HEIGHT + 200; // increased top offset so the sticky panel starts below the top bar
+  const STACK_TOP = NAVBAR_HEIGHT + 200;
   const PANEL_BOTTOM_SPACING = 40;
   const heroRef = useRef(null);
   const pendingScrollTarget = useRef<string | null>(null);
@@ -2164,23 +2181,24 @@ export default function App() {
   const [navCloseSignal, setNavCloseSignal] = useState(0);
   const closeNav = () => setNavCloseSignal(s => s + 1);
 
-  const goToDonatePage = () => {
+  const navigate = (path: string) => {
     closeNav();
-    setPage('donate');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#donate');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.history.pushState(null, '', path);
+    syncPageFromURL();
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
-  const goToHomePage = () => {
-    closeNav();
-    setPage('home');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#home');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const goToDonatePage = () => navigate('/donate');
+  const goToHomePage = () => navigate('/');
+  const goToSwamiPage = (index: number) => {
+    setSelectedSwamiIndex(index);
+    navigate(`/swami/${index}`);
   };
+  const goToAboutPage = () => navigate('/about');
+  const goToVisitPage = () => navigate('/visit');
+  const goToContactPage = () => navigate('/contact');
+  const goToActivitiesPage = () => navigate('/activities');
+  const goToPublicationsPage = () => navigate('/publications');
 
   useEffect(() => {
     if (page === 'home' && pendingScrollTarget.current) {
@@ -2193,116 +2211,16 @@ export default function App() {
     }
   }, [page]);
 
-  const goToSwamiPage = (index: number) => {
-    closeNav();
-    setSelectedSwamiIndex(index);
-    setPage('swami');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#swami-${index}`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToAboutPage = () => {
-    closeNav();
-    setPage('about');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#about');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToVisitPage = () => {
-    closeNav();
-    setPage('visit');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#visit');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToContactPage = () => {
-    closeNav();
-    setPage('contact');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#contact');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToActivitiesPage = () => {
-    closeNav();
-    setPage('activities');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#activities-page');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToPublicationsPage = () => {
-    closeNav();
-    setPage('publications');
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '#publications');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
+  // Listen for browser back/forward — path-based
   useEffect(() => {
-    const syncPageFromHash = () => {
-      const hash = window.location.hash;
-      if (hash === '#donate') {
-        setPage('donate');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#about') {
-        setPage('about');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash.startsWith('#swami-')) {
-        const idx = parseInt(hash.replace('#swami-', ''), 10);
-        if (!isNaN(idx)) {
-          setSelectedSwamiIndex(Math.max(0, Math.min(idx, 5)));
-          setPage('swami');
-          window.scrollTo({ top: 0, behavior: 'auto' });
-        }
-      } else if (hash.startsWith('#swami')) {
-        setSelectedSwamiIndex(0);
-        setPage('swami');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#visit') {
-        setPage('visit');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#contact') {
-        setPage('contact');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#activities-page') {
-        setPage('activities');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#publications') {
-        setPage('publications');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#booking-status') {
-        setPage('booking-status');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#admin') {
-        setPage('admin');
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (!hash || hash === '#home') {
-        setPage('home');
-      }
-      // Non-page hashes (section anchors like #teachings, #deities) are left as-is
+    const onPopState = () => {
+      closeNav();
+      syncPageFromURL();
+      window.scrollTo({ top: 0, behavior: 'auto' });
     };
-
-    // hashchange fires for anchor-based navigation and direct hash changes
-    window.addEventListener('hashchange', syncPageFromHash);
-    // popstate fires for browser back/forward after history.replaceState/pushState
-    window.addEventListener('popstate', syncPageFromHash);
-    // Sync on mount to handle direct load / refresh with a hash in the URL
-    syncPageFromHash();
-    return () => {
-      window.removeEventListener('hashchange', syncPageFromHash);
-      window.removeEventListener('popstate', syncPageFromHash);
-    };
-  }, []);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [syncPageFromURL]);
 
   // Lock scroll restoration so the browser doesn't jump to a cached position on refresh
   useLayoutEffect(() => {
@@ -2390,8 +2308,144 @@ export default function App() {
     return () => ro.disconnect();
   }, []);
 
+  const baseUrl = 'https://srisiddheshwaripeetham.com';
+  const seo = useMemo(() => {
+    const defaults = {
+      title: 'Sri Siddheswari Peetham | Courtallam - Spiritual Sanctuary of Silence',
+      description: 'Official website of Sri Siddheswari Peetham, Courtallam. A sacred spiritual sanctuary founded by Sri Mounaswamy, preserving Sanatana Dharma through meditation, Vedic rituals, and selfless service.',
+      image: `${baseUrl}/courtallam-temple-gopuram-and-peetham-campus.png`,
+    };
+    const pages: Record<string, { title: string; description: string }> = {
+      home: {
+        title: 'Sri Siddheswari Peetham | Courtallam - Spiritual Sanctuary of Silence',
+        description: 'Founded by Sri Mounaswamy in Courtallam, Sri Siddheswari Peetham preserves Sri Vidya tradition, Vedic wisdom, and the transformative power of Mouna (sacred silence).',
+      },
+      about: {
+        title: 'About | Sri Siddheswari Peetham - History & Lineage',
+        description: 'Discover the sacred history and Guru Parampara of Sri Siddheswari Peetham, from Sri Mounaswamy to the current Peethadhipathi Sri Siddheswarananda Bharathi Swamy.',
+      },
+      swami: {
+        title: `Sri ${GURU_LINEAGE[selectedSwamiIndex]?.name || 'Swamiji'} | Guru Parampara - Sri Siddheswari Peetham`,
+        description: `Learn about ${GURU_LINEAGE[selectedSwamiIndex]?.name || 'Swamiji'} of Sri Siddheswari Peetham. ${GURU_LINEAGE[selectedSwamiIndex]?.description || ''}`,
+      },
+      visit: {
+        title: 'Visit | Sri Siddheswari Peetham - Courtallam Temple Timings',
+        description: 'Plan your visit to Sri Siddheswari Peetham in Courtallam, Tenkasi District. Find temple timings, location, and how to reach this sacred spiritual sanctuary.',
+      },
+      contact: {
+        title: 'Contact | Sri Siddheswari Peetham - Get in Touch',
+        description: 'Contact Sri Siddheswari Peetham for seva bookings, event inquiries, and spiritual guidance. Reach us by phone, email, or visit us in Courtallam.',
+      },
+      donate: {
+        title: 'Donate | Support Sri Siddheswari Peetham - Seva & Contributions',
+        description: 'Support the divine mission of Sri Siddheswari Peetham. Your contributions help maintain the temple, Veda Patasala, Annadhanam, and social service activities.',
+      },
+      activities: {
+        title: 'Activities | Sri Siddheswari Peetham - Seva & Community Service',
+        description: 'Explore the spiritual and charitable activities of Sri Siddheswari Peetham including Mouna Vratam, Annadhanam, Go Seva, and Veda Patasala.',
+      },
+      publications: {
+        title: 'Publications | Sri Siddheswari Peetham - Books & Teachings',
+        description: 'Explore spiritual publications, books, and teachings from Sri Siddheswari Peetham and the Guru Parampara lineage.',
+      },
+      'booking-status': {
+        title: 'My Bookings | Sri Siddheswari Peetham - Seva Booking Status',
+        description: 'Check the status of your seva bookings at Sri Siddheswari Peetham. View and manage your upcoming puja and homam reservations.',
+      },
+      admin: {
+        title: 'Admin | Sri Siddheswari Peetham - Dashboard',
+        description: 'Administration dashboard for Sri Siddheswari Peetham.',
+      },
+    };
+    const info = pages[page] || defaults;
+    const resolvedPath = page === 'home' ? '/' : page === 'swami' ? `/swami/${selectedSwamiIndex}` : page === 'booking-status' ? '/bookings' : `/${page}`;
+    return { ...defaults, ...info, url: `${baseUrl}${resolvedPath}` };
+  }, [page, selectedSwamiIndex, baseUrl]);
+
+  const schemaData = useMemo(() => [{
+    "@context": "https://schema.org",
+    "@type": "ReligiousOrganization",
+    "name": "Sri Siddheswari Peetham",
+    "alternateName": "Sri Siddheswari Peetham, Courtallam",
+    "description": "A sacred spiritual sanctuary preserving Sanatana Dharma through the teachings of Sri Mounaswamy and the Guru Parampara lineage.",
+    "url": baseUrl,
+    "logo": `${baseUrl}/logo.png`,
+    "image": seo.image,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Sri Siddheswari Peetham",
+      "addressLocality": "Courtallam",
+      "addressRegion": "Tenkasi District",
+      "postalCode": "627802",
+      "addressCountry": "IN"
+    },
+    "telephone": "+919443184738",
+    "email": "feedback@srisiddheshwaripeetham.com",
+    "foundingDate": "1910",
+    "founder": {
+      "@type": "Person",
+      "name": "Sri Mouna Swamy"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Sri Siddheswari Peetham",
+    "description": "A sacred Hindu temple and spiritual sanctuary in Courtallam, Tamil Nadu, preserving Sanatana Dharma through daily pujas, Vedic rituals, and meditation.",
+    "url": baseUrl,
+    "image": seo.image,
+    "telephone": "+919443184738",
+    "email": "feedback@srisiddheshwaripeetham.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Sri Siddheswari Peetham",
+      "addressLocality": "Courtallam",
+      "addressRegion": "Tenkasi District",
+      "postalCode": "627802",
+      "addressCountry": "IN"
+    },
+    "openingHoursSpecification": [
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Monday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Tuesday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Wednesday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Thursday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "05:30", "closes": "20:30"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "05:30", "closes": "20:30"}
+    ],
+    "hasMap": "https://maps.app.goo.gl/1bxYbmGL6ZYdbYJE9",
+    "foundingDate": "1910"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "name": "Breadcrumb",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "item": {"@id": baseUrl, "name": "Home"}},
+      {"@type": "ListItem", "position": 2, "item": {"@id": baseUrl + "/" + (page === 'home' ? '' : page), "name": page === 'home' ? 'Home' : page.charAt(0).toUpperCase() + page.slice(1)}}
+    ]
+  }], [baseUrl, seo.image, page]);
+
   return (
     <div className="relative" style={{ overflowX: 'clip' }}>
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="keywords" content="Sri Siddheswari Peetham, Courtallam, Mouna Swamy, spiritual ashram, Vedic temple, silence meditation, Sanatana Dharma, Tenkasi, Sri Vidya, Guru Parampara" />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={seo.url} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:image" content={seo.image} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content={seo.image} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
       <div className="min-h-screen relative" style={{ zIndex: 1, marginBottom: page !== 'admin' ? footerHeight : 0, background: '#FDFBF7' }}>
         <CustomCursor />
         {/* Film Grain Overlay */}
@@ -2490,55 +2544,42 @@ export default function App() {
         />}
 
         {page !== 'admin' && <Navbar onDonate={goToDonatePage} closeSignal={navCloseSignal} onNavigate={(href) => {
-          const handlers: Record<string, () => void> = {
-            '#donate': goToDonatePage,
-            '#about': goToAboutPage,
-            '#visit': goToVisitPage,
-            '#contact': goToContactPage,
-            '#swamiji': () => goToSwamiPage(0),
-            '#activities-page': goToActivitiesPage,
-            '#publications': goToPublicationsPage,
-            '#booking-status': () => { closeNav(); setPage('booking-status'); window.history.replaceState(null, '', '#booking-status'); window.scrollTo({ top: 0, behavior: 'auto' }); },
-            '#calendar': () => {
-              closeNav();
-              if (page !== 'home') {
-                pendingScrollTarget.current = '#calendar';
-                setPage('home');
-                window.history.replaceState(null, '', '#calendar');
-                window.scrollTo({ top: 0, behavior: 'auto' });
-              } else {
-                const el = document.querySelector('#calendar');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }
-            },
-            '#activities': () => {
-              closeNav();
-              if (page !== 'home') {
-                pendingScrollTarget.current = '#activities';
-                setPage('home');
-                window.history.replaceState(null, '', '#activities');
-                window.scrollTo({ top: 0, behavior: 'auto' });
-              } else {
-                const el = document.querySelector('#activities');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }
-            },
-          };
-          const fn = handlers[href];
-          if (fn) {
-            fn();
-          } else if (href) {
+          const scrollToSection = (sectionId: string) => {
             closeNav();
             if (page !== 'home') {
-              pendingScrollTarget.current = href;
-              setPage('home');
-              window.history.replaceState(null, '', href);
-              window.scrollTo({ top: 0, behavior: 'auto' });
+              pendingScrollTarget.current = sectionId;
+              navigate('/');
             } else {
-              const el = document.querySelector(href);
+              const el = document.querySelector(sectionId);
               if (el) el.scrollIntoView({ behavior: 'smooth' });
-              else window.location.hash = href;
             }
+          };
+          const pageHandlers: Record<string, () => void> = {
+            '/': goToHomePage,
+            '/about': goToAboutPage,
+            '/donate': goToDonatePage,
+            '/visit': goToVisitPage,
+            '/contact': goToContactPage,
+            '/swami': () => goToSwamiPage(0),
+            '/activities': goToActivitiesPage,
+            '/publications': goToPublicationsPage,
+            '/bookings': () => navigate('/bookings'),
+          };
+          const sectionHandlers: Record<string, string> = {
+            '/teachings': '#teachings',
+            '/discourses': '#discourses',
+            '/calendar': '#calendar',
+            '/deities': '#deities',
+            '/homam': '#homam',
+            '/swamiji': '#swamiji',
+          };
+          const fn = pageHandlers[href];
+          if (fn) {
+            fn();
+          } else if (sectionHandlers[href]) {
+            scrollToSection(sectionHandlers[href]);
+          } else if (href) {
+            scrollToSection(href.startsWith('/') ? `#${href.slice(1)}` : href);
           }
         }} />}
 
@@ -2736,6 +2777,7 @@ export default function App() {
                     style={{ y: aboutY }}
                     src="https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png"
                     alt="Temple Entrance"
+                    loading="lazy"
                     className="w-full h-full object-cover scale-110"
                     referrerPolicy="no-referrer"
                   />
@@ -2789,6 +2831,7 @@ export default function App() {
                               <img
                                 src={guru.image}
                                 alt={guru.name}
+                                loading="lazy"
                                 className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1.5s] group-hover/card:scale-110 group-hover/card:rotate-1"
                                 referrerPolicy="no-referrer"
                               />
@@ -2886,7 +2929,7 @@ export default function App() {
             </section>
 
             {/* Swamiji Section */}
-            <section id="" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
+            <section id="swamiji" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
               <div className="max-w-7xl mx-auto px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
                   <div className="lg:col-span-5 order-2 lg:order-1">
@@ -2936,6 +2979,7 @@ export default function App() {
                           <img
                             src={activity.image}
                             alt={activity.title}
+                            loading="lazy"
                             className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110"
                             referrerPolicy="no-referrer"
                           />
@@ -2961,23 +3005,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* Gallery Highlight */}
-            <section id="gallery" className="bg-warm-cream py-16 md:py-24">
-              <div className="max-w-7xl mx-auto px-4">
-                <div className="flex justify-between items-end mb-12">
-                  <div>
-                    <SectionHeading subtitle="Visual Journey" title="Sacred Moments" />
-                  </div>
-                  <button className="hidden md:block font-ui text-xs tracking-widest uppercase text-sacred-red border-b border-sacred-red/30 pb-2 mb-10">
-                    Drag to Explore Divinity
-                  </button>
-                </div>
-
-                <div className="w-full h-[600px] relative cursor-grab active:cursor-grabbing overflow-hidden rounded-3xl cinematic-grade shadow-2xl">
-                  <CircularGallery items={GALLERY_IMAGES} bend={3} borderRadius={0.05} scrollSpeed={2} />
-                </div>
-              </div>
-            </section>
+            <ActivitiesPage />
 
             <InteractiveDarshan />
 
@@ -3047,10 +3075,10 @@ export default function App() {
           <div>
             <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Peetham</h4>
             <ul className="space-y-3">
-              <li><a href="#home" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Home</a></li>
-              <li><a href="#about" onClick={(e) => { e.preventDefault(); goToAboutPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">About</a></li>
-              <li><a href="#visit" onClick={(e) => { e.preventDefault(); goToVisitPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Visit</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); goToContactPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Contact</a></li>
+              <li><a href="/" onClick={(e) => { e.preventDefault(); goToHomePage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Home</a></li>
+              <li><a href="/about" onClick={(e) => { e.preventDefault(); goToAboutPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">About</a></li>
+              <li><a href="/visit" onClick={(e) => { e.preventDefault(); goToVisitPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Visit</a></li>
+              <li><a href="/contact" onClick={(e) => { e.preventDefault(); goToContactPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Contact</a></li>
             </ul>
           </div>
 
@@ -3058,10 +3086,10 @@ export default function App() {
           <div>
             <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Dharma</h4>
             <ul className="space-y-3">
-              <li><a href="#swamiji" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Swamiji</a></li>
-              <li><a href="#teachings" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Teachings</a></li>
-              <li><a href="#discourses" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Discourses</a></li>
-              <li><a href="#deities" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Deities</a></li>
+              <li><a href="/swami" onClick={(e) => { e.preventDefault(); goToSwamiPage(0); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Swamiji</a></li>
+              <li><a href="/teachings" onClick={(e) => { e.preventDefault(); if (page !== 'home') { pendingScrollTarget.current = '#teachings'; navigate('/'); } else document.querySelector('#teachings')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Teachings</a></li>
+              <li><a href="/discourses" onClick={(e) => { e.preventDefault(); if (page !== 'home') { pendingScrollTarget.current = '#discourses'; navigate('/'); } else document.querySelector('#discourses')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Discourses</a></li>
+              <li><a href="/deities" onClick={(e) => { e.preventDefault(); if (page !== 'home') { pendingScrollTarget.current = '#deities'; navigate('/'); } else document.querySelector('#deities')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Deities</a></li>
             </ul>
           </div>
 
@@ -3069,12 +3097,12 @@ export default function App() {
           <div>
             <h4 className="font-ui text-[10px] tracking-[0.25em] uppercase text-spiritual-gold/80 font-semibold mb-4">Sangha</h4>
             <ul className="space-y-3">
-              <li><a href="#calendar" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Calendar</a></li>
-              <li><a href="#activities-page" onClick={(e) => { e.preventDefault(); goToActivitiesPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
-              <li><a href="#homam" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Homam</a></li>
+              <li><a href="/calendar" onClick={(e) => { e.preventDefault(); if (page !== 'home') { pendingScrollTarget.current = '#calendar'; navigate('/'); } else document.querySelector('#calendar')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Calendar</a></li>
+              <li><a href="/activities" onClick={(e) => { e.preventDefault(); goToActivitiesPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
+              <li><a href="/homam" onClick={(e) => { e.preventDefault(); if (page !== 'home') { pendingScrollTarget.current = '#homam'; navigate('/'); } else document.querySelector('#homam')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Homam</a></li>
               <li>
-                <a href="#booking-status"
-                  onClick={(e) => { e.preventDefault(); setPage('booking-status'); window.history.replaceState(null, '', '#booking-status'); window.scrollTo({ top: 0, behavior: 'auto' }); }}
+                <a href="/bookings"
+                  onClick={(e) => { e.preventDefault(); navigate('/bookings'); }}
                   className="text-spiritual-gold/60 hover:text-spiritual-gold transition-colors text-sm font-semibold">
                   My Bookings
                 </a>

@@ -394,9 +394,9 @@ class App {
   }
   createMedias(items: any[], bend = 1, textColor: string, borderRadius: number, font: string) {
     const defaultItems = [
-      { image: `https://picsum.photos/seed/1/800/600?grayscale`, text: 'Bridge' },
-      { image: `https://picsum.photos/seed/2/800/600?grayscale`, text: 'Desk Setup' },
-      { image: `https://picsum.photos/seed/3/800/600?grayscale`, text: 'Waterfall' }
+      { image: `https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png`, text: 'Temple Gopuram' },
+      { image: `https://srisiddheshwaripeetham.com/annadanam-seva-peetham.jpg`, text: 'Annadanam Seva' },
+      { image: `https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png`, text: 'Peetham Campus' }
     ];
     const galleryItems = items && items.length ? items : defaultItems;
     this.mediasImages = galleryItems.concat(galleryItems);

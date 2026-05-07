@@ -6,12 +6,15 @@ import {
   Edit2, Save, Ban, ChevronDown, ChevronUp, ScanLine,
   Camera, RefreshCw, IndianRupee, TrendingUp, BookOpen,
   ToggleLeft, ToggleRight, Plus, Trash2, QrCode, ArrowLeft,
-  Shield, User, ChevronRight, Heart, Star, Clock3, Wifi, Building,
+  Shield, User, ChevronRight, Heart, Clock3, Wifi, Building,
   Users, UserPlus, Eye, EyeOff,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import logoImage from '../assets/Logo (1).webp';
 import { AnimatedThemeToggler } from './AnimatedThemeToggler';
+import PaginatedBookings from './PaginatedBookings';
+import PaginatedSlots from './PaginatedSlots';
+import PaginatedSevas from './PaginatedSevas';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -84,6 +87,8 @@ interface Stats {
   totalBookings: number;
   todayBookings: number;
   totalRevenue: number;
+  todayRevenue: number;
+  weekRevenue: number;
   attendanceRate: number;
   pendingAttendance: number;
   activeSlots: number;
@@ -106,7 +111,7 @@ const NAV_ITEMS: { section: AdminSection; label: string; icon: React.ReactNode; 
   { section: 'bookings', label: 'Bookings', icon: <BookOpen size={16} /> },
   { section: 'slots', label: 'Slots', icon: <Clock size={16} /> },
   { section: 'sevas', label: 'Sevas', icon: <Leaf size={16} /> },
-  { section: 'deities', label: 'Deities', icon: <Star size={16} /> },
+  { section: 'deities', label: 'Deities', icon: <span className="font-serif text-base leading-none">ॐ</span> },
   { section: 'attendance', label: 'Attendance', icon: <QrCode size={16} /> },
   { section: 'donations', label: 'Donations', icon: <Heart size={16} /> },
   { section: 'devotees', label: 'Devotees', icon: <Users size={16} /> },
@@ -148,53 +153,91 @@ const PaymentBadge = ({ status }: { status: string }) => {
 // OVERVIEW SECTION
 // ════════════════════════════════════════════════════════════════════════════════
 
-function OverviewSection({ stats, recentBookings }: { stats: Stats; recentBookings: Booking[] }) {
+function OverviewSection({ stats, recentBookings, onNavigateToBookings }: { stats: Stats; recentBookings: Booking[]; onNavigateToBookings: () => void }) {
+  const [revView, setRevView] = useState<'total' | 'today' | 'week'>('total');
+
+  const revMap = { total: stats.totalRevenue, today: stats.todayRevenue, week: stats.weekRevenue };
+  const revLabel = { total: 'Total Revenue', today: "Today's Revenue", week: 'This Week Revenue' };
+
   const statCards = [
     { label: 'Total Bookings', value: stats.totalBookings, icon: <BookOpen size={20} />, color: '#A02D23' },
     { label: "Today's Bookings", value: stats.todayBookings, icon: <CalendarDays size={20} />, color: '#D4AF37' },
-    { label: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`, icon: <IndianRupee size={20} />, color: '#5D5043' },
+    {
+      label: revLabel[revView],
+      value: `₹${revMap[revView].toLocaleString('en-IN')}`,
+      icon: <IndianRupee size={20} />,
+      color: '#5D5043',
+      revToggle: true,
+    },
     { label: 'Attendance Rate', value: `${stats.attendanceRate}%`, icon: <TrendingUp size={20} />, color: '#2563eb' },
     { label: 'Pending Checkin', value: stats.pendingAttendance, icon: <Clock3 size={20} />, color: '#d97706' },
     { label: 'Active Slots', value: stats.activeSlots, icon: <ToggleRight size={20} />, color: '#059669' },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h2 className="font-serif text-2xl text-warm-cream mb-1">Dashboard Overview</h2>
-        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30">
+        <h2 className="font-serif text-2xl text-warm-cream mb-1 font-bold">Dashboard Overview</h2>
+        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/50">
           Real-time stats · Sri Siddheswari Peetham
         </p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {statCards.map(c => (
           <div
             key={c.label}
-            className="rounded-xl p-5 border"
+            className="rounded-xl p-4 sm:p-5 border"
             style={{ background: 'var(--at-card-bg)', borderColor: 'var(--at-border-mid)' }}
           >
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-2 sm:mb-3">
               <span style={{ color: c.color }}>{c.icon}</span>
-              <span className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/30">{c.label}</span>
+              {c.revToggle ? (
+                <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--at-border-dim)' }}>
+                  {(['total', 'today', 'week'] as const).map(r => (
+                    <button
+                      key={r}
+                      onClick={() => setRevView(r)}
+                      className="px-1.5 py-0.5 font-ui text-[8px] sm:text-[9px] tracking-widest uppercase transition-colors"
+                      style={{
+                        background: revView === r ? 'rgba(160,45,35,0.3)' : 'transparent',
+                        color: revView === r ? '#D4AF37' : 'rgba(253,251,247,0.5)',
+                      }}
+                    >
+                      {r === 'total' ? 'ALL' : r === 'today' ? 'DAY' : 'WK'}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <span className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/50 text-right leading-tight max-w-[80px]">{c.label}</span>
+              )}
             </div>
-            <p className="font-serif text-3xl text-warm-cream">{c.value}</p>
+            <p className="font-serif text-2xl sm:text-3xl text-warm-cream">{c.value}</p>
           </div>
         ))}
       </div>
 
       {/* Recent bookings */}
       <div>
-        <h3 className="font-ui text-xs tracking-widest uppercase text-warm-cream/40 mb-4">Recent Bookings</h3>
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'var(--at-border-mid)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-ui text-xs tracking-widest uppercase text-warm-cream/60 font-semibold">Recent Bookings</h3>
+          <button
+            onClick={onNavigateToBookings}
+            className="flex items-center gap-1 px-2 py-1 rounded font-ui text-[9px] tracking-widest uppercase text-sacred-red hover:text-sacred-red/70 border transition-colors"
+            style={{ borderColor: 'var(--at-border-dim)' }}
+          >
+            View All <ChevronRight size={10} />
+          </button>
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'var(--at-border-mid)' }}>
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: 'var(--at-table-head)' }}>
                 {['Booking ID', 'Devotee', 'Date', 'Total', 'Status', 'Attendance'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">
-                    {h}
-                  </th>
+                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/60">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -202,715 +245,53 @@ function OverviewSection({ stats, recentBookings }: { stats: Stats; recentBookin
               {recentBookings.slice(0, 8).map((b, i) => (
                 <tr
                   key={b.id}
+                  onClick={onNavigateToBookings}
                   style={{ background: i % 2 === 0 ? 'var(--at-surface-2)' : 'transparent' }}
-                  className="border-t"
+                  className="border-t cursor-pointer hover:bg-white/5 transition-colors"
                 >
                   <td className="px-4 py-3 font-ui text-xs text-sacred-red font-semibold">{b.id}</td>
                   <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{b.devotee?.name ?? b.devotee_phone}</td>
-                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/50">{b.seva_date}</td>
+                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{b.seva_date}</td>
                   <td className="px-4 py-3 font-sans text-xs text-spiritual-gold">₹{b.total.toLocaleString('en-IN')}</td>
                   <td className="px-4 py-3"><PaymentBadge status={b.payment_status} /></td>
                   <td className="px-4 py-3"><AttendanceBadge status={b.attendance_status} /></td>
                 </tr>
               ))}
               {recentBookings.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-warm-cream/30 font-ui text-xs tracking-widest uppercase">No bookings yet</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-warm-cream/50 font-ui text-xs tracking-widest uppercase">No bookings yet</td></tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  );
-}
 
-// ════════════════════════════════════════════════════════════════════════════════
-// BOOKINGS SECTION
-// ════════════════════════════════════════════════════════════════════════════════
-
-type BookingTab = 'active' | 'completed' | 'online_active';
-
-const BOOKING_TABS: { id: BookingTab; label: string; desc: string }[] = [
-  { id: 'active', label: 'Active Bookings', desc: 'Confirmed · Pending attendance' },
-  { id: 'completed', label: 'Completed / Attended', desc: 'Attended or absent' },
-  { id: 'online_active', label: 'Online Seva Active', desc: 'Online sevas · Not yet attended' },
-];
-
-function BookingTypeBadge({ type }: { type: string }) {
-  const online = type === 'online';
-  return (
-    <span
-      className="px-2 py-0.5 rounded-full font-ui text-[10px] tracking-wider uppercase flex items-center gap-1"
-      style={{
-        background: online ? 'rgba(16,185,129,0.12)' : 'rgba(59,130,246,0.12)',
-        color: online ? '#34d399' : '#60a5fa',
-      }}
-    >
-      {online ? <Wifi size={9} /> : <Building size={9} />}
-      {online ? 'Online' : 'Offline'}
-    </span>
-  );
-}
-
-function BookingsSection() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<BookingTab>('active');
-  const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [filterType, setFilterType] = useState<'all' | 'online' | 'offline'>('all');
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('seva_bookings')
-      .select('*, devotee:devotees(name,email,city,state), booking_deity_sevas(*)')
-      .order('created_at', { ascending: false });
-    setBookings((data as Booking[]) ?? []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const updateAttendance = async (id: string, status: string) => {
-    setUpdatingId(id);
-    await supabase.from('seva_bookings').update({
-      attendance_status: status,
-      checked_in_at: status === 'attended' ? new Date().toISOString() : null,
-    }).eq('id', id);
-    setBookings(prev => prev.map(b => b.id === id
-      ? { ...b, attendance_status: status, checked_in_at: status === 'attended' ? new Date().toISOString() : null }
-      : b
-    ));
-    setUpdatingId(null);
-  };
-
-  // Tab-level pre-filter
-  const tabFiltered = bookings.filter(b => {
-    if (activeTab === 'active')
-      return b.payment_status === 'confirmed' && b.attendance_status === 'pending';
-    if (activeTab === 'completed')
-      return b.attendance_status === 'attended' || b.attendance_status === 'not_attended';
-    if (activeTab === 'online_active')
-      return b.seva_type === 'online' && b.attendance_status !== 'attended';
-    return true;
-  });
-
-  const filtered = tabFiltered.filter(b => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || b.id.toLowerCase().includes(q)
-      || b.devotee_phone.includes(q)
-      || (b.devotee?.name ?? '').toLowerCase().includes(q);
-    const matchStatus = filterStatus === 'all' || b.payment_status === filterStatus;
-    const matchType = filterType === 'all' || b.seva_type === filterType;
-    return matchSearch && matchStatus && matchType;
-  });
-
-  const tabCount = (tab: BookingTab) => bookings.filter(b => {
-    if (tab === 'active') return b.payment_status === 'confirmed' && b.attendance_status === 'pending';
-    if (tab === 'completed') return b.attendance_status === 'attended' || b.attendance_status === 'not_attended';
-    if (tab === 'online_active') return b.seva_type === 'online' && b.attendance_status !== 'attended';
-    return false;
-  }).length;
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="font-serif text-2xl text-warm-cream">Bookings</h2>
-          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
-            {filtered.length} shown · {bookings.length} total
-          </p>
-        </div>
-        <button
-          onClick={load}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-ui text-xs tracking-widest uppercase text-warm-cream/60 hover:text-warm-cream border transition-colors"
-          style={{ borderColor: 'var(--at-border-dim)' }}
-        >
-          <RefreshCw size={13} /> Refresh
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--at-surface-2)', border: '1px solid var(--at-border-faint)' }}>
-        {BOOKING_TABS.map(tab => {
-          const active = activeTab === tab.id;
-          const count = tabCount(tab.id);
-          return (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setExpanded(null); setSearch(''); setFilterType('all'); setFilterStatus('all'); }}
-              className="flex-1 flex flex-col items-center gap-0.5 px-3 py-2.5 rounded-lg transition-all"
-              style={{
-                background: active ? 'var(--at-nav-active)' : 'transparent',
-                color: active ? '#A02D23' : 'var(--at-text-muted)',
-              }}
-            >
-              <span className="font-ui text-[10px] tracking-widest uppercase leading-tight text-center">{tab.label}</span>
-              <span
-                className="font-ui text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
-                style={{
-                  background: active ? '#A02D23' : 'var(--at-border-mid)',
-                  color: active ? '#fff' : 'var(--at-text-dim)',
-                }}
-              >
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Tab description */}
-      <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/25 -mt-3">
-        {BOOKING_TABS.find(t => t.id === activeTab)?.desc}
-      </p>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[180px]">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-cream/30" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search by ID, phone, name…"
-            className="w-full pl-8 pr-4 py-2 text-xs font-sans text-warm-cream/80 rounded-lg focus:outline-none"
-            style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-          />
-        </div>
-        {activeTab !== 'online_active' && (
-          <select
-            value={filterType}
-            onChange={e => setFilterType(e.target.value as 'all' | 'online' | 'offline')}
-            className="px-3 py-2 rounded-lg font-ui text-xs text-warm-cream/60 focus:outline-none"
-            style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-          >
-            <option value="all">All Types</option>
-            <option value="online">Online Seva</option>
-            <option value="offline">Offline / Temple Visit</option>
-          </select>
-        )}
-        {activeTab === 'active' && (
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
-            className="px-3 py-2 rounded-lg font-ui text-xs text-warm-cream/60 focus:outline-none"
-            style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-          >
-            <option value="all">All Payment</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="pending">Pending</option>
-          </select>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-sacred-red" /></div>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(b => (
+        {/* Mobile card view */}
+        <div className="sm:hidden space-y-3">
+          {recentBookings.slice(0, 8).map(b => (
             <div
               key={b.id}
-              className="rounded-xl border overflow-hidden"
-              style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-faint)' }}
+              onClick={onNavigateToBookings}
+              className="rounded-xl p-4 border cursor-pointer hover:bg-white/5 transition-colors"
+              style={{ background: 'var(--at-card-bg)', borderColor: 'var(--at-border-mid)' }}
             >
-              {/* Row */}
-              <button
-                className="w-full px-5 py-4 flex items-center gap-4 text-left hover:bg-white/[0.02] transition-colors"
-                onClick={() => setExpanded(expanded === b.id ? null : b.id)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-ui text-xs text-sacred-red font-semibold">{b.id}</span>
-                    <PaymentBadge status={b.payment_status} />
-                    <AttendanceBadge status={b.attendance_status} />
-                    <BookingTypeBadge type={b.seva_type} />
-                  </div>
-                  <div className="flex items-center gap-4 mt-1 flex-wrap">
-                    <span className="font-sans text-xs text-warm-cream/60">{b.devotee?.name ?? b.devotee_phone}</span>
-                    <span className="font-sans text-xs text-warm-cream/40">{b.seva_date}</span>
-                    {b.slot_time && <span className="font-sans text-xs text-warm-cream/40">{b.slot_time}</span>}
-                    <span className="font-sans text-xs text-spiritual-gold">₹{b.total.toLocaleString('en-IN')}</span>
-                  </div>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-ui text-xs text-sacred-red font-semibold">{b.id}</p>
+                  <p className="font-sans text-sm text-warm-cream/80">{b.devotee?.name ?? b.devotee_phone}</p>
                 </div>
-                {expanded === b.id ? <ChevronUp size={14} className="text-warm-cream/30 flex-shrink-0" /> : <ChevronDown size={14} className="text-warm-cream/30 flex-shrink-0" />}
-              </button>
-
-              {/* Expanded */}
-              <AnimatePresence>
-                {expanded === b.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5 border-t grid grid-cols-1 md:grid-cols-2 gap-6" style={{ borderColor: 'var(--at-border)' }}>
-                      {/* Details */}
-                      <div className="pt-4 space-y-3">
-                        <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30">Booking Details</p>
-                        {[
-                          ['Phone', b.devotee_phone],
-                          ['Email', b.devotee?.email ?? '—'],
-                          ['Location', b.devotee ? `${b.devotee.city}, ${b.devotee.state}` : '—'],
-                          ['Type', b.seva_type === 'online' ? 'Online Seva' : 'Temple Visit (Offline)'],
-                          ['Family Members', (b.family_members ?? []).join(', ') || '—'],
-                          ['Payment Method', b.payment_method.toUpperCase()],
-                          ['Slot', b.slot_time ? `${b.slot_time} — ${b.slot_name}` : '—'],
-                          ['Booked At', new Date(b.created_at).toLocaleString('en-IN')],
-                          ...(b.checked_in_at ? [['Checked In', new Date(b.checked_in_at).toLocaleString('en-IN')]] : []),
-                        ].map(([k, v]) => (
-                          <div key={k} className="flex justify-between text-xs">
-                            <span className="text-warm-cream/40 font-ui">{k}</span>
-                            <span className="text-warm-cream/70 font-sans text-right max-w-[60%]">{v}</span>
-                          </div>
-                        ))}
-                        {b.booking_deity_sevas && b.booking_deity_sevas.length > 0 && (
-                          <div className="pt-2">
-                            <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-2">Sevas</p>
-                            {b.booking_deity_sevas.map((ds, i) => (
-                              <div key={i} className="flex justify-between text-xs py-1 border-b" style={{ borderColor: 'var(--at-surface-5)' }}>
-                                <span className="text-warm-cream/60">{ds.deity_name} — {ds.seva_name}</span>
-                                <span className="text-spiritual-gold">₹{ds.price.toLocaleString('en-IN')}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="pt-4 space-y-3">
-                        <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30">Update Attendance</p>
-                        <div className="flex flex-col gap-2">
-                          {['attended', 'not_attended', 'pending'].map(s => {
-                            const labels: Record<string, string> = { attended: 'Mark Attended', not_attended: 'Mark Absent', pending: 'Reset to Pending' };
-                            const colors: Record<string, string> = { attended: '#059669', not_attended: '#dc2626', pending: '#d97706' };
-                            return (
-                              <button
-                                key={s}
-                                onClick={() => updateAttendance(b.id, s)}
-                                disabled={updatingId === b.id || b.attendance_status === s}
-                                className="px-4 py-2 rounded-lg font-ui text-xs tracking-widest uppercase text-white transition-all disabled:opacity-40"
-                                style={{ background: colors[s] }}
-                              >
-                                {updatingId === b.id ? <Loader2 size={12} className="animate-spin mx-auto" /> : labels[s]}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                <p className="font-sans text-sm text-spiritual-gold">₹{b.total.toLocaleString('en-IN')}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-sans text-[11px] text-warm-cream/70">{b.seva_date}</span>
+                <PaymentBadge status={b.payment_status} />
+                <AttendanceBadge status={b.attendance_status} />
+              </div>
             </div>
           ))}
-          {filtered.length === 0 && (
-            <div className="text-center py-16 text-warm-cream/30 font-ui text-xs tracking-widest uppercase">
-              No bookings in this tab
-            </div>
+          {recentBookings.length === 0 && (
+            <p className="text-center text-warm-cream/50 font-ui text-xs tracking-widest uppercase py-6">No bookings yet</p>
           )}
         </div>
-      )}
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// SLOTS SECTION
-// ════════════════════════════════════════════════════════════════════════════════
-
-function SlotsSection() {
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editBuf, setEditBuf] = useState<Partial<Slot>>({});
-  const [saving, setSaving] = useState(false);
-  const [newSlot, setNewSlot] = useState({ time: '', name: '', price: '', max_bookings: '50', is_active: true });
-  const [adding, setAdding] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase.from('ref_slots').select('*').order('sort_order');
-    setSlots((data as Slot[]) ?? []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const startEdit = (s: Slot) => { setEditingId(s.id); setEditBuf(s); };
-  const cancelEdit = () => { setEditingId(null); setEditBuf({}); };
-
-  const saveEdit = async () => {
-    if (!editingId) return;
-    setSaving(true);
-    const { error } = await supabase.from('ref_slots').update({
-      time: editBuf.time,
-      name: editBuf.name,
-      price: editBuf.price,
-      max_bookings: editBuf.max_bookings,
-      is_active: editBuf.is_active,
-    }).eq('id', editingId);
-    if (!error) {
-      setSlots(prev => prev.map(s => s.id === editingId ? { ...s, ...editBuf } as Slot : s));
-      setEditingId(null);
-      setEditBuf({});
-    }
-    setSaving(false);
-  };
-
-  const toggleActive = async (id: string, current: boolean) => {
-    await supabase.from('ref_slots').update({ is_active: !current }).eq('id', id);
-    setSlots(prev => prev.map(s => s.id === id ? { ...s, is_active: !current } : s));
-  };
-
-  const addSlot = async () => {
-    if (!newSlot.time || !newSlot.name || !newSlot.price) return;
-    setAdding(true);
-    const maxOrder = slots.reduce((m, s) => Math.max(m, s.sort_order), 0);
-    const id = `slot-${Date.now()}`;
-    const { error } = await supabase.from('ref_slots').insert({
-      id,
-      time: newSlot.time,
-      name: newSlot.name,
-      price: +newSlot.price,
-      max_bookings: +newSlot.max_bookings,
-      is_active: newSlot.is_active,
-      sort_order: maxOrder + 1,
-    });
-    if (!error) {
-      setNewSlot({ time: '', name: '', price: '', max_bookings: '50', is_active: true });
-      load();
-    }
-    setAdding(false);
-  };
-
-  const fieldCls = "bg-transparent border-b text-warm-cream/80 font-sans text-sm focus:outline-none focus:border-sacred-red/60 w-full py-0.5 transition-colors";
-  const fieldStyle = { borderColor: 'var(--at-border-input)' };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-serif text-2xl text-warm-cream">Slot Management</h2>
-          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
-            Control availability, limits, and timings
-          </p>
-        </div>
-        <button onClick={load} className="flex items-center gap-2 px-4 py-2 rounded-lg font-ui text-xs tracking-widest uppercase text-warm-cream/60 hover:text-warm-cream border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
-          <RefreshCw size={13} /> Refresh
-        </button>
       </div>
-
-      {loading ? (
-        <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-sacred-red" /></div>
-      ) : (
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'var(--at-border-mid)' }}>
-          <table className="w-full text-sm min-w-[600px]">
-            <thead>
-              <tr style={{ background: 'var(--at-table-head)' }}>
-                {['Time', 'Slot Name', 'Price (₹)', 'Max Bookings', 'Status', 'Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {slots.map((s, i) => (
-                <tr key={s.id} style={{ background: i % 2 === 0 ? 'var(--at-surface-2)' : 'transparent' }} className="border-t" >
-                  <td className="px-4 py-3">
-                    {editingId === s.id ? (
-                      <input className={fieldCls} style={fieldStyle} value={editBuf.time ?? ''} onChange={e => setEditBuf(p => ({ ...p, time: e.target.value }))} />
-                    ) : (
-                      <span className="font-ui text-xs text-warm-cream/80">{s.time}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {editingId === s.id ? (
-                      <input className={fieldCls} style={fieldStyle} value={editBuf.name ?? ''} onChange={e => setEditBuf(p => ({ ...p, name: e.target.value }))} />
-                    ) : (
-                      <span className="font-sans text-xs text-warm-cream/70">{s.name}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {editingId === s.id ? (
-                      <input type="number" className={fieldCls} style={fieldStyle} value={editBuf.price ?? ''} onChange={e => setEditBuf(p => ({ ...p, price: +e.target.value }))} />
-                    ) : (
-                      <span className="font-sans text-xs text-spiritual-gold">₹{s.price.toLocaleString('en-IN')}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {editingId === s.id ? (
-                      <input type="number" min={1} className={fieldCls} style={fieldStyle} value={editBuf.max_bookings ?? ''} onChange={e => setEditBuf(p => ({ ...p, max_bookings: +e.target.value }))} />
-                    ) : (
-                      <span className="font-sans text-xs text-warm-cream/70">{s.max_bookings} max</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => editingId === s.id
-                        ? setEditBuf(p => ({ ...p, is_active: !p.is_active }))
-                        : toggleActive(s.id, s.is_active)
-                      }
-                      className="flex items-center gap-1.5 text-xs font-ui"
-                    >
-                      {(editingId === s.id ? editBuf.is_active : s.is_active)
-                        ? <><ToggleRight size={18} className="text-emerald-400" /><span className="text-emerald-400">Active</span></>
-                        : <><ToggleLeft size={18} className="text-warm-cream/30" /><span className="text-warm-cream/30">Inactive</span></>
-                      }
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {editingId === s.id ? (
-                        <>
-                          <button onClick={saveEdit} disabled={saving} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-sacred-red text-warm-cream font-ui text-[10px] tracking-widest uppercase hover:bg-sacred-red/80 disabled:opacity-50 transition-colors">
-                            {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />} Save
-                          </button>
-                          <button onClick={cancelEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream/70 border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
-                            <Ban size={11} /> Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <button onClick={() => startEdit(s)} className="flex items-center gap-1 px-3 py-1 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream/70 border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
-                          <Edit2 size={11} /> Edit
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Add new slot */}
-      <div className="rounded-xl p-5 border" style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-mid)' }}>
-        <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-4">Add New Slot</p>
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex flex-col gap-1 min-w-[110px]">
-            <label className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/35">Time *</label>
-            <input
-              value={newSlot.time}
-              onChange={e => setNewSlot(p => ({ ...p, time: e.target.value }))}
-              placeholder="e.g. 06:00 AM"
-              className="px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-              style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-            />
-          </div>
-          <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
-            <label className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/35">Slot Name *</label>
-            <input
-              value={newSlot.name}
-              onChange={e => setNewSlot(p => ({ ...p, name: e.target.value }))}
-              placeholder="e.g. Morning Darshan"
-              className="px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-              style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-28">
-            <label className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/35">Price (₹) *</label>
-            <input
-              type="number"
-              value={newSlot.price}
-              onChange={e => setNewSlot(p => ({ ...p, price: e.target.value }))}
-              placeholder="0"
-              className="px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-              style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-28">
-            <label className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/35">Max Bookings</label>
-            <input
-              type="number"
-              min={1}
-              value={newSlot.max_bookings}
-              onChange={e => setNewSlot(p => ({ ...p, max_bookings: e.target.value }))}
-              placeholder="50"
-              className="px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-              style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/35">Active</label>
-            <button
-              onClick={() => setNewSlot(p => ({ ...p, is_active: !p.is_active }))}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-ui"
-              style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-            >
-              {newSlot.is_active
-                ? <><ToggleRight size={16} className="text-emerald-400" /><span className="text-emerald-400">Yes</span></>
-                : <><ToggleLeft size={16} className="text-warm-cream/30" /><span className="text-warm-cream/30">No</span></>
-              }
-            </button>
-          </div>
-          <button
-            onClick={addSlot}
-            disabled={adding || !newSlot.time || !newSlot.name || !newSlot.price}
-            className="flex items-center gap-2 px-4 py-2 bg-sacred-red text-warm-cream rounded-lg font-ui text-xs tracking-widest uppercase hover:bg-sacred-red/80 disabled:opacity-50 transition-colors"
-          >
-            {adding ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Add Slot
-          </button>
-        </div>
-      </div>
-
-      <div className="rounded-xl p-4 border" style={{ background: 'var(--at-gold-hint)', borderColor: 'var(--at-gold-border)' }}>
-        <p className="font-ui text-[10px] tracking-widest uppercase text-spiritual-gold mb-1">How slot limits work</p>
-        <p className="font-sans text-xs text-warm-cream/50 leading-relaxed">
-          Max Bookings sets the maximum number of offline seva bookings allowed per slot per day. When a slot reaches its limit, devotees will see it as "Full" in the booking form. Inactive slots are hidden from the booking form entirely.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// SEVAS SECTION
-// ════════════════════════════════════════════════════════════════════════════════
-
-function SevasSection() {
-  const [sevas, setSevas] = useState<Seva[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingName, setEditingName] = useState<string | null>(null);
-  const [editBuf, setEditBuf] = useState<Partial<Seva>>({});
-  const [saving, setSaving] = useState(false);
-  const [newSeva, setNewSeva] = useState({ name: '', price: '' });
-  const [adding, setAdding] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase.from('ref_sevas').select('*').order('name');
-    setSevas((data as Seva[]) ?? []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const startEdit = (s: Seva) => { setEditingName(s.name); setEditBuf(s); };
-  const cancelEdit = () => { setEditingName(null); setEditBuf({}); };
-
-  const saveEdit = async () => {
-    if (!editingName) return;
-    setSaving(true);
-    const { error } = await supabase.from('ref_sevas').update({ price: editBuf.price }).eq('name', editingName);
-    if (!error) {
-      setSevas(prev => prev.map(s => s.name === editingName ? { ...s, price: editBuf.price ?? s.price } : s));
-      setEditingName(null);
-    }
-    setSaving(false);
-  };
-
-  const addSeva = async () => {
-    if (!newSeva.name || !newSeva.price) return;
-    setAdding(true);
-    const { error } = await supabase.from('ref_sevas').insert({ name: newSeva.name, price: +newSeva.price });
-    if (!error) { setNewSeva({ name: '', price: '' }); load(); }
-    setAdding(false);
-  };
-
-  const deleteSeva = async (name: string) => {
-    if (!confirm(`Delete seva "${name}"?`)) return;
-    await supabase.from('ref_sevas').delete().eq('name', name);
-    setSevas(prev => prev.filter(s => s.name !== name));
-  };
-
-  const fieldCls = "bg-transparent border-b text-warm-cream/80 font-sans text-sm focus:outline-none w-full py-0.5 transition-colors";
-  const fieldStyle = { borderColor: 'var(--at-border-input)' };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="font-serif text-2xl text-warm-cream">Seva Management</h2>
-          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">Edit seva names and pricing</p>
-        </div>
-      </div>
-
-      {/* Add new seva */}
-      <div className="rounded-xl p-5 border" style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-mid)' }}>
-        <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-4">Add New Seva</p>
-        <div className="flex gap-3 flex-wrap">
-          <input
-            value={newSeva.name}
-            onChange={e => setNewSeva(p => ({ ...p, name: e.target.value }))}
-            placeholder="Seva name"
-            className="flex-1 min-w-[180px] px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-            style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-          />
-          <input
-            type="number"
-            value={newSeva.price}
-            onChange={e => setNewSeva(p => ({ ...p, price: e.target.value }))}
-            placeholder="Price (₹)"
-            className="w-32 px-3 py-2 rounded-lg text-xs font-sans text-warm-cream/80 focus:outline-none"
-            style={{ background: 'var(--at-surface-5)', border: '1px solid var(--at-border-mid)' }}
-          />
-          <button
-            onClick={addSeva}
-            disabled={adding || !newSeva.name || !newSeva.price}
-            className="flex items-center gap-2 px-4 py-2 bg-sacred-red text-warm-cream rounded-lg font-ui text-xs tracking-widest uppercase hover:bg-sacred-red/80 disabled:opacity-50 transition-colors"
-          >
-            {adding ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Add
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-sacred-red" /></div>
-      ) : (
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'var(--at-border-mid)' }}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ background: 'var(--at-table-head)' }}>
-                {['Seva Name', 'Price (₹)', 'Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sevas.map((s, i) => (
-                <tr key={s.name} style={{ background: i % 2 === 0 ? 'var(--at-surface-2)' : 'transparent' }} className="border-t">
-                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/80">{s.name}</td>
-                  <td className="px-4 py-3">
-                    {editingName === s.name ? (
-                      <input type="number" className={fieldCls} style={fieldStyle} value={editBuf.price ?? ''} onChange={e => setEditBuf(p => ({ ...p, price: +e.target.value }))} />
-                    ) : (
-                      <span className="font-sans text-xs text-spiritual-gold">₹{s.price.toLocaleString('en-IN')}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {editingName === s.name ? (
-                        <>
-                          <button onClick={saveEdit} disabled={saving} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-sacred-red text-warm-cream font-ui text-[10px] tracking-widest uppercase hover:bg-sacred-red/80 disabled:opacity-50 transition-colors">
-                            {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />} Save
-                          </button>
-                          <button onClick={cancelEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream/70 border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
-                            <Ban size={11} /> Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => startEdit(s)} className="flex items-center gap-1 px-3 py-1 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream/70 border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
-                            <Edit2 size={11} /> Edit
-                          </button>
-                          <button onClick={() => deleteSeva(s.name)} className="flex items-center gap-1 px-3 py-1 rounded-lg font-ui text-[10px] tracking-widest uppercase text-red-400/60 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 transition-colors">
-                            <Trash2 size={11} /> Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
@@ -986,6 +367,7 @@ function DeitiesSection({ onNavigateToSevas }: { onNavigateToSevas: () => void }
             return (
               <div
                 key={d.id}
+                data-deity-card="true"
                 className="rounded-xl p-5 border transition-all"
                 style={{
                   background: d.grad ? `${d.grad.replace('145deg', '135deg').split(')')[0]}, rgba(0,0,0,0.6))` : 'var(--at-card-bg)',
@@ -1157,8 +539,8 @@ function AttendanceSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-serif text-2xl text-warm-cream">Attendance Verification</h2>
-        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
+        <h2 className="font-serif text-2xl text-warm-cream font-bold">Attendance Verification</h2>
+        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/50 mt-0.5">
           Scan receipt QR or enter booking ID manually
         </p>
       </div>
@@ -1166,7 +548,7 @@ function AttendanceSection() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Scanner panel */}
         <div className="rounded-xl border p-6 space-y-5" style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-mid)' }}>
-          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">QR Scanner</p>
+          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60">QR Scanner</p>
 
           <div
             id="qr-reader-admin"
@@ -1181,7 +563,7 @@ function AttendanceSection() {
               style={{ background: 'var(--at-card-alt)', border: '2px dashed var(--at-border-dim)' }}
             >
               <ScanLine size={40} className="text-warm-cream/20" />
-              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30">Camera not active</p>
+              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50">Camera not active</p>
             </div>
           )}
 
@@ -1203,7 +585,7 @@ function AttendanceSection() {
               </button>
             )}
             {(scanResult || booking) && (
-              <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-ui text-xs tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
+              <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-ui text-xs tracking-widest uppercase text-warm-cream/60 hover:text-warm-cream border transition-colors" style={{ borderColor: 'var(--at-border-dim)' }}>
                 <RefreshCw size={14} /> Reset
               </button>
             )}
@@ -1211,7 +593,7 @@ function AttendanceSection() {
 
           {/* Manual entry */}
           <div>
-            <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-2">Or Enter Booking ID Manually</p>
+            <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Or Enter Booking ID Manually</p>
             <div className="flex gap-2">
               <input
                 value={manualId}
@@ -1234,19 +616,19 @@ function AttendanceSection() {
 
         {/* Booking result panel */}
         <div className="rounded-xl border p-6" style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-mid)' }}>
-          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-4">Booking Details</p>
+          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-4">Booking Details</p>
 
           {!scanResult && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
               <QrCode size={40} className="text-warm-cream/15" />
-              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/25">Scan a QR code to verify</p>
+              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50">Scan a QR code to verify</p>
             </div>
           )}
 
           {loadingBooking && (
             <div className="flex flex-col items-center justify-center gap-3 py-16">
               <Loader2 size={28} className="animate-spin text-sacred-red" />
-              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30">Looking up booking…</p>
+              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50">Looking up booking…</p>
             </div>
           )}
 
@@ -1254,7 +636,7 @@ function AttendanceSection() {
             <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
               <XCircle size={36} className="text-red-500/60" />
               <p className="font-ui text-[10px] tracking-widest uppercase text-red-400/70">Booking not found</p>
-              <p className="font-sans text-xs text-warm-cream/40">ID: {scanResult}</p>
+              <p className="font-sans text-xs text-warm-cream/60">ID: {scanResult}</p>
             </div>
           )}
 
@@ -1265,7 +647,7 @@ function AttendanceSection() {
                 <div>
                   <p className="font-ui text-xs text-sacred-red font-semibold">{booking.id}</p>
                   <p className="font-serif text-lg text-warm-cream mt-0.5">{booking.devotee?.name ?? booking.devotee_phone}</p>
-                  <p className="font-sans text-xs text-warm-cream/50 mt-0.5">{booking.devotee?.email}</p>
+                  <p className="font-sans text-xs text-warm-cream/70 mt-0.5">{booking.devotee?.email}</p>
                 </div>
                 <AttendanceBadge status={booking.attendance_status} />
               </div>
@@ -1282,8 +664,8 @@ function AttendanceSection() {
                   ...(booking.checked_in_at ? [['Checked In', new Date(booking.checked_in_at).toLocaleTimeString('en-IN')]] : []),
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs">
-                    <span className="text-warm-cream/40 font-ui">{k}</span>
-                    <span className="text-warm-cream/70 font-sans text-right">{v}</span>
+                    <span className="text-warm-cream/60 font-ui">{k}</span>
+                    <span className="text-warm-cream/80 font-sans text-right">{v}</span>
                   </div>
                 ))}
               </div>
@@ -1291,7 +673,7 @@ function AttendanceSection() {
               {/* Seva list */}
               {(booking.booking_deity_sevas ?? []).length > 0 && (
                 <div className="border-t pt-4 space-y-1.5" style={{ borderColor: 'var(--at-border-faint)' }}>
-                  <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-2">Sevas Booked</p>
+                  <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Sevas Booked</p>
                   {booking.booking_deity_sevas!.map((ds, i) => (
                     <div key={i} className="flex justify-between text-xs">
                       <span className="text-warm-cream/60">{ds.deity_name} — {ds.seva_name}</span>
@@ -1358,15 +740,15 @@ function DonationsSection() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="font-serif text-2xl text-warm-cream">Donations</h2>
-          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
+          <h2 className="font-serif text-2xl text-warm-cream font-bold">Donations</h2>
+          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/50 mt-0.5">
             {donations.length} donations · ₹{totalAmount.toLocaleString('en-IN')} confirmed
           </p>
         </div>
       </div>
 
       <div className="relative">
-        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-cream/30" />
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-cream/50" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -1384,7 +766,7 @@ function DonationsSection() {
             <thead>
               <tr style={{ background: 'var(--at-table-head)' }}>
                 {['Donor', 'Phone', 'Type', 'Amount', 'Status', 'Date'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/60">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1392,15 +774,15 @@ function DonationsSection() {
               {filtered.map((d, i) => (
                 <tr key={d.id} style={{ background: i % 2 === 0 ? 'var(--at-surface-2)' : 'transparent' }} className="border-t">
                   <td className="px-4 py-3 font-sans text-xs text-warm-cream/80">{d.donor_name}</td>
-                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/50">{d.donor_phone}</td>
-                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/60">{d.donation_type}</td>
+                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{d.donor_phone}</td>
+                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{d.donation_type}</td>
                   <td className="px-4 py-3 font-sans text-xs text-spiritual-gold">₹{d.amount.toLocaleString('en-IN')}</td>
                   <td className="px-4 py-3"><PaymentBadge status={d.payment_status} /></td>
-                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/40">{new Date(d.created_at).toLocaleDateString('en-IN')}</td>
+                  <td className="px-4 py-3 font-sans text-xs text-warm-cream/60">{new Date(d.created_at).toLocaleDateString('en-IN')}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-warm-cream/30 font-ui text-xs tracking-widest uppercase">No donations found</td></tr>
+                <tr><td colSpan={6} className="px-4 py-10 text-center text-warm-cream/50 font-ui text-xs tracking-widest uppercase">No donations found</td></tr>
               )}
             </tbody>
           </table>
@@ -1464,8 +846,8 @@ function DevoteesSection() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="font-serif text-2xl text-warm-cream">Devotees</h2>
-          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
+          <h2 className="font-serif text-2xl text-warm-cream font-bold">Devotees</h2>
+          <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/50 mt-0.5">
             {devotees.length} registered · search by name, phone, or email
           </p>
         </div>
@@ -1475,7 +857,7 @@ function DevoteesSection() {
       </div>
 
       <div className="relative">
-        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-cream/30" />
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-cream/50" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -1504,18 +886,18 @@ function DevoteesSection() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-serif text-sm text-warm-cream">{d.name}</span>
+                      <span className="font-serif text-sm text-warm-cream font-semibold">{d.name}</span>
                       <span className="font-ui text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full" style={{ background: 'var(--at-border-mid)', color: 'var(--at-text-dim)' }}>
                         {d.bookings.length} booking{d.bookings.length !== 1 ? 's' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-4 mt-0.5 flex-wrap">
-                      <span className="font-sans text-xs text-warm-cream/50">{d.phone}</span>
-                      {d.email && <span className="font-sans text-xs text-warm-cream/35">{d.email}</span>}
+                      <span className="font-sans text-xs text-warm-cream/70">{d.phone}</span>
+                      {d.email && <span className="font-sans text-xs text-warm-cream/55">{d.email}</span>}
                       {lastBk && <span className="font-sans text-xs text-spiritual-gold/70">Last: {lastBk.seva_date}</span>}
                     </div>
                   </div>
-                  {isOpen ? <ChevronUp size={14} className="text-warm-cream/30 flex-shrink-0" /> : <ChevronDown size={14} className="text-warm-cream/30 flex-shrink-0" />}
+                  {isOpen ? <ChevronUp size={14} className="text-warm-cream/50 flex-shrink-0" /> : <ChevronDown size={14} className="text-warm-cream/50 flex-shrink-0" />}
                 </button>
 
                 <AnimatePresence>
@@ -1530,7 +912,7 @@ function DevoteesSection() {
                       <div className="px-5 pb-5 border-t grid grid-cols-1 md:grid-cols-2 gap-6" style={{ borderColor: 'var(--at-border)' }}>
                         {/* Profile details */}
                         <div className="pt-4 space-y-2">
-                          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-3">Profile</p>
+                          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-3">Profile</p>
                           {[
                             ['Phone', d.phone],
                             ['Email', d.email || '—'],
@@ -1540,13 +922,13 @@ function DevoteesSection() {
                             ['Registered', new Date(d.created_at).toLocaleDateString('en-IN')],
                           ].map(([k, v]) => (
                             <div key={k} className="flex justify-between text-xs">
-                              <span className="text-warm-cream/40 font-ui">{k}</span>
-                              <span className="text-warm-cream/70 font-sans text-right">{v}</span>
+                              <span className="text-warm-cream/60 font-ui">{k}</span>
+                              <span className="text-warm-cream/80 font-sans text-right">{v}</span>
                             </div>
                           ))}
                           {members.length > 0 && (
                             <div className="pt-2">
-                              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-2">Family Members</p>
+                              <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-2">Family Members</p>
                               <div className="flex flex-wrap gap-1">
                                 {members.map(m => (
                                   <span key={m} className="px-2 py-0.5 rounded-full font-ui text-[9px] tracking-wider uppercase text-warm-cream/60" style={{ background: 'var(--at-border-mid)' }}>
@@ -1560,10 +942,10 @@ function DevoteesSection() {
 
                         {/* Bookings list */}
                         <div className="pt-4">
-                          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 mb-3">Bookings ({d.bookings.length})</p>
+                          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 mb-3">Bookings ({d.bookings.length})</p>
                           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                             {d.bookings.length === 0 ? (
-                              <p className="font-sans text-xs text-warm-cream/30">No bookings yet</p>
+                              <p className="font-sans text-xs text-warm-cream/50">No bookings yet</p>
                             ) : d.bookings.map(b => (
                               <div key={b.id} className="rounded-lg p-3 border" style={{ background: 'var(--at-surface-2)', borderColor: 'var(--at-border-faint)' }}>
                                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -1574,12 +956,12 @@ function DevoteesSection() {
                                   </div>
                                 </div>
                                 <div className="mt-1 flex items-center gap-3 flex-wrap">
-                                  <span className="font-sans text-xs text-warm-cream/50">{b.seva_date}</span>
+                                  <span className="font-sans text-xs text-warm-cream/70">{b.seva_date}</span>
                                   <span className="font-sans text-xs text-spiritual-gold">₹{b.total.toLocaleString('en-IN')}</span>
-                                  {b.slot_time && <span className="font-sans text-xs text-warm-cream/35">{b.slot_time}</span>}
+                                  {b.slot_time && <span className="font-sans text-xs text-warm-cream/55">{b.slot_time}</span>}
                                 </div>
                                 {(b.family_members ?? []).length > 0 && (
-                                  <p className="font-sans text-[10px] text-warm-cream/30 mt-1">
+                                  <p className="font-sans text-[10px] text-warm-cream/50 mt-1">
                                     Family: {b.family_members.join(', ')}
                                   </p>
                                 )}
@@ -1595,7 +977,7 @@ function DevoteesSection() {
             );
           })}
           {filtered.length === 0 && !loading && (
-            <div className="text-center py-16 text-warm-cream/30 font-ui text-xs tracking-widest uppercase">
+            <div className="text-center py-16 text-warm-cream/50 font-ui text-xs tracking-widest uppercase">
               No devotees found
             </div>
           )}
@@ -1684,15 +1066,15 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-serif text-2xl text-warm-cream">User Management</h2>
-        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/30 mt-0.5">
+        <h2 className="font-serif text-2xl text-warm-cream font-bold">User Management</h2>
+        <p className="font-ui text-xs tracking-widest uppercase text-warm-cream/50 mt-0.5">
           Admin &amp; manager accounts · {users.length} users
         </p>
       </div>
 
       {isSuperAdmin ? (
         <div className="rounded-xl p-5 border" style={{ background: 'var(--at-card-alt)', borderColor: 'var(--at-border-mid)' }}>
-          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-4">Create New User</p>
+          <p className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-4">Create New User</p>
 
           {error && (
             <div className="flex items-center gap-2 rounded-lg px-4 py-3 mb-4 text-xs text-red-400" style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)' }}>
@@ -1707,19 +1089,19 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div>
-              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-1.5 block">Full Name *</label>
+              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-1.5 block">Full Name *</label>
               <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Name" className={fieldCls} style={fieldStyle} />
             </div>
             <div>
-              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-1.5 block">Email *</label>
+              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-1.5 block">Email *</label>
               <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className={fieldCls} style={fieldStyle} />
             </div>
             <div>
-              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-1.5 block">Phone Number</label>
+              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-1.5 block">Phone Number</label>
               <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="+91 XXXXX XXXXX" className={fieldCls} style={fieldStyle} />
             </div>
             <div>
-              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-1.5 block">Password *</label>
+              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-1.5 block">Password *</label>
               <div className="relative">
                 <input
                   type={showPwd ? 'text' : 'password'}
@@ -1729,13 +1111,13 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
                   className={`${fieldCls} pr-9`}
                   style={fieldStyle}
                 />
-                <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-cream/30 hover:text-warm-cream/60">
+                <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-cream/50 hover:text-warm-cream/80">
                   {showPwd ? <EyeOff size={13} /> : <Eye size={13} />}
                 </button>
               </div>
             </div>
             <div>
-              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 mb-1.5 block">Role *</label>
+              <label className="font-ui text-[10px] tracking-widest uppercase text-warm-cream/60 mb-1.5 block">Role *</label>
               <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} className={fieldCls} style={fieldStyle}>
                 <option value="admin">Admin</option>
                 <option value="manager">Manager</option>
@@ -1755,7 +1137,7 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
       ) : (
         <div className="rounded-xl p-4 border" style={{ background: 'var(--at-gold-hint)', borderColor: 'var(--at-gold-border)' }}>
           <p className="font-ui text-[10px] tracking-widest uppercase text-spiritual-gold mb-1">Read-only Access</p>
-          <p className="font-sans text-xs text-warm-cream/50">Only the Super Admin can create or remove user accounts.</p>
+          <p className="font-sans text-xs text-warm-cream/70">Only the Super Admin can create or remove user accounts.</p>
         </div>
       )}
 
@@ -1767,7 +1149,7 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
             <thead>
               <tr style={{ background: 'var(--at-table-head)' }}>
                 {['Name', 'Email', 'Phone', 'Role', 'Created', ...(isSuperAdmin ? ['Actions'] : [])].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/40">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left font-ui text-[10px] tracking-widest uppercase text-warm-cream/60">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1786,14 +1168,14 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
                         {isYou && <span className="font-ui text-[8px] px-1.5 rounded bg-sacred-red/20 text-sacred-red tracking-wider">You</span>}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/50">{u.email}</td>
-                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/50">{u.phone || '—'}</td>
+                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{u.email}</td>
+                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/70">{u.phone || '—'}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full font-ui text-[9px] tracking-wider uppercase" style={{ background: rc.bg, color: rc.text }}>
                         {u.user_role.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/40">
+                    <td className="px-4 py-3 font-sans text-xs text-warm-cream/60">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN') : '—'}
                     </td>
                     {isSuperAdmin && (
@@ -1813,7 +1195,7 @@ function UserManagementSection({ profile }: { profile: AdminProfile }) {
                 );
               })}
               {users.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-warm-cream/30 font-ui text-xs tracking-widest uppercase">No users found</td></tr>
+                <tr><td colSpan={6} className="px-4 py-10 text-center text-warm-cream/50 font-ui text-xs tracking-widest uppercase">No users found</td></tr>
               )}
             </tbody>
           </table>
@@ -1836,7 +1218,7 @@ interface AdminDashboardPageProps {
 export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminDashboardPageProps) {
   const [activeSection, setActiveSection] = useState<AdminSection>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [stats, setStats] = useState<Stats>({ totalBookings: 0, todayBookings: 0, totalRevenue: 0, attendanceRate: 0, pendingAttendance: 0, activeSlots: 0 });
+  const [stats, setStats] = useState<Stats>({ totalBookings: 0, todayBookings: 0, totalRevenue: 0, todayRevenue: 0, weekRevenue: 0, attendanceRate: 0, pendingAttendance: 0, activeSlots: 0 });
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -1860,12 +1242,18 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
       const todayBk = bk.filter(b => b.seva_date_iso === today);
       const confirmed = bk.filter(b => b.payment_status === 'confirmed');
       const revenue = confirmed.reduce((s, b) => s + b.total, 0);
+      const todayRevenue = todayBk.filter(b => b.payment_status === 'confirmed').reduce((s, b) => s + b.total, 0);
+      const now = new Date();
+      const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+      const weekStartStr = weekStart.toISOString().split('T')[0];
+      const weekBk = bk.filter(b => b.seva_date_iso >= weekStartStr && b.payment_status === 'confirmed');
+      const weekRevenue = weekBk.reduce((s, b) => s + b.total, 0);
       const attended = bk.filter(b => b.attendance_status === 'attended').length;
       const pending = bk.filter(b => b.payment_status === 'confirmed' && b.attendance_status === 'pending').length;
       const rate = bk.length > 0 ? Math.round((attended / bk.length) * 100) : 0;
       const activeSlots = ((slots as Slot[]) ?? []).filter(s => s.is_active).length;
 
-      setStats({ totalBookings: bk.length, todayBookings: todayBk.length, totalRevenue: revenue, attendanceRate: rate, pendingAttendance: pending, activeSlots });
+      setStats({ totalBookings: bk.length, todayBookings: todayBk.length, totalRevenue: revenue, todayRevenue, weekRevenue, attendanceRate: rate, pendingAttendance: pending, activeSlots });
       setRecentBookings(bk.slice(0, 8));
       setLoadingStats(false);
     })();
@@ -1875,11 +1263,59 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
 
   return (
     <div className="min-h-screen flex" data-admin-theme={isDark ? 'dark' : 'light'} style={{ background: 'var(--at-bg)' }}>
-      {/* ── Sidebar ───────────────────────────────────────────────── */}
+      {/* ── Collapsed sidebar (desktop, icon-only) ──────────────────── */}
+      <aside
+        className="hidden lg:flex fixed top-0 left-0 h-full z-30 flex-col items-center"
+        style={{ width: 64, background: 'var(--at-sidebar-bg)', borderRight: '1px solid var(--at-border)' }}
+      >
+        {/* Logo */}
+        <div className="py-5 border-b w-full flex justify-center" style={{ borderColor: 'var(--at-border)' }}>
+          <img src={logoImage} alt="Sri Siddheswari Peetham Logo" loading="lazy" className="w-8 h-8 object-contain" />
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 w-full px-2 py-4 space-y-1 overflow-y-auto">
+          {NAV_ITEMS.filter(n => !n.superAdminOnly || profile.user_role === 'super_admin').map(({ section, label, icon }) => {
+            const active = activeSection === section;
+            return (
+              <button
+                key={section}
+                onClick={() => setActiveSection(section)}
+                title={label}
+                className="w-full flex justify-center py-2.5 rounded-lg transition-all"
+                style={{
+                  background: active ? 'var(--at-nav-active)' : 'transparent',
+                  color: active ? '#A02D23' : isDark ? 'rgba(253,251,247,0.4)' : 'rgba(42,26,14,0.5)',
+                }}
+              >
+                <span style={{ color: active ? '#A02D23' : isDark ? 'rgba(253,251,247,0.3)' : 'rgba(42,26,14,0.4)' }}>{icon}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom actions */}
+        <div className="w-full px-2 py-4 border-t space-y-1" style={{ borderColor: 'var(--at-border)' }}>
+          <button onClick={onBack} title="Back to Site"
+            className="w-full flex justify-center py-2 rounded-lg text-warm-cream/40 hover:text-warm-cream/60 transition-colors">
+            <ArrowLeft size={15} />
+          </button>
+          <button onClick={onLogout} title="Sign Out"
+            className="w-full flex justify-center py-2 rounded-lg text-warm-cream/40 hover:text-red-400 transition-colors">
+            <LogOut size={15} />
+          </button>
+          <button onClick={() => setSidebarOpen(true)} title="Expand Sidebar"
+            className="w-full flex justify-center py-2 rounded-lg text-warm-cream/40 hover:text-warm-cream/60 transition-colors">
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Expanded sidebar ─────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         {sidebarOpen && (
           <motion.aside
-            key="sidebar"
+            key="expanded-sidebar"
             initial={{ x: -260, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -260, opacity: 0 }}
@@ -1889,12 +1325,12 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
           >
             {/* Logo */}
             <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: 'var(--at-border)' }}>
-              <img src={logoImage} alt="SSP" className="w-8 h-8 object-contain flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="font-serif text-sm text-warm-cream leading-tight truncate">Siddheswari</p>
-                <p className="font-ui text-[9px] tracking-widest uppercase text-sacred-red">Admin</p>
+              <img src={logoImage} alt="Sri Siddheswari Peetham Logo" loading="lazy" className="w-8 h-8 object-contain flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-serif text-sm text-warm-cream leading-tight">Sri Siddheswari Peetham</span>
+                <span className="font-ui text-[8px] tracking-[0.2em] uppercase text-warm-cream/50">Admin Dashboard</span>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="ml-auto text-warm-cream/20 hover:text-warm-cream/50 transition-colors lg:hidden">
+              <button onClick={() => setSidebarOpen(false)} className="ml-auto text-warm-cream/40 hover:text-warm-cream/70 transition-colors lg:hidden">
                 <X size={16} />
               </button>
             </div>
@@ -1929,18 +1365,18 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
                 </div>
                 <div className="min-w-0">
                   <p className="font-ui text-[10px] text-warm-cream/70 truncate">{profile.name || profile.email}</p>
-                  <p className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/30">{profile.user_role}</p>
+                  <p className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/50">{profile.user_role}</p>
                 </div>
               </div>
               <button
                 onClick={onLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/30 hover:text-red-400 hover:bg-red-900/10 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/50 hover:text-red-400 hover:bg-red-900/10 transition-colors"
               >
                 <LogOut size={13} /> Sign Out
               </button>
               <button
                 onClick={onBack}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/20 hover:text-warm-cream/40 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-ui text-[10px] tracking-widest uppercase text-warm-cream/40 hover:text-warm-cream/60 transition-colors"
               >
                 <ArrowLeft size={13} /> Back to Site
               </button>
@@ -1951,8 +1387,7 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
 
       {/* ── Main content ──────────────────────────────────────────── */}
       <div
-        className="flex-1 flex flex-col min-h-screen transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? 220 : 0 }}
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen ? 'lg:ml-[220px]' : 'lg:ml-16'}`}
       >
         {/* Topbar */}
         <header
@@ -1961,18 +1396,18 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
         >
           <button
             onClick={() => setSidebarOpen(v => !v)}
-            className="text-warm-cream/40 hover:text-warm-cream/70 transition-colors"
+            className="text-warm-cream/60 hover:text-warm-cream/80 transition-colors"
           >
             <Menu size={18} />
           </button>
           <div className="flex-1">
-            <h1 className="font-ui text-xs tracking-widest uppercase text-warm-cream/70">{sectionLabel}</h1>
+            <div className="font-ui text-xs tracking-widest uppercase text-warm-cream/70">{sectionLabel}</div>
           </div>
           <div className="flex items-center gap-3">
             <AnimatedThemeToggler isDark={isDark} onToggle={toggleTheme} size={32} />
             <div className="flex items-center gap-2">
               <Shield size={13} className="text-sacred-red/50" />
-              <span className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/20">{profile.user_role}</span>
+              <span className="font-ui text-[9px] tracking-widest uppercase text-warm-cream/40">{profile.user_role}</span>
             </div>
           </div>
         </header>
@@ -1990,11 +1425,11 @@ export default function AdminDashboardPage({ profile, onLogout, onBack }: AdminD
               {activeSection === 'overview' && (
                 loadingStats
                   ? <div className="flex justify-center py-24"><Loader2 size={28} className="animate-spin text-sacred-red" /></div>
-                  : <OverviewSection stats={stats} recentBookings={recentBookings} />
+                  : <OverviewSection stats={stats} recentBookings={recentBookings} onNavigateToBookings={() => setActiveSection('bookings')} />
               )}
-              {activeSection === 'bookings' && <BookingsSection />}
-              {activeSection === 'slots' && <SlotsSection />}
-              {activeSection === 'sevas' && <SevasSection />}
+              {activeSection === 'bookings' && <PaginatedBookings />}
+              {activeSection === 'slots' && <PaginatedSlots />}
+              {activeSection === 'sevas' && <PaginatedSevas />}
               {activeSection === 'deities' && <DeitiesSection onNavigateToSevas={() => setActiveSection('sevas')} />}
               {activeSection === 'attendance' && <AttendanceSection />}
               {activeSection === 'donations' && <DonationsSection />}

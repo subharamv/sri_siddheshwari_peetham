@@ -158,6 +158,7 @@ const DonationPage = ({ onBack }: DonationPageProps) => {
                                 <img
                                     src={card.image}
                                     alt={card.title}
+                                    loading="lazy"
                                     className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
                                     referrerPolicy="no-referrer"
                                 />

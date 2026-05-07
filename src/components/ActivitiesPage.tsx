@@ -26,8 +26,6 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
       'Annadanam — the great gift of food — is considered the highest of all charitable acts in Sanatana Hindu Dharma. Sri Siddheswari Peetham operates the Raja Rajeswari Annadaana Samaajam in Courtallam, serving free meals twice daily to devotees, pilgrims, and the less fortunate, regardless of caste, creed, or background. This tradition was personally initiated by Sri Mounaswamy and continues unbroken to this day.',
     images: [
       'https://srisiddheshwaripeetham.com/annadanam-seva-peetham.jpg',
-      'https://picsum.photos/seed/annadanam2/800/600',
-      'https://picsum.photos/seed/annadanam3/800/600',
     ],
     highlights: [
       'Free meals served twice daily',
@@ -44,8 +42,6 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
       'The Peetham maintains a Go Shala (cow sanctuary) where cattle are treated with reverence as sacred beings. Daily worship (Gomata Puja), feeding, and medical care are provided. The Go Shala embodies the ancient Hindu belief that the cow is a sacred mother who sustains life. The Trivikrama Trust actively supports this cow protection initiative and sponsors its upkeep.',
     images: [
       'https://srisiddheshwaripeetham.com/go-seva-cow-protection.png',
-      'https://picsum.photos/seed/goshala2/800/600',
-      'https://picsum.photos/seed/goshala3/800/600',
     ],
     highlights: [
       'Daily Gomata Puja performed',
@@ -60,10 +56,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Peaceful residence for devotees seeking spiritual life',
     longDescription:
       'The Peetham offers apartment-style accommodations in Courtallam for retired devotees who wish to spend their twilight years in spiritual practice, worship, and peace. Residents have access to the temple, a library of Vedic texts, communal dining, and regular satsangs. The environment is designed to support a life of contemplation and devotion in the presence of the divine.',
-    images: [
-      'https://picsum.photos/seed/oldagehome1/800/600',
-      'https://picsum.photos/seed/oldagehome2/800/600',
-    ],
+    images: [],
     highlights: [
       'Apartment-style accommodations',
       'Temple access for daily worship',
@@ -77,10 +70,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Meditation facilities near the sacred Sri Sailam temple',
     longDescription:
       'The Peetham has developed a retreat center near the holy Sri Sailam Jyotirlinga temple complex. The project offers single and double rooms on a time-share basis for devotees wishing to undertake extended meditation and pilgrimage. The location near one of the twelve Jyotirlingas provides an unparalleled environment for deep spiritual practice.',
-    images: [
-      'https://picsum.photos/seed/srisailam1/800/600',
-      'https://picsum.photos/seed/srisailam2/800/600',
-    ],
+    images: [],
     highlights: [
       'Located near Sri Sailam Jyotirlinga',
       'Single and double room accommodations',
@@ -94,11 +84,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Large-scale sacred fire ceremonies for dharmic protection',
     longDescription:
       'The Peetham regularly conducts large-scale Yagnas (sacred fire rituals) with the specific intention of protecting and spreading Sanatana Hindu Dharma, both within India and across the world. These elaborate ceremonies involve hundreds of priests and thousands of devotees, invoking divine blessings for the preservation of ancient spiritual knowledge and values.',
-    images: [
-      'https://picsum.photos/seed/yagna1/800/600',
-      'https://picsum.photos/seed/yagna2/800/600',
-      'https://picsum.photos/seed/yagna3/800/600',
-    ],
+    images: [],
     highlights: [
       'Conducted in India and abroad',
       'Hundreds of priests participate',
@@ -112,10 +98,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Homams for health, prosperity, education and family welfare',
     longDescription:
       'The Peetham conducts Prayojana Homas — specific fire rituals designed to address the needs of individual devotees and families. These include homas for health and healing, education and career success, removal of obstacles, family welfare, and spiritual progress. Trained priests perform these rituals following strict Vedic procedures on auspicious days.',
-    images: [
-      'https://picsum.photos/seed/homa1/800/600',
-      'https://picsum.photos/seed/homa2/800/600',
-    ],
+    images: [],
     highlights: [
       'Health and healing homas',
       'Education and career rituals',
@@ -129,10 +112,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Supporting Vedic education and cow protection initiatives',
     longDescription:
       'The Trivikrama Trust was established under the guidance of Sri Trivikrama Ramananda Saraswathi Swamiji to support two core missions: cow protection (Go Raksha) and education. The Trust sponsors deserving students in both Vedic and general education, ensuring that the ancient knowledge of the Vedas continues to be transmitted to future generations while also providing modern educational opportunities.',
-    images: [
-      'https://picsum.photos/seed/trust1/800/600',
-      'https://picsum.photos/seed/trust2/800/600',
-    ],
+    images: [],
     highlights: [
       'Vedic education scholarships',
       'General education support',
@@ -148,7 +128,6 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
       'Sri Raja Rajeswari Annadhana Samajam is a registered charitable organization operating under the Peetham\'s guidance. It is dedicated solely to providing wholesome meals to those in need — pilgrims, the elderly, students, and the destitute — without any discrimination. The samajam works in coordination with volunteers and donors to ensure that no one leaves hungry from the Peetham.',
     images: [
       'https://srisiddheshwaripeetham.com/annadanam-seva-peetham.jpg',
-      'https://picsum.photos/seed/samajam2/800/600',
     ],
     highlights: [
       'Registered charitable organization',
@@ -163,10 +142,7 @@ const ACTIVITY_DETAILS: ActivityDetail[] = [
     description: 'Collection of Vedas, Upanishads, Puranas in multiple languages',
     longDescription:
       'The Peetham maintains an extensive library housing rare and sacred texts including the four Vedas, 108 Upanishads, 18 Maha Puranas, Itihasas, and commentary literature in Sanskrit, Telugu, Hindi, Tamil, and English. The library is open to scholars, devotees, and researchers who wish to study the depth of Sanatana Dharma. Regular study circles and discourse sessions are held using these texts.',
-    images: [
-      'https://picsum.photos/seed/library1/800/600',
-      'https://picsum.photos/seed/library2/800/600',
-    ],
+    images: [],
     highlights: [
       'Vedas, Upanishads, Puranas collection',
       'Sanskrit, Telugu, Hindi, Tamil, English',
@@ -291,6 +267,7 @@ const ActivitiesPage = ({ onBack }: ActivitiesPageProps) => {
                 <img
                   src={activity.images[0]}
                   alt={activity.title}
+                  loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   referrerPolicy="no-referrer"
                 />
@@ -359,6 +336,7 @@ const ActivitiesPage = ({ onBack }: ActivitiesPageProps) => {
                     key={galleryIndex}
                     src={selectedActivity.images[galleryIndex]}
                     alt={`${selectedActivity.title} image ${galleryIndex + 1}`}
+                    loading="lazy"
                     className="h-full w-full object-cover"
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}

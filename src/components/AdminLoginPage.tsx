@@ -164,9 +164,9 @@ export default function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) 
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src={logoImage} alt="SSP" className="w-16 h-16 mx-auto mb-4 object-contain drop-shadow-lg" />
-          <h1 className="font-serif text-2xl text-warm-cream tracking-wide">Sri Siddheswari Peetham</h1>
-          <p className="font-ui text-[10px] tracking-[0.35em] uppercase text-spiritual-gold mt-1">Admin Portal</p>
+    <img src={logoImage} alt="Sri Siddheswari Peetham Logo" loading="lazy" className="w-16 h-16 mx-auto mb-4 object-contain drop-shadow-lg" />
+    <h1 className="font-serif text-2xl text-warm-cream tracking-wide">Sri Siddheswari Peetham</h1>
+    <h2 className="font-ui text-[10px] tracking-[0.35em] uppercase text-spiritual-gold mt-1">Admin Portal</h2>
           <div className="h-px bg-gradient-to-r from-transparent via-sacred-red/40 to-transparent mt-4" />
         </div>
 

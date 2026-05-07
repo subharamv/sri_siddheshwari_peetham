@@ -717,7 +717,7 @@ const InfiniteMenu: FC<InfiniteMenuProps> = ({ items = [], scale = 1.0, onItemCl
       setActiveItem(items[index % items.length]);
     };
     if (canvas) {
-      const defaultItem: MenuItem = { image: 'https://picsum.photos/900/900?grayscale', link: '', title: '', description: '' };
+      const defaultItem: MenuItem = { image: 'https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png', link: '', title: '', description: '' };
       sketch = new InfiniteGridMenu(canvas, items.length ? items : [defaultItem], handleActiveItem, setIsMoving, sk => sk.run(), scale);
     }
     const handleResize = () => { if (sketch) sketch.resize(); };

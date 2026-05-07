@@ -1182,7 +1182,7 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
                             className="flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all"
                             style={paymentMethod === 'upi' ? { background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.35)' } : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png"
-                              alt="UPI" className="h-5 w-auto object-contain transition-all"
+                              alt="UPI Logo" loading="lazy" className="h-5 w-auto object-contain transition-all"
                               style={{ filter: paymentMethod === 'upi' ? 'none' : 'grayscale(1) brightness(0.45)' }} />
                             <span className={`font-ui text-[8px] tracking-widest uppercase ${paymentMethod === 'upi' ? 'text-spiritual-gold' : 'text-warm-cream/30'}`}>UPI</span>
                           </button>

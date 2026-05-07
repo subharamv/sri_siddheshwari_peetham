@@ -257,11 +257,20 @@
   --color-warm-cream: #2a1a0e;
 }
 
-/* Restore white text on coloured button backgrounds in light mode */
+/* Force deity cards to always use dark-mode colours (background, text, borders) */
+[data-deity-card] {
+  --at-card-bg: rgba(10, 6, 4, 0.95);
+  --at-border-mid: rgba(255, 251, 247, 0.08);
+  --at-border-dim: rgba(255, 251, 247, 0.1);
+  --color-warm-cream: #fdfbf7;
+}
+
+/* Restore white text on coloured button and deity card backgrounds in light mode */
 [data-admin-theme="light"] .bg-sacred-red,
 [data-admin-theme="light"] [style*="background: #059669"],
 [data-admin-theme="light"] [style*="background: #dc2626"],
-[data-admin-theme="light"] [style*="background: #d97706"] {
+[data-admin-theme="light"] [style*="background: #d97706"],
+[data-admin-theme="light"] [style*="rgba(0,0,0,0.6)"] {
   --color-warm-cream: #fdfbf7;
 }
 

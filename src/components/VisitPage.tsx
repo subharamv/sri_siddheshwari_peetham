@@ -178,6 +178,7 @@ const VisitPage = ({ onBack }: VisitPageProps) => {
                             <img
                                 src="https://srisiddheshwaripeetham.com/_next/image?url=%2Fcourtallam-temple-gopuram-and-peetham-campus.png&w=1920&q=75"
                                 alt="Sri Siddheswari Campus Map"
+                                loading="lazy"
                                 className="w-full h-auto object-cover"
                                 referrerPolicy="no-referrer"
                             />
@@ -249,6 +250,7 @@ const VisitPage = ({ onBack }: VisitPageProps) => {
                             <img
                                 src={feature.image}
                                 alt={feature.title}
+                                loading="lazy"
                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                         </div>

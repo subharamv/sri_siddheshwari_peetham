@@ -51,7 +51,10 @@ import MagicRings from './components/MagicRings';
 import SpiritualChatbot from './components/SpiritualChatbot';
 import SevaBookingModal from './components/SevaBookingModal';
 import BookingStatusPage from './components/BookingStatusPage';
+import AdminLoginPage from './components/AdminLoginPage';
+import AdminDashboardPage from './components/AdminDashboardPage';
 import CardNav from './components/CardNav';
+import { supabase } from './lib/supabase';
 import DonationPage from './components/DonationPage';
 import AboutPage from './components/AboutPage';
 import VisitPage from './components/VisitPage';
@@ -2068,7 +2071,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(AUDIO_TRACKS[0].id);
   const [trackMenuOpen, setTrackMenuOpen] = useState(false);
-  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications' | 'booking-status'>(() => {
+  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications' | 'booking-status' | 'admin'>(() => {
     if (typeof window === 'undefined') return 'home';
     const h = window.location.hash;
     if (h === '#donate') return 'donate';
@@ -2077,9 +2080,34 @@ export default function App() {
     if (h === '#contact') return 'contact';
     if (h === '#activities-page') return 'activities';
     if (h === '#publications') return 'publications';
+    if (h === '#admin') return 'admin';
     if (h.startsWith('#swami')) return 'swami';
     return 'home';
   });
+
+  // ── Admin auth state ──────────────────────────────────────────────────────────
+  const [adminAuthState, setAdminAuthState] = useState<'login' | 'dashboard'>('login');
+  const [adminProfile, setAdminProfile] = useState<{ id: string; user_id: string; name: string; email: string; user_role: string } | null>(null);
+
+  const checkAdminProfile = React.useCallback(async (userId: string) => {
+    const { data } = await supabase.from('admin_profiles').select('*').eq('user_id', userId).single();
+    if (data) { setAdminProfile(data); setAdminAuthState('dashboard'); }
+    else { await supabase.auth.signOut(); setAdminAuthState('login'); }
+  }, []);
+
+  useEffect(() => {
+    if (page !== 'admin') return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) checkAdminProfile(session.user.id);
+      else setAdminAuthState('login');
+    });
+  }, [page, checkAdminProfile]);
+
+  const handleAdminLogout = async () => {
+    await supabase.auth.signOut();
+    setAdminAuthState('login');
+    setAdminProfile(null);
+  };
   const [selectedSwamiIndex, setSelectedSwamiIndex] = useState(() => {
     if (typeof window === 'undefined') return 0;
     const h = window.location.hash;
@@ -2255,6 +2283,9 @@ export default function App() {
       } else if (hash === '#booking-status') {
         setPage('booking-status');
         window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#admin') {
+        setPage('admin');
+        window.scrollTo({ top: 0, behavior: 'auto' });
       } else if (!hash || hash === '#home') {
         setPage('home');
       }
@@ -2284,19 +2315,16 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [page]);
 
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
+  // Use window-level scroll so we never need a mounted target ref
+  // (target-ref useScroll throws when the element hasn't rendered, e.g. on /admin)
+  const { scrollY } = useScroll();
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const scrollYProgress = useTransform(scrollY, [0, vh], [0, 1]);
+  const aboutScroll    = useTransform(scrollY, [vh * 2, vh * 4], [0, 1]);
 
-  const { scrollYProgress: aboutScroll } = useScroll({
-    target: aboutRef,
-    offset: ["start end", "end start"]
-  });
-
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const heroY      = useTransform(scrollYProgress, [0, 1],   ["0%", "50%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const aboutY = useTransform(aboutScroll, [0, 1], ["-5%", "5%"]);
+  const aboutY     = useTransform(aboutScroll,    [0, 1],   ["-5%", "5%"]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -2364,7 +2392,7 @@ export default function App() {
 
   return (
     <div className="relative" style={{ overflowX: 'clip' }}>
-      <div className="min-h-screen relative" style={{ zIndex: 1, marginBottom: footerHeight, background: '#FDFBF7' }}>
+      <div className="min-h-screen relative" style={{ zIndex: 1, marginBottom: page !== 'admin' ? footerHeight : 0, background: '#FDFBF7' }}>
         <CustomCursor />
         {/* Film Grain Overlay */}
         <div
@@ -2375,15 +2403,15 @@ export default function App() {
           }}
         />
 
-        <iframe
+        {page !== 'admin' && <iframe
           key={currentTrack}
           className="hidden"
           src={`https://www.youtube.com/embed/${currentTrack}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${currentTrack}`}
           allow="autoplay"
-        />
+        />}
 
         {/* Floating Audio Toggle + Track Picker */}
-        <div
+        {page !== 'admin' && <div
           className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-[100] flex flex-col items-end gap-2"
           onMouseEnter={() => setTrackMenuOpen(true)}
           onMouseLeave={() => setTrackMenuOpen(false)}
@@ -2444,12 +2472,12 @@ export default function App() {
               </motion.div>
             </div>
           </button>
-        </div>
+        </div>}
 
-        <SpiritualChatbot />
+        {page !== 'admin' && <SpiritualChatbot />}
 
         {/* ── Seva Booking Modal ── */}
-        <SevaBookingModal
+        {page !== 'admin' && <SevaBookingModal
           isOpen={bookingModal.open}
           onClose={closeBookingModal}
           initialDeity={bookingModal.deity ? {
@@ -2459,9 +2487,9 @@ export default function App() {
             grad: bookingModal.deity.grad,
           } : null}
           mode={bookingModal.mode}
-        />
+        />}
 
-        <Navbar onDonate={goToDonatePage} closeSignal={navCloseSignal} onNavigate={(href) => {
+        {page !== 'admin' && <Navbar onDonate={goToDonatePage} closeSignal={navCloseSignal} onNavigate={(href) => {
           const handlers: Record<string, () => void> = {
             '#donate': goToDonatePage,
             '#about': goToAboutPage,
@@ -2512,7 +2540,7 @@ export default function App() {
               else window.location.hash = href;
             }
           }
-        }} />
+        }} />}
 
         {page === 'swami' ? (
           <SwamyPage
@@ -2535,6 +2563,20 @@ export default function App() {
           <PublicationsPage onBack={goToHomePage} />
         ) : page === 'booking-status' ? (
           <BookingStatusPage onBack={goToHomePage} />
+        ) : page === 'admin' ? (
+          adminAuthState === 'dashboard' && adminProfile ? (
+            <AdminDashboardPage
+              profile={adminProfile}
+              onLogout={handleAdminLogout}
+              onBack={goToHomePage}
+            />
+          ) : (
+            <AdminLoginPage onLoginSuccess={() => {
+              supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) checkAdminProfile(session.user.id);
+              });
+            }} />
+          )
         ) : (
           <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             {/* Hero Section */}
@@ -2975,7 +3017,7 @@ export default function App() {
         )}
 
       </div>
-      <footer ref={footerRef} className="fixed bottom-0 left-0 right-0 z-0 w-full bg-neutral-900 pt-16 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between">
+      {page !== 'admin' && <footer ref={footerRef} className="fixed bottom-0 left-0 right-0 z-0 w-full bg-neutral-900 pt-16 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
@@ -3066,7 +3108,7 @@ export default function App() {
             © {new Date().getFullYear()} Sri Siddheswari Peetham. All Rights Reserved.
           </p>
         </div>
-      </footer>
+      </footer>}
     </div>
   );
 }

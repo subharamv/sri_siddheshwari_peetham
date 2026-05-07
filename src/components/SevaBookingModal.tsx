@@ -24,6 +24,8 @@ interface TimeSlot {
   name: string;
   price: number;
   available: boolean;
+  max_bookings?: number;
+  bookedCount?: number;
 }
 
 interface DeitySevaSelection {
@@ -390,9 +392,23 @@ function SlotList({ slots, selected, onSelect }: {
           </div>
           <div className="text-right flex-shrink-0">
             {slot.available ? (
-              <span className="text-spiritual-gold font-ui text-[11px] font-bold">₹{slot.price.toLocaleString('en-IN')}</span>
+              <div>
+                <span className="text-spiritual-gold font-ui text-[11px] font-bold">₹{slot.price.toLocaleString('en-IN')}</span>
+                {slot.max_bookings != null && (
+                  <p className="text-warm-cream/25 font-ui text-[8px] tracking-wider mt-0.5">
+                    {slot.bookedCount ?? 0}/{slot.max_bookings} booked
+                  </p>
+                )}
+              </div>
             ) : (
-              <span className="text-warm-cream/30 font-ui text-[9px] uppercase tracking-widest">Full</span>
+              <div>
+                <span className="text-warm-cream/30 font-ui text-[9px] uppercase tracking-widest">Full</span>
+                {slot.max_bookings != null && (
+                  <p className="text-warm-cream/20 font-ui text-[8px] tracking-wider mt-0.5">
+                    {slot.bookedCount ?? 0}/{slot.max_bookings}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </button>
@@ -540,7 +556,7 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
   const [calMonth, setCalMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null); // Main slot if only one seva
-  
+
   // Tab
   const [activeTab, setActiveTab] = useState<'schedule' | 'book'>(mode);
 
@@ -549,6 +565,34 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
 
   // Seva type: online = no temple visit, offline = visit required
   const [sevaType, setSevaType] = useState<'online' | 'offline'>('offline');
+
+  // Slot availability from DB (declared after sevaType)
+  const [dbSlots, setDbSlots] = useState<Array<{ id: string; time: string; name: string; price: number; sort_order: number; max_bookings: number; is_active: boolean }>>([]);
+  const [slotCounts, setSlotCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    supabase.from('ref_slots').select('*').order('sort_order').then(({ data }) => {
+      if (data && data.length > 0) setDbSlots(data as typeof dbSlots);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedDate || sevaType !== 'offline') { setSlotCounts({}); return; }
+    const dateIso = toKey(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    supabase
+      .from('seva_bookings')
+      .select('slot_id')
+      .eq('seva_date_iso', dateIso)
+      .neq('payment_status', 'cancelled')
+      .not('slot_id', 'is', null)
+      .then(({ data }) => {
+        const counts: Record<string, number> = {};
+        (data ?? []).forEach((b: { slot_id: string }) => {
+          if (b.slot_id) counts[b.slot_id] = (counts[b.slot_id] ?? 0) + 1;
+        });
+        setSlotCounts(counts);
+      });
+  }, [selectedDate, sevaType]);
 
   // Booking state
   const [deitySevas, setDeitySevas] = useState<DeitySevaSelection[]>(() => {
@@ -710,7 +754,24 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
     downloadBookingPDF(bookingRecord);
   };
 
-  const slots = selectedDate ? getFilteredSlots(selectedDate, deitySevas) : [];
+  // Build slots using DB data (with limit enforcement) or fall back to BASE_SLOTS
+  const getDbAwareSlots = (date: Date): TimeSlot[] => {
+    const source = dbSlots.length > 0 ? dbSlots.filter(s => s.is_active) : BASE_SLOTS;
+    return source.map(s => {
+      const count = slotCounts[s.id] ?? 0;
+      const max = (s as { max_bookings?: number }).max_bookings ?? 50;
+      return { ...s, bookedCount: count, max_bookings: max, available: !isSlotPast(s.time, date) && count < max };
+    });
+  };
+  const slots = selectedDate ? (() => {
+    const all = getDbAwareSlots(selectedDate);
+    if (deitySevas.length === 0) return all;
+    const sevaNames = deitySevas.map(ds => ds.seva.toLowerCase());
+    const filtered = all.filter(slot =>
+      sevaNames.some(sn => slot.name.toLowerCase().includes(sn) || sn.includes(slot.name.toLowerCase()))
+    );
+    return filtered.length > 0 ? filtered : all;
+  })() : [];
   const nextBtnText = currentBookingStep === 5 ? `Pay ₹${total.toLocaleString('en-IN')}` : 'Continue';
 
   if (!isOpen) return null;
@@ -914,7 +975,10 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
                               <div className="space-y-4 pt-4" style={{ borderTop: '1px solid rgba(212,175,55,0.1)' }}>
                                 <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-spiritual-gold/50 font-semibold">Assign Slots</p>
                                 {deitySevas.map((ds, idx) => {
-                                  const recommended = getFilteredSlots(selectedDate, [ds]);
+                                  const allDb = getDbAwareSlots(selectedDate);
+                                  const sevaName = ds.seva.toLowerCase();
+                                  const filteredDb = allDb.filter(s => s.name.toLowerCase().includes(sevaName) || sevaName.includes(s.name.toLowerCase()));
+                                  const recommended = filteredDb.length > 0 ? filteredDb : allDb;
                                   return (
                                     <div key={idx} className="space-y-2">
                                       <div className="flex items-center justify-between">

@@ -1,14 +1,27 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { CreateMLCEngine, prebuiltAppConfig } from '@mlc-ai/web-llm';
 import type { MLCEngineInterface } from '@mlc-ai/web-llm';
-import { X, Send, RotateCcw, ChevronDown, Loader2, Trash2 } from 'lucide-react';
+import { X, Send, RotateCcw, ChevronDown, Loader2, Trash2, ArrowLeft, Navigation, BookOpen, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
+
+import logoImg from '../assets/Logo.png';
+import templeImg from '../assets/courtallam-temple-gopuram-and-peetham-campus.png';
+import deitiesImg from '../assets/deities-shrines-card.webp';
+import samadhiImg from '../assets/mounaswamy-samadhi-mandir.jpg';
+import mounaSwamyImg from '../assets/mouna-swami-portrait-1.jpg';
+import vimalanandaImg from '../assets/vimalananda-bharati-portrait.jpg';
+import trivikramaImg from '../assets/trivikrama-ramananda-standing.jpg';
+import sivachidanandaImg from '../assets/siva-chidananda-standing.jpg';
+import peethadhipathiImg from '../assets/peethadhipathi-updated.png';
+import datteshwaranandaImg from '../assets/datteshwarananda-final.jpg';
+import dandayudhapaniImg from '../assets/dandayudhapani.jpg';
+import naadiGanapathiImg from '../assets/naadi-ganapathi-exact.jpg';
 
 const STORAGE_KEY = 'ssp_chat_history';
 const DEFAULT_MODEL = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
 const MODEL_CONTEXT = 4096;
-const SYSTEM_PROMPT_TOKENS = 350; // conservative overhead for system prompt
+const SYSTEM_PROMPT_TOKENS = 1600; // ~3200 chars at 2 chars/token (Indian names + ₹ tokenize densely)
 const MAX_RESPONSE_TOKENS = 512;
 // budget left for conversation history
 const MAX_HISTORY_TOKENS = MODEL_CONTEXT - SYSTEM_PROMPT_TOKENS - MAX_RESPONSE_TOKENS - 64;
@@ -30,31 +43,113 @@ function buildTrimmedHistory(history: ChatHistoryEntry[]) {
   return trimmed;
 }
 
-const SYSTEM_PROMPT = `You are a compassionate spiritual guide of Sri Siddheswari Peetham, a sacred institution rooted in the teachings of Mouna Swamy (the Silent Sage) in Courtallam, Tamil Nadu, India.
+const SYSTEM_PROMPT = `You are a compassionate spiritual guide of Sri Siddheswari Peetham, Courtallam, Tamil Nadu. Answer questions with warmth and spiritual depth, drawing on Vedanta, Advaita, and Sanatana Dharma.
 
-Your role is to:
-- Share wisdom from Vedanta, Advaita philosophy, and Sanatana Dharma
-- Speak about the significance of Mouna (silence) as a path to self-realization
-- Offer guidance on meditation, seva (selfless service), and dharmic living
-- Provide information about the Peetham's activities, festivals, and the lineage of Guru Parampara
-- Speak with warmth, humility, and spiritual depth
+PEETHAM: Founded 1910 by Mounaswamy. Sri Vidya tradition, Sri Chakra Maha Meru worship. Principal deity: Sri Raja Rajeswari Ambal (installed 1916). Address: Courtallam 627802, Tenkasi Dist, TN. Phone: +91 9443184738. Email: feedback@srisiddheshwaripeetham.com. Map: https://maps.app.goo.gl/YNcAvUPf2qmtd9pL9
 
+LINEAGE:
+1. Mounaswamy (1868-1943) — Founder. Practiced absolute silence (Mouna Vratam). Met Ramana Maharshi and Shirdi Sai Baba. Established Peetham Oct 7, 1910.
+2. Sri Vimalananda Bharathi (1878-1950) — First Pontiff. Vedic scholar, discourses on Upanishads and Bhagavad Gita.
+3. Sri Trivikramaramananda Bharathi (1901-1991) — Second Pontiff. Lalitha Sahasranama recitations, spread Veda Dharma across India.
+4. Sri Sivachidananda Bharathi (1929-2002) — Third Pontiff. Lawyer, Vasthu and Jyotishya master. Called "Abhinava Mounaswamy."
+5. Sri Siddheswarananda Bharati (1937-present) — Fourth Pontiff (current). Scholar-poet, yogi, former college principal. Titled Avadhana Saraswathi.
+6. Sri Datteshwarananda Bharati — Successor. Former medical doctor, embraced Sanyasa.
 
-Location: 
+DEITIES: Sri Raja Rajeswari Ambal (principal), Dandayudhapani, Swetha Kali, Kalabhairava, Pratyangira Devi, Varahi, Seetarama, Yoga Narasimha, Radha Krishna, Nadi Ganapathi, Hanuman, Nagadevatha, Navagraha, Ayyappa, Shirdi Sai Baba, Subramanya Swami.
 
-Sri Siddheswari Peetham,
-Courtallam - 627 802,
-Tenkasi District, TN.
+SCHEDULE: 5:30 AM Suprabhatam · 6:00 AM Abhishekam · 7:30 AM Alankaram · 12:00 PM Madhyahna Puja · 6:00 PM Sandhya Arati · 8:00 PM Sayana Arati. Special: Pratyangira Homam on Amavasya; Rahu Kala Pooja Tuesdays 2:30-4 PM.
 
+ACTIVITIES: Annadanam (free meals twice daily for all), Go Shala (cow sanctuary), Old Age Home, Sri Sailam Retreat, Dharma Rakshana Yagnas, Prayojana Homas (health/education/family), Trivikrama Trust (education + cow protection), Vedic Library (Vedas, Upanishads, Puranas), Veda Patasala.
 
-Visit Courtallam
-Sri Siddheswari Peetham is located in Courtallam, Tamil Nadu, famed for its waterfalls and serene hills. Plan your trip using the essentials below.
+VISITING: Courtallam, Tenkasi Dist, TN. Best season: June-Sep. Air: Madurai/Trivandrum. Rail: Sengottai/Tenkasi/Tirunelveli. Road: buses from Tenkasi. Etiquette: traditional attire, silence in sanctum, follow volunteer guidance.
 
+EVENTS 2026: Mouna Shivaratri Feb 15, Akshaya Tritiya Apr 19, Guru Purnima Jul 29, Varalakshmi Vratam Aug 21, Janmashtami Sep 4, Ganesh Chaturthi Sep 14, Navaratri Oct 12, Deepavali Nov 8. 2027: Maha Shivaratri Mar 6.
 
-How to Reach
-Frequent buses from Tenkasi/Tirunelveli. Taxis available from nearby railheads. Roads remain motorable during monsoon. Check local advisories.
-See Map: https://maps.app.goo.gl/YNcAvUPf2qmtd9pL9
+DONATIONS (80G eligible): Annadanam, Go Seva, Temple Maintenance (one-time); Daily Deepam, Vedic Education, Bhajan Fund (monthly). Contact: feedback@srisiddheshwaripeetham.com
+
+TEACHINGS: "Silence is the presence of God." "Service to humanity is the highest worship." "Realize the Divinity within and express it in every action."
 `;
+
+const QUICK_CATEGORIES = [
+  {
+    id: 'peetham', label: 'About Peetham', icon: '🛕', img: logoImg,
+    questions: [
+      {
+        q: 'What is Sri Siddheswari Peetham?',
+        a: 'Sri Siddheswari Peetham is a sacred institution founded in **1910** by H.H. Sri Sivachidananda Saraswati Swamy (Mounaswamy) in Courtallam, Tamil Nadu.\n\nIt follows the ancient **Sri Vidya tradition**, venerating **Sri Raja Rajeswari Ambal** as the principal deity, and preserves Sanatana Dharma through rituals, Annadanam, and Vedic education.\n\n__LINK:About Peetham:#about__',
+      },
+      {
+        q: 'Who is Mounaswamy?',
+        a: '**H.H. Sri Sivachidananda Saraswati Swamy** — Mounaswamy (the Silent Sage) — founded the Peetham. Born 1868, he renounced worldly life and practiced **Mouna Vratam** (absolute silence) as his path to liberation.\n\nHe met **Ramana Maharshi** and **Shirdi Sai Baba**, established the Peetham on October 7, 1910, and attained Mahasamadhi on December 28, 1943.\n\n__PORTRAIT:mouna__\n\n__LINK:Life of Mounaswamy:#swamiji__',
+      },
+      {
+        q: 'Who is the current Peethadhipathi?',
+        a: '**H.H. Sri Siddheswarananda Bharati Swamy** (born 1937) is the Fourth and current Peethadhipathi. A scholar-poet, former college principal, and great yogi, he ascended the throne on December 19, 2002.\n\n**Sri Datteshwarananda Bharati** (formerly Dr. Kadambari Aravind) is the designated successor.\n\n__PORTRAIT:current__\n\n__LINK:Current Peethadhipathi:#swamiji__',
+      },
+      {
+        q: 'What is the Guru Parampara?',
+        a: '**Sacred Lineage:**\n\n1. **Mounaswamy** — Founder (1910–1943)\n2. **Sri Vimalananda Bharathi** — First Pontiff (1944–1950)\n3. **Sri Trivikramaramananda Bharathi** — Second Pontiff (1950–1991)\n4. **Sri Sivachidananda Bharathi** — Third Pontiff (1991–2002)\n5. **Sri Siddheswarananda Bharati** — Fourth Pontiff (2002–present)\n6. **Sri Datteshwarananda Bharati** — Designated Successor\n\n__SWAMI_CARDS__\n\n__LINK:Guru Parampara Details:#swamiji__',
+      },
+    ],
+  },
+  {
+    id: 'visit', label: 'Visit & Timings', icon: '📍', img: templeImg,
+    questions: [
+      {
+        q: 'Where is the Peetham located?',
+        a: '📍 **Sri Siddheswari Peetham**\nCourtallam – 627 802, Tenkasi District, Tamil Nadu\n\nCourtallam (*Agasthya Kshethram*) is the sacred abode of Sage Agasthya, renowned for its majestic waterfalls.\n\n**Phone:** +91 9443184738\n**Email:** feedback@srisiddheshwaripeetham.com\n\n__MAP_EMBED__\n\n__LINK:Plan Your Visit:#visit__',
+      },
+      {
+        q: 'What are the daily pooja timings?',
+        a: '**Daily Pooja Schedule:**\n\n🌅 **5:30 AM** — Suprabhatam\n🪔 **6:00 AM** — Abhishekam\n🌸 **7:30 AM** — Alankaram\n☀️ **12:00 PM** — Madhyahna Puja\n🌆 **6:00 PM** — Sandhya Arati\n🌙 **8:00 PM** — Sayana Arati\n\n*Special:* Pratyangira Homam on Amavasya · Rahu Kala Pooja on Tuesdays 2:30–4 PM\n\n__LINK:Temple Calendar:#calendar__',
+      },
+
+      {
+        q: 'How do I reach Courtallam?',
+        a: '**📍 How to Reach Courtallam**\n\n**✈️ By Air**\nThe nearest airports are:\n- Madurai Airport (~160 km)\n- Trivandrum International Airport (~110 km)\n\nFrom the airport, you can hire a taxi or take a bus to reach Courtallam.\n\n**🚂 By Rail**\nNearest railway stations:\n- Sengottai Railway Station (~10 km)\n- Tenkasi Junction (~6 km)\n- Tirunelveli Junction (~60 km)\n\nTaxis, autos, and buses are easily available from these stations.\n\n**🚌 By Road**\nCourtallam is well-connected by road:\n- Frequent buses from Tenkasi and Tirunelveli\n- Good motorable roads for cars and taxis\n- Ideal for a scenic road trip, especially during monsoon\n\n**🌧 Best Time to Visit**\nJune – September (Monsoon Season)\n- Experience the famous Courtallam waterfalls in full flow\n- Pleasant weather with lush green surroundings\n- Roads remain accessible and safe for travel',
+      },
+      {
+        q: 'Temple etiquette & tips',
+        a: '**Visiting Guidelines:**\n\n- 👗 Traditional attire preferred\n- 🤫 Maintain silence inside the sanctum\n- 📷 Photography restricted near deities\n- 🙏 Follow volunteer guidance\n\n*Nearby:* Courtallam waterfalls · Kutralanathar Temple · peaceful hill trails',
+      },
+    ],
+  },
+  {
+    id: 'seva', label: 'Seva & Events', icon: '🙏', img: deitiesImg,
+    questions: [
+      {
+        q: 'What seva programs are offered?',
+        a: '**Seva Programs:**\n\n🍽️ **Annadanam** — Free meals twice daily for all\n🐄 **Go Shala** — Sacred cow sanctuary\n🏠 **Old Age Home** — Spiritual accommodation\n🔥 **Prayojana Homas** — Homams for health, education & family\n📚 **Vedic Library** — Vedas, Upanishads, Puranas\n🎓 **Veda Patasala** — Vedic education\n🛕 **Sri Sailam Retreat** — Near Jyotirlinga\n\n__DEITY_CARDS__\n\n__LINK:Peetham Activities:#activities-page__',
+      },
+      {
+        q: 'What is Annadanam?',
+        a: '**Annadanam** — the sacred gift of food — is the Peetham\'s most cherished seva.\n\n**Free meals served twice daily** to all devotees, pilgrims, and the needy with no distinction of caste or creed.\n\nInitiated by Sri Mounaswamy himself and continued **unbroken since 1910**, run by the *Raja Rajeswari Annadaana Samaajam*.\n\n__LINK:Read About Annadanam:#activities-page__',
+      },
+      {
+        q: 'Upcoming festivals & events',
+        a: '**Upcoming Festivals 2026–2027:**\n\n📅 Feb 15, 2026 — Akhanda Mouna Shivaratri\n📅 Apr 19, 2026 — Akshaya Tritiya\n📅 Jul 29, 2026 — Guru Purnima\n📅 Aug 21, 2026 — Varalakshmi Vratam\n📅 Sep 4, 2026 — Sri Krishna Janmashtami\n📅 Sep 14, 2026 — Ganesh Chaturthi\n📅 Oct 12, 2026 — Navaratri Brahmotsavam\n📅 Nov 8, 2026 — Deepavali\n📅 Mar 6, 2027 — Maha Shivaratri\n\n__LINK:View Event Calendar:#calendar__',
+      },
+    ],
+  },
+  {
+    id: 'donate', label: 'Donate & Support', icon: '🪔', img: samadhiImg,
+    questions: [
+      {
+        q: 'How can I donate?',
+        a: '**Donation Programs:**\n\n🍽️ **Annadanam** — ₹501 to ₹5,001\n🐄 **Go Seva** — ₹1,001 to ₹10,001\n🛕 **Temple Maintenance** — ₹2,001 to ₹25,001\n\n**Monthly Sponsorships:**\n🪔 Daily Deepam — ₹365/month\n📚 Vedic Education — ₹1,001/month\n🎵 Bhajan & Satsang — ₹751/month\n\n📧 feedback@srisiddheshwaripeetham.com\n📞 +91 9443184738\n\n__LINK:Donate Now:#donate-page__',
+      },
+
+      {
+        q: 'Is my donation tax-exempt?',
+        a: '**Yes!** All donations are eligible for **tax deduction under Section 80G** of the Indian Income Tax Act.\n\n✅ Secure encrypted payment processing\n✅ Regular updates on donation utilization\n✅ Tax receipts provided on request\n\n📧 feedback@srisiddheshwaripeetham.com\n\n__LINK:Donation FAQ:#donate-page__',
+      },
+      {
+        q: 'How do donations help?',
+        a: 'Your contributions directly support:\n\n🍽️ **Daily Annadanam** — feeding thousands of visitors\n🐄 **Go Shala** — protecting sacred cows\n📚 **Education** — Vedic scholarships via Trivikrama Trust\n🛕 **Temple upkeep** — preserving shrines for generations\n🔥 **Sacred rituals** — Homams and Yagnas for Dharma\n\n*Every offering carries the blessings of Sri Raja Rajeswari Ambal.*\n\n__LINK:Support the Peetham:#donate-page__',
+      },
+    ],
+  },
+];
 
 type Message = {
   role: 'user' | 'assistant';
@@ -113,51 +208,186 @@ const LotusIcon = ({ size = 20, className = '' }: { size?: number; className?: s
   </svg>
 );
 
-/* Markdown renderer with v10-compatible component API */
-const MarkdownMessage = ({ content }: { content: string }) => (
-  <ReactMarkdown
-    components={{
-      p: ({ children }) => (
-        <p style={{ marginBottom: '0.4rem', lineHeight: '1.6' }} className="last:mb-0">{children}</p>
-      ),
-      strong: ({ children }) => (
-        <strong style={{ color: '#D4AF37', fontWeight: 700, fontFamily: 'Cormorant Garamond, serif' }}>
-          {children}
-        </strong>
-      ),
-      em: ({ children }) => (
-        <em style={{ color: '#e8c97a', fontStyle: 'italic' }}>{children}</em>
-      ),
-      ul: ({ children }) => (
-        <ul style={{ listStyleType: 'disc', paddingLeft: '1.2rem', marginBottom: '0.5rem' }}>{children}</ul>
-      ),
-      ol: ({ children }) => (
-        <ol style={{ listStyleType: 'decimal', paddingLeft: '1.2rem', marginBottom: '0.5rem' }}>{children}</ol>
-      ),
-      li: ({ children }) => (
-        <li style={{ marginBottom: '0.2rem' }}>{children}</li>
-      ),
-      h1: ({ children }) => (
-        <h1 style={{ color: '#D4AF37', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.4rem' }}>{children}</h1>
-      ),
-      h2: ({ children }) => (
-        <h2 style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: 700, marginBottom: '0.3rem' }}>{children}</h2>
-      ),
-      h3: ({ children }) => (
-        <h3 style={{ color: '#e8c97a', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem' }}>{children}</h3>
-      ),
-      code: ({ children }) => (
-        <code style={{ background: 'rgba(212,175,55,0.1)', color: '#D4AF37', padding: '0.1rem 0.3rem', borderRadius: 4, fontSize: '0.85em' }}>
-          {children}
-        </code>
-      ),
-    }}
-  >
-    {content}
-  </ReactMarkdown>
+const SWAMI_DATA = [
+  { name: 'Mounaswamy', title: 'Founder · 1910–1943', img: mounaSwamyImg },
+  { name: 'Sri Vimalananda Bharathi', title: 'First Pontiff · 1944–1950', img: vimalanandaImg },
+  { name: 'Sri Trivikramaramananda Bharathi', title: 'Second Pontiff · 1950–1991', img: trivikramaImg },
+  { name: 'Sri Sivachidananda Bharathi', title: 'Third Pontiff · 1991–2002', img: sivachidanandaImg },
+  { name: 'Sri Siddheswarananda Bharati', title: 'Fourth Pontiff · 2002–present', img: peethadhipathiImg },
+  { name: 'Sri Datteshwarananda Bharati', title: 'Designated Successor', img: datteshwaranandaImg },
+];
+
+const DEITY_DATA = [
+  { name: 'Sri Raja Rajeswari', img: deitiesImg },
+  { name: 'Dandayudhapani', img: dandayudhapaniImg },
+  { name: 'Naadi Ganapathi', img: naadiGanapathiImg },
+  { name: 'Swetha Kali', img: deitiesImg },
+  { name: 'Pratyangira Devi', img: deitiesImg },
+  { name: 'Kalabhairava', img: deitiesImg },
+];
+
+const SwamiCards = () => (
+  <div className="mt-3 -mx-1 overflow-x-auto swami-selector" data-lenis-prevent>
+    <div className="flex flex-nowrap gap-3 px-1 pb-2" style={{ width: 'max-content' }}>
+      {SWAMI_DATA.map(s => (
+        <div key={s.name} className="flex flex-col items-center gap-1.5" style={{ width: 76 }}>
+          <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0"
+            style={{ border: '2px solid rgba(212,175,55,0.45)', boxShadow: '0 0 14px rgba(212,175,55,0.18)' }}>
+            <img src={s.img} alt={s.name} className="w-full h-full object-cover object-top" />
+          </div>
+          <p className="text-center leading-tight"
+            style={{ color: 'rgba(253,251,247,0.85)', fontFamily: 'Cormorant Garamond, serif', fontSize: '10px', lineHeight: '1.3', maxWidth: 72 }}>
+            {s.name.split(' ').slice(-2).join(' ')}
+          </p>
+          <p className="text-center leading-tight"
+            style={{ color: 'rgba(212,175,55,0.55)', fontFamily: 'Montserrat, sans-serif', fontSize: '8px', lineHeight: '1.2', maxWidth: 72 }}>
+            {s.title}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
-export default function SpiritualChatbot() {
+const DeityCards = () => (
+  <div className="mt-3 -mx-1 overflow-x-auto swami-selector" data-lenis-prevent>
+    <div className="flex flex-nowrap gap-3 px-1 pb-2" style={{ width: 'max-content' }}>
+      {DEITY_DATA.map(d => (
+        <div key={d.name} className="flex flex-col items-center gap-1.5" style={{ width: 68 }}>
+          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
+            style={{ border: '2px solid rgba(212,175,55,0.4)', boxShadow: '0 0 10px rgba(212,175,55,0.14)' }}>
+            <img src={d.img} alt={d.name} className="w-full h-full object-cover" />
+          </div>
+          <p className="text-center leading-tight"
+            style={{ color: 'rgba(253,251,247,0.8)', fontFamily: 'Cormorant Garamond, serif', fontSize: '10px', lineHeight: '1.3', maxWidth: 64 }}>
+            {d.name}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const PortraitCard = ({ img, name, title }: { img: string; name: string; title: string }) => (
+  <div className="mt-3 flex items-center gap-3 px-3 py-3 rounded-2xl"
+    style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)' }}>
+    <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0"
+      style={{ border: '2px solid rgba(212,175,55,0.4)', boxShadow: '0 0 14px rgba(212,175,55,0.15)' }}>
+      <img src={img} alt={name} className="w-full h-full object-cover object-top" />
+    </div>
+    <div className="min-w-0">
+      <p style={{ color: '#D4AF37', fontFamily: 'Cormorant Garamond, serif', fontSize: '13px', fontWeight: 600, lineHeight: 1.3 }}>{name}</p>
+      <p style={{ color: 'rgba(253,251,247,0.45)', fontFamily: 'Montserrat, sans-serif', fontSize: '9px', marginTop: 3, lineHeight: 1.4 }}>{title}</p>
+    </div>
+  </div>
+);
+
+const MapCard = () => (
+  <div className="mt-3 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.2)' }}>
+    <iframe
+      src="https://maps.google.com/maps?q=Sri+Siddheswari+Peetham+Courtallam+Tamil+Nadu&output=embed"
+      width="100%"
+      height="180"
+      style={{ border: 0, display: 'block' }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Sri Siddheswari Peetham Location"
+    />
+    <a
+      href="https://maps.app.goo.gl/YNcAvUPf2qmtd9pL9"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-2 py-2.5 w-full transition-colors"
+      style={{ background: 'rgba(160,45,35,0.15)', color: '#D4AF37', fontFamily: 'Montserrat, sans-serif', fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none' }}
+      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(160,45,35,0.3)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(160,45,35,0.15)')}
+    >
+      <Navigation size={13} /> Get Directions
+    </a>
+  </div>
+);
+
+const PageLink = ({ label, href, onNavigate }: { label: string; href: string; onNavigate?: (href: string) => void }) => (
+  <a
+    href={href}
+    onClick={(e) => {
+      if (onNavigate) {
+        e.preventDefault();
+        onNavigate(href);
+      }
+    }}
+    className="mt-3 flex items-center justify-between px-4 py-3 rounded-xl transition-all hover:scale-[1.02] active:scale-95 group"
+    style={{ 
+      background: 'rgba(212,175,55,0.08)', 
+      border: '1px solid rgba(212,175,55,0.2)',
+      textDecoration: 'none'
+    }}
+  >
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ background: 'rgba(160,45,35,0.2)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <BookOpen size={14} className="text-spiritual-gold" />
+      </div>
+      <div>
+        <p className="text-warm-cream/40 font-ui text-[9px] tracking-widest uppercase mb-0.5">Explore More</p>
+        <p className="text-spiritual-gold font-serif text-[15px] leading-none">{label}</p>
+      </div>
+    </div>
+    <ChevronRight size={16} className="text-spiritual-gold/40 group-hover:text-spiritual-gold transition-colors" />
+  </a>
+);
+
+/* Markdown renderer with v10-compatible component API */
+const MarkdownMessage = ({ content }: { content: string }) => {
+  // Single \n is ignored by Markdown; convert to soft-break (two trailing spaces + \n)
+  // while preserving paragraph breaks (\n\n) unchanged.
+  const processed = content.replace(/\n(?!\n)/g, '  \n');
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => (
+          <p style={{ marginBottom: '0.5rem', lineHeight: '1.7' }} className="last:mb-0">{children}</p>
+        ),
+        strong: ({ children }) => (
+          <strong style={{ color: '#D4AF37', fontWeight: 700, fontFamily: 'Cormorant Garamond, serif' }}>
+            {children}
+          </strong>
+        ),
+        em: ({ children }) => (
+          <em style={{ color: '#e8c97a', fontStyle: 'italic' }}>{children}</em>
+        ),
+        ul: ({ children }) => (
+          <ul style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0.5rem' }}>{children}</ul>
+        ),
+        ol: ({ children }) => (
+          <ol style={{ listStyleType: 'decimal', paddingLeft: '1.2rem', marginBottom: '0.5rem' }}>{children}</ol>
+        ),
+        li: ({ children }) => (
+          <li style={{ marginBottom: '0.35rem', paddingLeft: '0.1rem' }}>{children}</li>
+        ),
+        h1: ({ children }) => (
+          <h1 style={{ color: '#D4AF37', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.4rem' }}>{children}</h1>
+        ),
+        h2: ({ children }) => (
+          <h2 style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: 700, marginBottom: '0.3rem' }}>{children}</h2>
+        ),
+        h3: ({ children }) => (
+          <h3 style={{ color: '#e8c97a', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem' }}>{children}</h3>
+        ),
+        code: ({ children }) => (
+          <code style={{ background: 'rgba(212,175,55,0.1)', color: '#D4AF37', padding: '0.1rem 0.3rem', borderRadius: 4, fontSize: '0.85em' }}>
+            {children}
+          </code>
+        ),
+      }}
+    >
+      {processed}
+    </ReactMarkdown>
+  );
+};
+
+export default function SpiritualChatbot({ onNavigate }: { onNavigate?: (href: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(loadHistory);
   const [input, setInput] = useState('');
@@ -168,6 +398,7 @@ export default function SpiritualChatbot() {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
+  const [suggestionCategoryId, setSuggestionCategoryId] = useState<string | null>(null);
 
   const engineRef = useRef<MLCEngineInterface | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -270,7 +501,18 @@ export default function SpiritualChatbot() {
 
   const clearHistory = () => {
     setMessages([]);
+    setSuggestionCategoryId(null);
     localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const handleQuickQuestion = (question: string, answer: string) => {
+    const userId = crypto.randomUUID();
+    const botId = crypto.randomUUID();
+    setMessages(prev => [...prev,
+      { role: 'user', content: question, id: userId },
+      { role: 'assistant', content: answer, id: botId },
+    ]);
+    setSuggestionCategoryId(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -423,7 +665,7 @@ export default function SpiritualChatbot() {
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     />
                   </div>
-                  <div className="overflow-y-auto" style={{ maxHeight: 260 }}>
+                  <div className="overflow-y-auto overscroll-contain" style={{ maxHeight: 260 }} data-lenis-prevent>
                     {filteredModels.map(id => (
                       <button
                         key={id}
@@ -478,15 +720,43 @@ export default function SpiritualChatbot() {
         </div>
 
         {/* Messages */}
-        <div className="relative flex-1 overflow-y-auto px-4 py-4 space-y-4 chatbot-scrollbar">
+        <div className="relative flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-4 chatbot-scrollbar" data-lenis-prevent>
           {messages.length === 0 && loadState === 'ready' && (
-            <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
-              <div className="mb-4 opacity-20">
-                <LotusIcon size={48} className="text-spiritual-gold mx-auto" />
+            <div className="flex flex-col px-2 pt-2 pb-3">
+              {/* Greeting */}
+              <div className="flex items-start gap-2 mb-4">
+                <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
+                  style={{ background: 'linear-gradient(135deg, #A02D23, #5d1a14)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                  <LotusIcon size={14} className="text-spiritual-gold" />
+                </div>
+                <div className="px-4 py-3 rounded-2xl text-sm"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,175,55,0.15)', color: 'rgba(253,251,247,0.88)', borderRadius: '18px 18px 18px 4px', fontFamily: 'Cormorant Garamond, serif', fontSize: '15px' }}>
+                  <p className="mb-1">Namaste 🙏 Welcome to Sri Siddheswari Peetham.</p>
+                  <p className="text-warm-cream/60 text-sm">How may I guide you today?</p>
+                </div>
               </div>
-              <p className="text-warm-cream/20 font-serif text-lg italic mb-2">Seek and thou shalt find</p>
-              <p className="text-warm-cream/15 font-ui text-[9px] tracking-[0.25em] uppercase">
-                Ask about our teachings, festivals, or the path of silence
+              {/* Category buttons */}
+              <div className="grid grid-cols-2 gap-2 px-1">
+                {QUICK_CATEGORIES.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSuggestionCategoryId(cat.id)}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-95"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.18)', color: 'rgba(253,251,247,0.75)', fontFamily: 'Montserrat, sans-serif', fontSize: '11px', letterSpacing: '0.02em' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                      style={{ border: '1.5px solid rgba(212,175,55,0.35)' }}>
+                      <img src={cat.img} alt={cat.label} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="font-medium">{cat.label}</span>
+                  </button>
+                ))}
+              </div>
+              {/* Divider hint */}
+              <p className="text-warm-cream/15 font-ui text-[9px] tracking-[0.2em] uppercase text-center mt-4">
+                or type your question below
               </p>
             </div>
           )}
@@ -530,7 +800,36 @@ export default function SpiritualChatbot() {
                 }}
               >
                 {msg.role === 'assistant' && msg.content ? (
-                  <MarkdownMessage content={msg.content} />
+                  <>
+                    <MarkdownMessage content={msg.content
+                      .replace('__MAP_EMBED__', '')
+                      .replace('__SWAMI_CARDS__', '')
+                      .replace('__DEITY_CARDS__', '')
+                      .replace(/__PORTRAIT:\w+__/g, '')
+                      .replace(/__LINK:.*?:.*?__/g, '')} />
+                    {msg.content.includes('__MAP_EMBED__') && <MapCard />}
+                    {msg.content.includes('__PORTRAIT:mouna__') && (
+                      <PortraitCard img={mounaSwamyImg} name="H.H. Sri Sivachidananda Saraswati Swamy" title="Mounaswamy · Silent Sage · Founder (1868–1943)" />
+                    )}
+                    {msg.content.includes('__PORTRAIT:current__') && (
+                      <PortraitCard img={peethadhipathiImg} name="H.H. Sri Siddheswarananda Bharati Swamy" title="Fourth Peethadhipathi · 2002–present" />
+                    )}
+                    {msg.content.includes('__SWAMI_CARDS__') && <SwamiCards />}
+                    {msg.content.includes('__DEITY_CARDS__') && <DeityCards />}
+                    
+                    {/* Render Page Recommendation Links */}
+                    {(() => {
+                      const linkRegex = /__LINK:(.*?):(.*?)__/g;
+                      const links = [];
+                      let match;
+                      while ((match = linkRegex.exec(msg.content)) !== null) {
+                        links.push({ label: match[1], href: match[2] });
+                      }
+                      return links.map((link, idx) => (
+                        <PageLink key={idx} label={link.label} href={link.href} onNavigate={onNavigate} />
+                      ));
+                    })()}
+                  </>
                 ) : msg.role === 'user' ? (
                   msg.content
                 ) : (
@@ -543,6 +842,55 @@ export default function SpiritualChatbot() {
               </div>
             </motion.div>
           ))}
+
+          {/* Suggestion panel */}
+          {loadState === 'ready' && (messages.length > 0 || suggestionCategoryId !== null) && (
+            <AnimatePresence mode="wait">
+              {suggestionCategoryId === null ? (
+                <motion.div key="cats" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.2 }} className="pt-2 pb-1 px-1">
+                  <p className="text-warm-cream/20 font-ui text-[9px] tracking-[0.2em] uppercase text-center mb-2">Quick topics</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {QUICK_CATEGORIES.map(cat => (
+                      <button key={cat.id} onClick={() => setSuggestionCategoryId(cat.id)}
+                        className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-95"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.15)', color: 'rgba(253,251,247,0.65)', fontFamily: 'Montserrat, sans-serif', fontSize: '10px' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}>
+                        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0"
+                          style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
+                          <img src={cat.img} alt={cat.label} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="font-medium truncate">{cat.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div key={suggestionCategoryId} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.2 }} className="pt-2 pb-1 px-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <button onClick={() => setSuggestionCategoryId(null)}
+                      className="flex items-center gap-1 text-warm-cream/30 hover:text-spiritual-gold transition-colors font-ui text-[9px] tracking-widest uppercase">
+                      <ArrowLeft size={11} /> Back
+                    </button>
+                    <span className="text-warm-cream/20 font-ui text-[9px] tracking-widest uppercase">
+                      {QUICK_CATEGORIES.find(c => c.id === suggestionCategoryId)?.label}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {QUICK_CATEGORIES.find(c => c.id === suggestionCategoryId)?.questions.map(q => (
+                      <button key={q.q} onClick={() => handleQuickQuestion(q.q, q.a)}
+                        className="text-left px-3 py-2 rounded-xl transition-all hover:scale-[1.01] active:scale-95"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.15)', color: 'rgba(253,251,247,0.7)', fontFamily: 'Montserrat, sans-serif', fontSize: '11px', lineHeight: '1.4' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}>
+                        {q.q}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -572,6 +920,7 @@ export default function SpiritualChatbot() {
                         : 'Ask about teachings, festivals, dharma...'
                 }
                 className="w-full bg-transparent resize-none outline-none px-4 py-3 text-sm"
+                data-lenis-prevent
                 style={{ color: 'rgba(253,251,247,0.8)', fontFamily: 'Inter, sans-serif', maxHeight: 120, caretColor: '#D4AF37' }}
               />
             </div>

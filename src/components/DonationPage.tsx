@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen, ChevronLeft, Gift, Heart, ShieldCheck, Sparkles } from 'lucide-react';
-import React from 'react';
+import { ArrowRight, BookOpen, ChevronLeft, Gift, Heart, ShieldCheck, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
 import ScrollVelocity from './ScrollVelocity';
+import { supabase } from '../lib/supabase';
 
 interface DonationPageProps {
     onBack?: () => void;
@@ -58,6 +59,39 @@ const PROGRAM_CARDS = [
 ];
 
 const DonationPage = ({ onBack }: DonationPageProps) => {
+    const [form, setForm] = useState({ donationType: 'Annadanam', amount: '', name: '', email: '', phone: '', message: '', wantReceipt: false });
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+
+    const handleDonate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!form.name || !form.phone || !form.amount) { setSubmitError('Please fill in Name, Phone, and Amount.'); return; }
+        const amt = parseInt(form.amount.replace(/\D/g, ''), 10);
+        if (!amt || amt < 1) { setSubmitError('Please enter a valid amount.'); return; }
+        setSubmitting(true);
+        setSubmitError('');
+        try {
+            const { error } = await supabase.from('donations').insert({
+                donor_name: form.name,
+                donor_phone: form.phone.replace(/\D/g, ''),
+                donor_email: form.email,
+                donation_type: form.donationType,
+                amount: amt,
+                message: form.message,
+                want_receipt: form.wantReceipt,
+                payment_status: 'pending',
+                transaction_id: null,
+            });
+            if (error) throw error;
+            setSubmitted(true);
+        } catch (err: any) {
+            setSubmitError(err?.message ?? 'Something went wrong. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <section className="relative z-10 bg-neutral-950 text-warm-cream">
             {onBack && (
@@ -219,10 +253,24 @@ const DonationPage = ({ onBack }: DonationPageProps) => {
                             <Heart size={20} />
                             <p className="text-xs tracking-[0.35em] uppercase">Make a Donation</p>
                         </div>
-                        <form className="space-y-5" onSubmit={(event) => event.preventDefault()}>
+                        {submitted ? (
+                            <div className="flex flex-col items-center justify-center py-10 text-center gap-4">
+                                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-emerald-500/10 border border-emerald-500/25">
+                                    <CheckCircle2 size={30} className="text-emerald-400" />
+                                </div>
+                                <h3 className="font-serif text-warm-cream text-xl">Donation Recorded!</h3>
+                                <p className="text-warm-cream/50 text-sm">Thank you, {form.name}. Our team will reach out to confirm payment details.</p>
+                                <button onClick={() => { setSubmitted(false); setForm({ donationType: 'Annadanam', amount: '', name: '', email: '', phone: '', message: '', wantReceipt: false }); }}
+                                    className="mt-2 rounded-full border border-warm-cream/20 px-6 py-2.5 text-xs uppercase tracking-widest text-warm-cream/60 hover:text-warm-cream transition-colors">
+                                    Make Another Donation
+                                </button>
+                            </div>
+                        ) : (
+                        <form className="space-y-5" onSubmit={handleDonate}>
                             <label className="block text-sm font-semibold text-warm-cream/80">
                                 Donation Type
-                                <select className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red">
+                                <select value={form.donationType} onChange={e => setForm(f => ({ ...f, donationType: e.target.value }))}
+                                    className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red">
                                     <option>Annadanam</option>
                                     <option>Go Seva</option>
                                     <option>Temple Maintenance</option>
@@ -231,33 +279,44 @@ const DonationPage = ({ onBack }: DonationPageProps) => {
                                 </select>
                             </label>
                             <label className="block text-sm font-semibold text-warm-cream/80">
-                                Amount (₹)
-                                <input placeholder="Enter amount" className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
+                                Amount (₹) *
+                                <input placeholder="Enter amount" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
+                                    className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
                             </label>
                             <label className="block text-sm font-semibold text-warm-cream/80">
-                                Full Name
-                                <input placeholder="Your full name" className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
+                                Full Name *
+                                <input placeholder="Your full name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                                    className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
                             </label>
                             <label className="block text-sm font-semibold text-warm-cream/80">
                                 Email
-                                <input type="email" placeholder="your.email@example.com" className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
+                                <input type="email" placeholder="your.email@example.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                                    className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
                             </label>
                             <label className="block text-sm font-semibold text-warm-cream/80">
-                                Phone Number
-                                <input placeholder="+91 XXXXXX XXXXX" className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
+                                Phone Number *
+                                <input placeholder="+91 XXXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                                    className="mt-2 w-full rounded-3xl border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
                             </label>
                             <label className="block text-sm font-semibold text-warm-cream/80">
                                 Special Message (Optional)
-                                <textarea placeholder="Any special prayers or dedications..." rows={4} className="mt-2 w-full rounded-[28px] border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
+                                <textarea placeholder="Any special prayers or dedications..." rows={4} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                                    className="mt-2 w-full rounded-[28px] border border-warm-cream/10 bg-neutral-950 px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-sacred-red" />
                             </label>
-                            <label className="flex items-center gap-3 text-sm text-warm-cream/80">
-                                <input type="checkbox" className="h-4 w-4 rounded border-warm-cream/20 bg-neutral-950 text-sacred-red focus:ring-sacred-red" />
+                            <label className="flex items-center gap-3 text-sm text-warm-cream/80 cursor-pointer">
+                                <input type="checkbox" checked={form.wantReceipt} onChange={e => setForm(f => ({ ...f, wantReceipt: e.target.checked }))}
+                                    className="h-4 w-4 rounded border-warm-cream/20 bg-neutral-950 text-sacred-red focus:ring-sacred-red" />
                                 I would like to receive a donation receipt for tax purposes
                             </label>
-                            <button type="submit" className="mt-2 w-full rounded-full bg-sacred-red px-5 py-4 text-sm font-semibold uppercase tracking-[0.35em] text-neutral-900 transition hover:bg-warm-cream hover:text-neutral-900">
-                                Proceed to Payment
+                            {submitError && (
+                                <p className="text-red-400/80 text-xs text-center">{submitError}</p>
+                            )}
+                            <button type="submit" disabled={submitting}
+                                className="mt-2 w-full rounded-full bg-sacred-red px-5 py-4 text-sm font-semibold uppercase tracking-[0.35em] text-neutral-900 transition hover:bg-warm-cream hover:text-neutral-900 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                {submitting ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : 'Proceed to Payment'}
                             </button>
                         </form>
+                        )}
                     </motion.div>
                 </div>
             </div>

@@ -35,6 +35,7 @@ interface CardNavProps {
   donateHref?: string;
   onDonate?: () => void;
   onStyleToggle?: () => void;
+  closeSignal?: number;
 }
 
 const CardNav = ({
@@ -54,6 +55,7 @@ const CardNav = ({
   donateHref = '#donate',
   onDonate,
   onStyleToggle,
+  closeSignal,
 }: CardNavProps) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -181,12 +183,19 @@ const CardNav = ({
 
     window.addEventListener('hashchange', handleHashChange);
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isExpanded]);
+
+  useEffect(() => {
+    if (closeSignal && isExpanded) {
+      setIsHamburgerOpen(false);
+      tlRef.current?.reverse();
+    }
+  }, [closeSignal]);
 
   return (
     <div className={`card-nav-container ${className}`}>
@@ -285,8 +294,9 @@ const CardNav = ({
                       if (lnk.onClick) {
                         e.preventDefault();
                         lnk.onClick();
+                      } else if (isExpanded) {
+                        toggleMenu();
                       }
-                      if (isExpanded) toggleMenu();
                     }}
                   >
                     <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" size={15} />

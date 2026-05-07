@@ -49,6 +49,8 @@ import Grainient from './components/Grainient/Grainient';
 import BorderGlow from './components/BorderGlow';
 import MagicRings from './components/MagicRings';
 import SpiritualChatbot from './components/SpiritualChatbot';
+import SevaBookingModal from './components/SevaBookingModal';
+import BookingStatusPage from './components/BookingStatusPage';
 import CardNav from './components/CardNav';
 import DonationPage from './components/DonationPage';
 import AboutPage from './components/AboutPage';
@@ -73,6 +75,8 @@ import swamiMeditation from './assets/swami_meditation.webp';
 import pathalingaCaves from './assets/pathalinga_caves.jpg';
 import deitiesShrines from './assets/deities-shrines-card.webp';
 import naadiGanapathi from './assets/naadi-ganapathi-exact.jpg';
+import darshanBg2 from './assets/Untitled (12).png';
+import darshanBg2Mobile from './assets/Untitled (13).png';
 
 // --- Constants ---
 const AUDIO_TRACKS = [
@@ -123,6 +127,7 @@ const CARD_NAV_ITEMS = [
     links: [
       { label: 'Calendar', href: '#calendar', ariaLabel: 'Event Calendar' },
       { label: 'Activities', href: '#activities-page', ariaLabel: 'Activities' },
+      { label: 'My Bookings', href: '#booking-status', ariaLabel: 'View Seva Booking Status' },
     ],
   },
   {
@@ -734,7 +739,7 @@ const ClassicNavGroup = ({ group, isDark }: { group: typeof CARD_NAV_ITEMS[numbe
   );
 };
 
-const Navbar = ({ onDonate, onNavigate }: { onDonate: () => void; onNavigate: (href: string) => void }) => {
+const Navbar = ({ onDonate, onNavigate, closeSignal }: { onDonate: () => void; onNavigate: (href: string) => void; closeSignal?: number }) => {
   const [isDark, setIsDark] = useState(false);
   const [navStyle, setNavStyle] = useState<'card' | 'classic'>(() =>
     (localStorage.getItem('ssp-nav-style') as 'card' | 'classic') || 'card'
@@ -837,6 +842,7 @@ const Navbar = ({ onDonate, onNavigate }: { onDonate: () => void; onNavigate: (h
           donateLabel="Donate"
           onDonate={onDonate}
           onStyleToggle={toggleNavStyle}
+          closeSignal={closeSignal}
         />
 
       </div>
@@ -1368,6 +1374,73 @@ const InteractiveDarshan = () => {
   );
 };
 
+const InteractiveDarshan2 = () => {
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!sectionRef.current) return;
+    const rect = sectionRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+  };
+
+  return (
+    <section id="darshan2"
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      className="relative py-16 md:py-24 min-h-[100svh] bg-black overflow-hidden cursor-crosshair group/darshan2"
+    >
+      {/* Background Image Layer — desktop */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center origin-center transition-transform duration-700 group-hover/darshan2:scale-105 hidden sm:block"
+        style={{
+          backgroundImage: `url("${darshanBg2}")`,
+          WebkitMaskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`,
+          maskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`
+        }}
+      />
+      {/* Background Image Layer — mobile */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center origin-center transition-transform duration-700 block sm:hidden"
+        style={{
+          backgroundImage: `url("${darshanBg2Mobile}")`,
+          WebkitMaskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`,
+          maskImage: `radial-gradient(circle 385px at ${mousePos.x}% ${mousePos.y}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.32) 50%, rgba(0,0,0,0) 100%)`
+        }}
+      />
+
+      {/* Ambient Vignette */}
+      <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none" />
+
+      {/* Interactive Overlay Text */}
+      <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5, delay: 0.5 }}
+          className="space-y-4"
+        >
+          <span className="font-ui text-[10px] tracking-[0.6em] uppercase text-sacred-red font-bold block mb-4">
+            Sacred Presence
+          </span>
+          <h2 className="text-2xl md:text-2xl lg:text-2xl text-warm-cream font-serif italic font-light drop-shadow-[0_0_15px_rgba(253,251,247,0.3)]">
+            Feel the <span className="opacity-60 text-spiritual-gold">Divine</span>
+          </h2>
+          <p className="text-warm-cream/30 font-ui text-[10px] tracking-widest uppercase mt-8 animate-pulse">
+            Move your light across the darkness
+          </p>
+        </motion.div>
+      </div>
+
+      {/* Decorative Corners */}
+      <div className="absolute top-12 left-12 w-24 h-24 border-t border-l border-white/5 pointer-events-none" />
+      <div className="absolute bottom-12 right-12 w-24 h-24 border-b border-r border-white/5 pointer-events-none" />
+    </section>
+  );
+};
+
 const SwamijiPortrait = () => {
   const [hovered, setHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -1446,7 +1519,13 @@ const SwamijiPortrait = () => {
 };
 
 // ── Deity card ────────────────────────────────────────────────────────────────
-const DeityCard = ({ deity }: { deity: typeof DEITIES[0] }) => (
+const DeityCard = ({
+  deity, onBook, onSchedule,
+}: {
+  deity: typeof DEITIES[0];
+  onBook: (d: typeof DEITIES[0]) => void;
+  onSchedule: (d: typeof DEITIES[0]) => void;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -1456,13 +1535,10 @@ const DeityCard = ({ deity }: { deity: typeof DEITIES[0] }) => (
   >
     {/* Image / gradient area */}
     <div className="relative h-64 flex items-end overflow-hidden" style={{ background: deity.grad }}>
-      {/* Subtle sacred pattern overlay */}
       <div className="absolute inset-0 opacity-[0.1]" style={{
         backgroundImage: 'radial-gradient(circle, #fff 1.5px, transparent 1.5px)',
         backgroundSize: '20px 20px'
       }} />
-
-      {/* Deity Image */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <motion.img
           src={deity.image}
@@ -1472,18 +1548,21 @@ const DeityCard = ({ deity }: { deity: typeof DEITIES[0] }) => (
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         />
       </div>
-
-      {/* OM watermark */}
       <span className="absolute top-4 right-5 text-white/10 font-serif text-7xl select-none leading-none z-0">ॐ</span>
-
-      {/* Action buttons overlay on hover */}
+      {/* Action buttons */}
       <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/60 to-transparent p-4 flex gap-3">
-        <a href="#calendar" className="flex-1 text-center bg-spiritual-gold text-neutral-900 font-ui text-[10px] tracking-widest uppercase font-bold py-2 rounded-lg hover:bg-white transition-colors">
+        <button
+          onClick={() => onSchedule(deity)}
+          className="flex-1 text-center bg-spiritual-gold text-neutral-900 font-ui text-[10px] tracking-widest uppercase font-bold py-2 rounded-lg hover:bg-white transition-colors"
+        >
           View Schedule
-        </a>
-        <a href="#homam" className="flex-1 text-center border border-white text-white font-ui text-[10px] tracking-widest uppercase font-bold py-2 rounded-lg hover:bg-white hover:text-neutral-900 transition-colors">
+        </button>
+        <button
+          onClick={() => onBook(deity)}
+          className="flex-1 text-center border border-white text-white font-ui text-[10px] tracking-widest uppercase font-bold py-2 rounded-lg hover:bg-white hover:text-neutral-900 transition-colors"
+        >
           Book Seva
-        </a>
+        </button>
       </div>
     </div>
 
@@ -1503,12 +1582,25 @@ const DeityCard = ({ deity }: { deity: typeof DEITIES[0] }) => (
           </div>
         </div>
       )}
+      <div className="mt-4 flex gap-2">
+        <button onClick={() => onSchedule(deity)}
+          className="flex-1 py-2 rounded-xl bg-sacred-red/5 text-sacred-red font-ui text-[9px] tracking-widest uppercase font-bold border border-sacred-red/15 hover:bg-sacred-red hover:text-white transition-all">
+          Schedule
+        </button>
+        <button onClick={() => onBook(deity)}
+          className="flex-1 py-2 rounded-xl bg-neutral-900 text-white font-ui text-[9px] tracking-widest uppercase font-bold hover:bg-sacred-red transition-all">
+          Book Seva
+        </button>
+      </div>
     </div>
   </motion.div>
 );
 
 // ── Deities Section ────────────────────────────────────────────────────────────
-const DeitiesSection = () => (
+const DeitiesSection = ({ onBook, onSchedule }: {
+  onBook: (d: typeof DEITIES[0]) => void;
+  onSchedule: (d: typeof DEITIES[0]) => void;
+}) => (
   <section id="deities" className="bg-warm-cream py-16 md:py-24">
     <div className="max-w-7xl mx-auto px-4">
       <SectionHeading subtitle="Sacred Worship" title="Deities & Nithya Seva" centered />
@@ -1517,7 +1609,7 @@ const DeitiesSection = () => (
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {DEITIES.map(d => <DeityCard key={d.id} deity={d} />)}
+        {DEITIES.map(d => <DeityCard key={d.id} deity={d} onBook={onBook} onSchedule={onSchedule} />)}
       </div>
 
       {/* Daily Seva Schedule */}
@@ -1976,7 +2068,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(AUDIO_TRACKS[0].id);
   const [trackMenuOpen, setTrackMenuOpen] = useState(false);
-  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications'>(() => {
+  const [page, setPage] = useState<'home' | 'donate' | 'swami' | 'about' | 'visit' | 'contact' | 'activities' | 'publications' | 'booking-status'>(() => {
     if (typeof window === 'undefined') return 'home';
     const h = window.location.hash;
     if (h === '#donate') return 'donate';
@@ -1998,10 +2090,27 @@ export default function App() {
     return 0;
   });
   const [activeGuruIndex, setActiveGuruIndex] = useState(0);
+
+  // ── Seva Booking Modal state ──────────────────────────────────────────────
+  const [bookingModal, setBookingModal] = useState<{
+    open: boolean;
+    deity: typeof DEITIES[0] | null;
+    mode: 'schedule' | 'book';
+  }>({ open: false, deity: null, mode: 'book' });
+
+  const openBookSeva = (deity: typeof DEITIES[0]) =>
+    setBookingModal({ open: true, deity, mode: 'book' });
+  const openSchedule = (deity: typeof DEITIES[0]) =>
+    setBookingModal({ open: true, deity, mode: 'schedule' });
+  const closeBookingModal = () => setBookingModal(s => ({ ...s, open: false }));
+
   const NAVBAR_HEIGHT = 80;
   const STACK_TOP = NAVBAR_HEIGHT + 200; // increased top offset so the sticky panel starts below the top bar
   const PANEL_BOTTOM_SPACING = 40;
   const heroRef = useRef(null);
+  const pendingScrollTarget = useRef<string | null>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const [footerHeight, setFooterHeight] = useState(0);
 
   const aboutRef = useRef(null);
   const guruSectionRef = useRef<HTMLDivElement>(null);
@@ -2024,7 +2133,11 @@ export default function App() {
     });
   };
 
+  const [navCloseSignal, setNavCloseSignal] = useState(0);
+  const closeNav = () => setNavCloseSignal(s => s + 1);
+
   const goToDonatePage = () => {
+    closeNav();
     setPage('donate');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#donate');
@@ -2033,6 +2146,7 @@ export default function App() {
   };
 
   const goToHomePage = () => {
+    closeNav();
     setPage('home');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#home');
@@ -2040,7 +2154,19 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (page === 'home' && pendingScrollTarget.current) {
+      const target = pendingScrollTarget.current;
+      pendingScrollTarget.current = null;
+      setTimeout(() => {
+        const el = document.querySelector(target);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 120);
+    }
+  }, [page]);
+
   const goToSwamiPage = (index: number) => {
+    closeNav();
     setSelectedSwamiIndex(index);
     setPage('swami');
     if (typeof window !== 'undefined') {
@@ -2050,6 +2176,7 @@ export default function App() {
   };
 
   const goToAboutPage = () => {
+    closeNav();
     setPage('about');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#about');
@@ -2058,6 +2185,7 @@ export default function App() {
   };
 
   const goToVisitPage = () => {
+    closeNav();
     setPage('visit');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#visit');
@@ -2066,6 +2194,7 @@ export default function App() {
   };
 
   const goToContactPage = () => {
+    closeNav();
     setPage('contact');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#contact');
@@ -2074,6 +2203,7 @@ export default function App() {
   };
 
   const goToActivitiesPage = () => {
+    closeNav();
     setPage('activities');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#activities-page');
@@ -2082,6 +2212,7 @@ export default function App() {
   };
 
   const goToPublicationsPage = () => {
+    closeNav();
     setPage('publications');
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '#publications');
@@ -2120,6 +2251,9 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else if (hash === '#publications') {
         setPage('publications');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#booking-status') {
+        setPage('booking-status');
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else if (!hash || hash === '#home') {
         setPage('home');
@@ -2220,565 +2354,628 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const footer = footerRef.current;
+    if (!footer) return;
+    const ro = new ResizeObserver(() => setFooterHeight(footer.offsetHeight));
+    ro.observe(footer);
+    return () => ro.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-screen relative" style={{ overflowX: 'clip' }}>
-      <CustomCursor />
-      {/* Film Grain Overlay */}
-      <div
-        className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.04] animate-grain"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '256px 256px'
-        }}
-      />
+    <div className="relative" style={{ overflowX: 'clip' }}>
+      <div className="min-h-screen relative" style={{ zIndex: 1, marginBottom: footerHeight, background: '#FDFBF7' }}>
+        <CustomCursor />
+        {/* Film Grain Overlay */}
+        <div
+          className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.04] animate-grain"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '256px 256px'
+          }}
+        />
 
-      <iframe
-        key={currentTrack}
-        className="hidden"
-        src={`https://www.youtube.com/embed/${currentTrack}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${currentTrack}`}
-        allow="autoplay"
-      />
+        <iframe
+          key={currentTrack}
+          className="hidden"
+          src={`https://www.youtube.com/embed/${currentTrack}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${currentTrack}`}
+          allow="autoplay"
+        />
 
-      {/* Floating Audio Toggle + Track Picker */}
-      <div
-        className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-[100] flex flex-col items-end gap-2"
-        onMouseEnter={() => setTrackMenuOpen(true)}
-        onMouseLeave={() => setTrackMenuOpen(false)}
-      >
-        {/* Track picker popup */}
-        <AnimatePresence>
-          {trackMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.95 }}
-              transition={{ duration: 0.18 }}
-              className="bg-neutral-900/95 backdrop-blur-xl border border-sacred-red/20 rounded-2xl overflow-hidden shadow-2xl"
-            >
-              <p className="px-4 pt-3 pb-1.5 font-ui text-[9px] tracking-[0.3em] uppercase text-warm-cream/30">Ambient Track</p>
-              {AUDIO_TRACKS.map(track => (
+        {/* Floating Audio Toggle + Track Picker */}
+        <div
+          className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-[100] flex flex-col items-end gap-2"
+          onMouseEnter={() => setTrackMenuOpen(true)}
+          onMouseLeave={() => setTrackMenuOpen(false)}
+        >
+          {/* Track picker popup */}
+          <AnimatePresence>
+            {trackMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                transition={{ duration: 0.18 }}
+                className="bg-neutral-900/95 backdrop-blur-xl border border-sacred-red/20 rounded-2xl overflow-hidden shadow-2xl"
+              >
+                <p className="px-4 pt-3 pb-1.5 font-ui text-[9px] tracking-[0.3em] uppercase text-warm-cream/30">Ambient Track</p>
+                {AUDIO_TRACKS.map(track => (
+                  <button
+                    key={track.id}
+                    onClick={() => setCurrentTrack(track.id)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-sacred-red/10 transition-colors text-left"
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors ${currentTrack === track.id ? 'bg-sacred-red' : 'bg-warm-cream/20'}`} />
+                    <span className={`font-ui text-[10px] tracking-widest uppercase whitespace-nowrap transition-colors ${currentTrack === track.id ? 'text-sacred-red' : 'text-warm-cream/50'}`}>
+                      {track.name}
+                    </span>
+                  </button>
+                ))}
+                <div className="h-px bg-sacred-red/10 mx-3 my-1" />
                 <button
-                  key={track.id}
-                  onClick={() => setCurrentTrack(track.id)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-sacred-red/10 transition-colors text-left"
+                  onClick={() => setIsMuted(m => !m)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 pb-3 hover:bg-sacred-red/10 transition-colors text-left"
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors ${currentTrack === track.id ? 'bg-sacred-red' : 'bg-warm-cream/20'}`} />
-                  <span className={`font-ui text-[10px] tracking-widest uppercase whitespace-nowrap transition-colors ${currentTrack === track.id ? 'text-sacred-red' : 'text-warm-cream/50'}`}>
-                    {track.name}
+                  <span className={`font-ui text-[9px] tracking-widest uppercase whitespace-nowrap ${isMuted ? 'text-warm-cream/30' : 'text-spiritual-gold'}`}>
+                    {isMuted ? 'Unmuted off' : 'Playing'}
                   </span>
                 </button>
-              ))}
-              <div className="h-px bg-sacred-red/10 mx-3 my-1" />
-              <button
-                onClick={() => setIsMuted(m => !m)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 pb-3 hover:bg-sacred-red/10 transition-colors text-left"
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Main button */}
+          <button
+            onClick={() => setIsMuted(m => !m)}
+            className="w-14 h-14 bg-sacred-red/10 backdrop-blur-xl border border-sacred-red/20 rounded-full flex items-center justify-center text-sacred-red hover:bg-sacred-red hover:text-white transition-all active:scale-95 shadow-2xl"
+          >
+            <div className="relative w-6 h-6">
+              <motion.div
+                animate={{ opacity: isMuted ? 1 : 0, scale: isMuted ? 1 : 0.5 }}
+                className="absolute inset-0 flex items-center justify-center"
               >
-                <span className={`font-ui text-[9px] tracking-widest uppercase whitespace-nowrap ${isMuted ? 'text-warm-cream/30' : 'text-spiritual-gold'}`}>
-                  {isMuted ? 'Unmuted off' : 'Playing'}
-                </span>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <VolumeX size={24} />
+              </motion.div>
+              <motion.div
+                animate={{ opacity: !isMuted ? 1 : 0, scale: !isMuted ? 1 : 0.5 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Volume2 size={24} />
+              </motion.div>
+            </div>
+          </button>
+        </div>
 
-        {/* Main button */}
-        <button
-          onClick={() => setIsMuted(m => !m)}
-          className="w-14 h-14 bg-sacred-red/10 backdrop-blur-xl border border-sacred-red/20 rounded-full flex items-center justify-center text-sacred-red hover:bg-sacred-red hover:text-white transition-all active:scale-95 shadow-2xl"
-        >
-          <div className="relative w-6 h-6">
-            <motion.div
-              animate={{ opacity: isMuted ? 1 : 0, scale: isMuted ? 1 : 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <VolumeX size={24} />
-            </motion.div>
-            <motion.div
-              animate={{ opacity: !isMuted ? 1 : 0, scale: !isMuted ? 1 : 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <Volume2 size={24} />
-            </motion.div>
-          </div>
-        </button>
-      </div>
+        <SpiritualChatbot />
 
-      {page !== 'swami' && <SpiritualChatbot />}
-      <Navbar onDonate={goToDonatePage} onNavigate={(href) => {
-        const handlers: Record<string, () => void> = {
-          '#donate': goToDonatePage,
-          '#about': goToAboutPage,
-          '#visit': goToVisitPage,
-          '#contact': goToContactPage,
-          '#swamiji': () => goToSwamiPage(0),
-          '#activities-page': goToActivitiesPage,
-          '#publications': goToPublicationsPage,
-        };
-        const fn = handlers[href];
-        if (fn) {
-          fn();
-        } else if (href) {
-          window.location.hash = href;
-        }
-      }} />
-
-      {page === 'swami' ? (
-        <SwamyPage
-          swamiIndex={selectedSwamiIndex}
-          onBack={goToHomePage}
-          onSelectSwami={goToSwamiPage}
-          onDonate={goToDonatePage}
+        {/* ── Seva Booking Modal ── */}
+        <SevaBookingModal
+          isOpen={bookingModal.open}
+          onClose={closeBookingModal}
+          initialDeity={bookingModal.deity ? {
+            id: bookingModal.deity.id,
+            name: bookingModal.deity.name,
+            sevas: bookingModal.deity.sevas,
+            grad: bookingModal.deity.grad,
+          } : null}
+          mode={bookingModal.mode}
         />
-      ) : page === 'donate' ? (
-        <DonationPage onBack={goToHomePage} />
-      ) : page === 'about' ? (
-        <AboutPage onBack={goToHomePage} />
-      ) : page === 'visit' ? (
-        <VisitPage onBack={goToHomePage} />
-      ) : page === 'contact' ? (
-        <ContactPage onBack={goToHomePage} />
-      ) : page === 'activities' ? (
-        <ActivitiesPage onBack={goToHomePage} />
-      ) : page === 'publications' ? (
-        <PublicationsPage onBack={goToHomePage} />
-      ) : (
-        <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-          {/* Hero Section */}
-          <section id="home" ref={heroRef} className="relative min-h-[100svh] pt-24 pb-32 flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 z-0">
-              <Grainient
-                color1="#FFFBEB"
-                color2="#B45309"
-                color3="#FFFBEB"
-                timeSpeed={0.25}
-                colorBalance={0}
-                warpStrength={1}
-                warpFrequency={5}
-                warpSpeed={2}
-                warpAmplitude={50}
-                blendAngle={0}
-                blendSoftness={0.05}
-                rotationAmount={500}
-                noiseScale={2}
-                grainAmount={0.1}
-                grainScale={2}
-                grainAnimated={false}
-                contrast={1.5}
-                gamma={1}
-                saturation={1}
-                centerX={0}
-                centerY={0}
-                zoom={0.9}
-              />
-            </div>
 
-            <div className="relative z-20 text-center px-4 max-w-4xl drop-shadow-2xl">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <span className="font-ui text-xs tracking-[0.4em] uppercase text-[#2D1A0A]/80 mb-6 block">
-                  Established 1910 • Courtallam, Agasthya Kshethram
-                </span>
-                <motion.h1
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    visible: {
-                      transition: {
-                        staggerChildren: 0.08,
-                        delayChildren: 0.3
-                      }
-                    }
-                  }}
-                  className="text-6xl md:text-8xl lg:text-[7.5rem] text-[#2D1A0A] font-serif leading-[0.9] mb-10 lg:mb-12"
-                >
-                  <div className="overflow-hidden inline-block mr-4">
-                    <motion.span
-                      variants={{
-                        hidden: { y: "100%" },
-                        visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-                      }}
-                      className="inline-block"
-                    >
-                      Silence
-                    </motion.span>
-                  </div>
-                  <div className="overflow-hidden inline-block mr-4">
-                    <motion.span
-                      variants={{
-                        hidden: { y: "100%" },
-                        visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-                      }}
-                      className="inline-block"
-                    >
-                      is
-                    </motion.span>
-                  </div>
-                  <div className="overflow-hidden inline-block">
-                    <motion.span
-                      variants={{
-                        hidden: { y: "100%" },
-                        visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-                      }}
-                      className="inline-block"
-                    >
-                      the
-                    </motion.span>
-                  </div>
-                  <br />
-                  <div className="overflow-hidden inline-block mr-4 italic font-light opacity-60">
-                    <motion.span
-                      variants={{
-                        hidden: { y: "100%" },
-                        visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-                      }}
-                      className="inline-block"
-                    >
-                      Greatest
-                    </motion.span>
-                  </div>
-                  <div className="overflow-hidden inline-block italic font-light opacity-60">
-                    <motion.span
-                      variants={{
-                        hidden: { y: "100%" },
-                        visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-                      }}
-                      className="inline-block"
-                    >
-                      Speech
-                    </motion.span>
-                  </div>
-                </motion.h1>
-                <p className="text-[#2D1A0A]/70 font-sans text-lg md:text-xl max-w-xl mx-auto mb-12 leading-relaxed">
-                  Founded by Sri Mounaswamy in Courtallam's sacred Agasthya Kshethram, Sri Siddheswari Peetham preserves Sri Vidya tradition and the grace of Sri Raja Rajeswari Devi.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <button className="sacred-button shadow-2xl shadow-sacred-red/20 active:scale-95 transition-transform">Explore Peetham</button>
-                  <div className="hidden sm:block w-[1px] h-12 bg-gradient-to-b from-transparent via-sacred-red to-transparent opacity-50"></div>
-                  <button className="px-8 py-3 border border-sacred-red/10 text-[#2D1A0A] font-ui text-sm tracking-widest uppercase hover:bg-warm-cream/30 transition-all backdrop-blur-[20px] bg-warm-cream/20 shadow-xl active:scale-95 rounded-sm">
-                    Virtual Tour
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          </section>
+        <Navbar onDonate={goToDonatePage} closeSignal={navCloseSignal} onNavigate={(href) => {
+          const handlers: Record<string, () => void> = {
+            '#donate': goToDonatePage,
+            '#about': goToAboutPage,
+            '#visit': goToVisitPage,
+            '#contact': goToContactPage,
+            '#swamiji': () => goToSwamiPage(0),
+            '#activities-page': goToActivitiesPage,
+            '#publications': goToPublicationsPage,
+            '#booking-status': () => { closeNav(); setPage('booking-status'); window.history.replaceState(null, '', '#booking-status'); window.scrollTo({ top: 0, behavior: 'auto' }); },
+            '#calendar': () => {
+              closeNav();
+              if (page !== 'home') {
+                pendingScrollTarget.current = '#calendar';
+                setPage('home');
+                window.history.replaceState(null, '', '#calendar');
+                window.scrollTo({ top: 0, behavior: 'auto' });
+              } else {
+                const el = document.querySelector('#calendar');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }
+            },
+            '#activities': () => {
+              closeNav();
+              if (page !== 'home') {
+                pendingScrollTarget.current = '#activities';
+                setPage('home');
+                window.history.replaceState(null, '', '#activities');
+                window.scrollTo({ top: 0, behavior: 'auto' });
+              } else {
+                const el = document.querySelector('#activities');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }
+            },
+          };
+          const fn = handlers[href];
+          if (fn) {
+            fn();
+          } else if (href) {
+            closeNav();
+            if (page !== 'home') {
+              pendingScrollTarget.current = href;
+              setPage('home');
+              window.history.replaceState(null, '', href);
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            } else {
+              const el = document.querySelector(href);
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              else window.location.hash = href;
+            }
+          }
+        }} />
 
-          <InfiniteMarquee />
-
-          {/* About Section */}
-          <section id="about-teaser" ref={aboutRef} className="py-16 md:py-24 px-4 max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24">
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <SectionHeading subtitle="Rooted in Tradition" title="The Legacy of Silence" />
-                <div className="space-y-6 text-neutral-600 leading-relaxed text-lg">
-                  <p>
-                    Sri Siddheswari Peetham, located in the scenic town of Courtallam, was founded by the legendary Mouna Swamy. Known for his profound vow of silence, he established this Peetham as a sanctuary for those seeking spiritual solace.
-                  </p>
-                  <p>
-                    Our philosophy centers on the transformative power of Mouna (Silence), which allows the soul to hear the whisper of the divine and find peace amidst the chaos of the modern world.
-                  </p>
-                  <div className="pt-2">
-                    <a href="#about" onClick={(event) => { event.preventDefault(); goToAboutPage(); }} className="inline-flex items-center gap-2 text-sacred-red font-semibold group">
-                      Learn about our history <ChevronRight className="transition-transform group-hover:translate-x-1" size={20} />
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
-                whileInView={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="relative aspect-[4/5] rounded-tl-[100px] rounded-br-[100px] overflow-hidden"
-              >
-                <motion.img
-                  style={{ y: aboutY }}
-                  src="https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png"
-                  alt="Temple Entrance"
-                  className="w-full h-full object-cover scale-110"
-                  referrerPolicy="no-referrer"
+        {page === 'swami' ? (
+          <SwamyPage
+            swamiIndex={selectedSwamiIndex}
+            onBack={goToHomePage}
+            onSelectSwami={goToSwamiPage}
+            onDonate={goToDonatePage}
+          />
+        ) : page === 'donate' ? (
+          <DonationPage onBack={goToHomePage} />
+        ) : page === 'about' ? (
+          <AboutPage onBack={goToHomePage} />
+        ) : page === 'visit' ? (
+          <VisitPage onBack={goToHomePage} />
+        ) : page === 'contact' ? (
+          <ContactPage onBack={goToHomePage} />
+        ) : page === 'activities' ? (
+          <ActivitiesPage onBack={goToHomePage} />
+        ) : page === 'publications' ? (
+          <PublicationsPage onBack={goToHomePage} />
+        ) : page === 'booking-status' ? (
+          <BookingStatusPage onBack={goToHomePage} />
+        ) : (
+          <div className="relative z-10 bg-warm-cream shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            {/* Hero Section */}
+            <section id="home" ref={heroRef} className="relative min-h-[100svh] pt-24 pb-32 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <Grainient
+                  color1="#FFFBEB"
+                  color2="#B45309"
+                  color3="#FFFBEB"
+                  timeSpeed={0.25}
+                  colorBalance={0}
+                  warpStrength={1}
+                  warpFrequency={5}
+                  warpSpeed={2}
+                  warpAmplitude={50}
+                  blendAngle={0}
+                  blendSoftness={0.05}
+                  rotationAmount={500}
+                  noiseScale={2}
+                  grainAmount={0.1}
+                  grainScale={2}
+                  grainAnimated={false}
+                  contrast={1.5}
+                  gamma={1}
+                  saturation={1}
+                  centerX={0}
+                  centerY={0}
+                  zoom={0.9}
                 />
-                <div className="absolute inset-0 border-[20px] border-warm-cream/20 m-6 rounded-tl-[76px] rounded-br-[76px]" />
-              </motion.div>
-            </div>
-
-            {/* Physical Stacking Timeline */}
-            <div ref={guruSectionRef} className="relative mt-8 mb-[40vh]">
-              <div
-                ref={guruHeaderRef}
-                className="z-[110] bg-warm-cream/95 backdrop-blur-md pt-4 pb-3 border-b border-sacred-red/5"
-              >
-                <div className="max-w-7xl mx-auto px-4">
-                  <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-2">
-                    Succession of Wisdom
-                  </span>
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="h-[1px] bg-spiritual-gold/40 flex-1" />
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl text-neutral-900 leading-tight whitespace-nowrap font-serif">
-                      Guru Parampara
-                    </h2>
-                    <div className="h-[1px] bg-spiritual-gold/40 flex-1" />
-                  </div>
-                  <div className="mt-3">
-                    <GuruHorizontalTimeline gurus={GURU_LINEAGE} activeIndex={activeGuruIndex} onSelect={scrollToGuruCard} />
-                  </div>
-                </div>
               </div>
-              <div ref={guruPlaceholderRef} style={{ height: '0px' }} aria-hidden="true" />
 
-              <div className="mt-[640px] px-4 max-w-7xl mx-auto">
-                <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-14 xl:gap-20 items-start">
-
-                  {/* Left: stacking cards */}
-                  <div>
-                    <ScrollStack
-                      itemDistance={70}
-                      itemScale={0.04}
-                      itemStackDistance={24}
-                      stackPosition={300}
-                      useWindowScroll={true}
-                      className="relative"
-                    >
-                      {GURU_LINEAGE.map((guru, index) => (
-                        <ScrollStackItem
-                          key={index}
-                          ref={(el) => { guruCardRefs.current[index] = el; }}
-                        >
-                          <div className="h-[54vh] w-[88%] md:w-[75%] lg:w-full mx-auto rounded-[32px] overflow-hidden relative shadow-[0_20px_60px_rgba(0,0,0,0.1)] group/card border border-white/5">
-                            <img
-                              src={guru.image}
-                              alt={guru.name}
-                              className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1.5s] group-hover/card:scale-110 group-hover/card:rotate-1"
-                              referrerPolicy="no-referrer"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/30 to-transparent" />
-
-                            <div className="absolute inset-x-0 bottom-0 p-8 md:p-10">
-                              <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.2 }}
-                              >
-                                <span className="font-ui text-spiritual-gold text-base tracking-[0.2em] font-bold block mb-1 drop-shadow-lg">
-                                  {guru.year}
-                                </span>
-                                <h3 className="text-3xl md:text-4xl font-serif text-warm-cream leading-tight mb-4 drop-shadow-2xl">
-                                  {guru.name}
-                                </h3>
-                                <p className="text-warm-cream/70 text-sm max-w-xl font-sans leading-relaxed border-l border-spiritual-gold/30 pl-4 italic">
-                                  {guru.description}
-                                </p>
-                                {/* Mobile-only Read More */}
-                                <button
-                                  onClick={() => goToSwamiPage(index)}
-                                  className="lg:hidden inline-flex items-center gap-2 mt-5 text-spiritual-gold font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:opacity-80 transition-opacity"
-                                >
-                                  Read more about Swami
-                                  <ChevronRight size={13} />
-                                </button>
-                              </motion.div>
-                            </div>
-
-                            {/* Decorative Year Watermark */}
-                            <div className="absolute top-8 right-8 font-serif text-4xl pointer-events-none select-none" style={{ color: 'rgba(253, 251, 247, 0.1)' }}>
-                              {guru.year.split(' ')[0]}
-                            </div>
-                          </div>
-                        </ScrollStackItem>
-                      ))}
-                    </ScrollStack>
+              <div className="relative z-20 text-center px-4 max-w-4xl drop-shadow-2xl">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <span className="font-ui text-xs tracking-[0.4em] uppercase text-[#2D1A0A]/80 mb-6 block">
+                    Established 1910 • Courtallam, Agasthya Kshethram
+                  </span>
+                  <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      visible: {
+                        transition: {
+                          staggerChildren: 0.08,
+                          delayChildren: 0.3
+                        }
+                      }
+                    }}
+                    className="text-6xl md:text-8xl lg:text-[7.5rem] text-[#2D1A0A] font-serif leading-[0.9] mb-10 lg:mb-12"
+                  >
+                    <div className="overflow-hidden inline-block mr-4">
+                      <motion.span
+                        variants={{
+                          hidden: { y: "100%" },
+                          visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                        }}
+                        className="inline-block"
+                      >
+                        Silence
+                      </motion.span>
+                    </div>
+                    <div className="overflow-hidden inline-block mr-4">
+                      <motion.span
+                        variants={{
+                          hidden: { y: "100%" },
+                          visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                        }}
+                        className="inline-block"
+                      >
+                        is
+                      </motion.span>
+                    </div>
+                    <div className="overflow-hidden inline-block">
+                      <motion.span
+                        variants={{
+                          hidden: { y: "100%" },
+                          visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                        }}
+                        className="inline-block"
+                      >
+                        the
+                      </motion.span>
+                    </div>
+                    <br />
+                    <div className="overflow-hidden inline-block mr-4 italic font-light opacity-60">
+                      <motion.span
+                        variants={{
+                          hidden: { y: "100%" },
+                          visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                        }}
+                        className="inline-block"
+                      >
+                        Greatest
+                      </motion.span>
+                    </div>
+                    <div className="overflow-hidden inline-block italic font-light opacity-60">
+                      <motion.span
+                        variants={{
+                          hidden: { y: "100%" },
+                          visible: { y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+                        }}
+                        className="inline-block"
+                      >
+                        Speech
+                      </motion.span>
+                    </div>
+                  </motion.h1>
+                  <p className="text-[#2D1A0A]/70 font-sans text-lg md:text-xl max-w-xl mx-auto mb-12 leading-relaxed">
+                    Founded by Sri Mounaswamy in Courtallam's sacred Agasthya Kshethram, Sri Siddheswari Peetham preserves Sri Vidya tradition and the grace of Sri Raja Rajeswari Devi.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button className="sacred-button shadow-2xl shadow-sacred-red/20 active:scale-95 transition-transform">Explore Peetham</button>
+                    <div className="hidden sm:block w-[1px] h-12 bg-gradient-to-b from-transparent via-sacred-red to-transparent opacity-50"></div>
+                    <button className="px-8 py-3 border border-sacred-red/10 text-[#2D1A0A] font-ui text-sm tracking-widest uppercase hover:bg-warm-cream/30 transition-all backdrop-blur-[20px] bg-warm-cream/20 shadow-xl active:scale-95 rounded-sm">
+                      Virtual Tour
+                    </button>
                   </div>
+                </motion.div>
+              </div>
+            </section>
 
-                  {/* Right: sticky text panel — desktop only */}
-                  <div className="hidden lg:block sticky self-start" style={{ top: `${STACK_TOP}px` }}>
-                    <div
-                      className="no-scrollbar"
-                      style={{
-                        marginTop: '20px',
-                        maxHeight: `calc(100vh - ${STACK_TOP + PANEL_BOTTOM_SPACING}px)`,
-                        transition: 'max-height 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
-                        overflowY: 'auto',
-                        paddingRight: '1rem'
-                      }}
-                    >
-                      <div className="relative flex flex-col justify-center py-8">
-                        {/* Decorative vertical rule */}
-                        <div className="absolute -left-7 top-0 bottom-0 w-[1px] bg-gradient-to-b from-spiritual-gold/40 via-spiritual-gold/15 to-transparent pointer-events-none" />
+            <InfiniteMarquee />
 
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={activeGuruIndex}
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -14 }}
-                            transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
-                          >
-                            <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-3">
-                              {GURU_LINEAGE[activeGuruIndex].year}
-                            </span>
-                            <p className="font-ui text-xs tracking-[0.18em] uppercase text-neutral-500 font-medium mb-2">
-                              {GURU_LINEAGE[activeGuruIndex].title}
-                            </p>
-                            <h3 className="text-3xl xl:text-4xl font-serif text-neutral-900 leading-tight mb-5">
-                              {GURU_LINEAGE[activeGuruIndex].name}
-                            </h3>
-                            <div className="h-[1px] bg-spiritual-gold/30 mb-5" />
-                            <p className="text-neutral-600 text-sm leading-relaxed font-sans">
-                              {GURU_LINEAGE[activeGuruIndex].longDescription}
-                            </p>
-                            <button
-                              onClick={() => goToSwamiPage(activeGuruIndex)}
-                              className="inline-flex items-center gap-2 mt-7 text-sacred-red font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:gap-3 transition-all duration-200"
-                            >
-                              Read more about Swami
-                              <ChevronRight size={13} />
-                            </button>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
+            {/* About Section */}
+            <section id="about-teaser" ref={aboutRef} className="py-16 md:py-24 px-4 max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24">
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <SectionHeading subtitle="Rooted in Tradition" title="The Legacy of Silence" />
+                  <div className="space-y-6 text-neutral-600 leading-relaxed text-lg">
+                    <p>
+                      Sri Siddheswari Peetham, located in the scenic town of Courtallam, was founded by the legendary Mouna Swamy. Known for his profound vow of silence, he established this Peetham as a sanctuary for those seeking spiritual solace.
+                    </p>
+                    <p>
+                      Our philosophy centers on the transformative power of Mouna (Silence), which allows the soul to hear the whisper of the divine and find peace amidst the chaos of the modern world.
+                    </p>
+                    <div className="pt-2">
+                      <a href="#about" onClick={(event) => { event.preventDefault(); goToAboutPage(); }} className="inline-flex items-center gap-2 text-sacred-red font-semibold group">
+                        Learn about our history <ChevronRight className="transition-transform group-hover:translate-x-1" size={20} />
+                      </a>
                     </div>
                   </div>
-
-                </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
+                  whileInView={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="relative aspect-[4/5] rounded-tl-[100px] rounded-br-[100px] overflow-hidden"
+                >
+                  <motion.img
+                    style={{ y: aboutY }}
+                    src="https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png"
+                    alt="Temple Entrance"
+                    className="w-full h-full object-cover scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 border-[20px] border-warm-cream/20 m-6 rounded-tl-[76px] rounded-br-[76px]" />
+                </motion.div>
               </div>
-            </div>
-          </section>
 
-          {/* Swamiji Section */}
-          <section id="" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                <div className="lg:col-span-5 order-2 lg:order-1">
-                  <SwamijiPortrait />
-                </div>
-                <div className="lg:col-span-7 order-1 lg:order-2">
-                  <SectionHeading subtitle="The Living Tradition" title="Sri Siddheswarananda Bharathi Swamy" dark />
-                  <div className="space-y-6 text-warm-cream/60 leading-relaxed text-lg italic font-serif border-l-2 border-sacred-red pl-8 mb-12">
-                    "Spiritual realization is not about acquiring new things, but about revealing the eternal truth that is already within you."
+              {/* Physical Stacking Timeline */}
+              <div ref={guruSectionRef} className="relative mt-8 mb-[40vh]">
+                <div
+                  ref={guruHeaderRef}
+                  className="z-[110] bg-warm-cream/95 backdrop-blur-md pt-4 pb-3 border-b border-sacred-red/5"
+                >
+                  <div className="max-w-7xl mx-auto px-4">
+                    <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-2">
+                      Succession of Wisdom
+                    </span>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="h-[1px] bg-spiritual-gold/40 flex-1" />
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl text-neutral-900 leading-tight whitespace-nowrap font-serif">
+                        Guru Parampara
+                      </h2>
+                      <div className="h-[1px] bg-spiritual-gold/40 flex-1" />
+                    </div>
+                    <div className="mt-3">
+                      <GuruHorizontalTimeline gurus={GURU_LINEAGE} activeIndex={activeGuruIndex} onSelect={scrollToGuruCard} />
+                    </div>
                   </div>
-                  <p className="text-warm-cream/40 text-lg leading-relaxed mb-8">
-                    As the current Peethadhipathi, Swamiji continues the divine lineage with his profound wisdom in Vedas, Shastras, and modern science, bridging the gap for the contemporary seeker.
-                  </p>
-                  <button className="sacred-button !bg-warm-cream !text-neutral-900 border-none">Discourses & Teachings</button>
+                </div>
+                <div ref={guruPlaceholderRef} style={{ height: '0px' }} aria-hidden="true" />
+
+                <div className="mt-[640px] px-4 max-w-7xl mx-auto">
+                  <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-14 xl:gap-20 items-start">
+
+                    {/* Left: stacking cards */}
+                    <div>
+                      <ScrollStack
+                        itemDistance={70}
+                        itemScale={0.04}
+                        itemStackDistance={24}
+                        stackPosition={300}
+                        useWindowScroll={true}
+                        className="relative"
+                      >
+                        {GURU_LINEAGE.map((guru, index) => (
+                          <ScrollStackItem
+                            key={index}
+                            ref={(el) => { guruCardRefs.current[index] = el; }}
+                          >
+                            <div className="h-[54vh] w-[88%] md:w-[75%] lg:w-full mx-auto rounded-[32px] overflow-hidden relative shadow-[0_20px_60px_rgba(0,0,0,0.1)] group/card border border-white/5">
+                              <img
+                                src={guru.image}
+                                alt={guru.name}
+                                className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1.5s] group-hover/card:scale-110 group-hover/card:rotate-1"
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/30 to-transparent" />
+
+                              <div className="absolute inset-x-0 bottom-0 p-8 md:p-10">
+                                <motion.div
+                                  initial={{ opacity: 0, y: 30 }}
+                                  whileInView={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.8, delay: 0.2 }}
+                                >
+                                  <span className="font-ui text-spiritual-gold text-base tracking-[0.2em] font-bold block mb-1 drop-shadow-lg">
+                                    {guru.year}
+                                  </span>
+                                  <h3 className="text-3xl md:text-4xl font-serif text-warm-cream leading-tight mb-4 drop-shadow-2xl">
+                                    {guru.name}
+                                  </h3>
+                                  <p className="text-warm-cream/70 text-sm max-w-xl font-sans leading-relaxed border-l border-spiritual-gold/30 pl-4 italic">
+                                    {guru.description}
+                                  </p>
+                                  {/* Mobile-only Read More */}
+                                  <button
+                                    onClick={() => goToSwamiPage(index)}
+                                    className="lg:hidden inline-flex items-center gap-2 mt-5 text-spiritual-gold font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:opacity-80 transition-opacity"
+                                  >
+                                    Read more about Swami
+                                    <ChevronRight size={13} />
+                                  </button>
+                                </motion.div>
+                              </div>
+
+                              {/* Decorative Year Watermark */}
+                              <div className="absolute top-8 right-8 font-serif text-4xl pointer-events-none select-none" style={{ color: 'rgba(253, 251, 247, 0.1)' }}>
+                                {guru.year.split(' ')[0]}
+                              </div>
+                            </div>
+                          </ScrollStackItem>
+                        ))}
+                      </ScrollStack>
+                    </div>
+
+                    {/* Right: sticky text panel — desktop only */}
+                    <div className="hidden lg:block sticky self-start" style={{ top: `${STACK_TOP}px` }}>
+                      <div
+                        className="no-scrollbar"
+                        style={{
+                          marginTop: '20px',
+                          maxHeight: `calc(100vh - ${STACK_TOP + PANEL_BOTTOM_SPACING}px)`,
+                          transition: 'max-height 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
+                          overflowY: 'auto',
+                          paddingRight: '1rem'
+                        }}
+                      >
+                        <div className="relative flex flex-col justify-center py-8">
+                          {/* Decorative vertical rule */}
+                          <div className="absolute -left-7 top-0 bottom-0 w-[1px] bg-gradient-to-b from-spiritual-gold/40 via-spiritual-gold/15 to-transparent pointer-events-none" />
+
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={activeGuruIndex}
+                              initial={{ opacity: 0, y: 18 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -14 }}
+                              transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
+                            >
+                              <span className="font-ui text-[9px] tracking-[0.28em] uppercase text-sacred-red/70 font-semibold block mb-3">
+                                {GURU_LINEAGE[activeGuruIndex].year}
+                              </span>
+                              <p className="font-ui text-xs tracking-[0.18em] uppercase text-neutral-500 font-medium mb-2">
+                                {GURU_LINEAGE[activeGuruIndex].title}
+                              </p>
+                              <h3 className="text-3xl xl:text-4xl font-serif text-neutral-900 leading-tight mb-5">
+                                {GURU_LINEAGE[activeGuruIndex].name}
+                              </h3>
+                              <div className="h-[1px] bg-spiritual-gold/30 mb-5" />
+                              <p className="text-neutral-600 text-sm leading-relaxed font-sans">
+                                {GURU_LINEAGE[activeGuruIndex].longDescription}
+                              </p>
+                              <button
+                                onClick={() => goToSwamiPage(activeGuruIndex)}
+                                className="inline-flex items-center gap-2 mt-7 text-sacred-red font-ui text-[10px] tracking-[0.2em] uppercase font-semibold hover:gap-3 transition-all duration-200"
+                              >
+                                Read more about Swami
+                                <ChevronRight size={13} />
+                              </button>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <TeachingsSlider />
-          <DiscoursesSection />
-          <DeitiesSection />
-          <TimelineSection />
-          <MiraclesSection />
-          <HomamSection />
-          <CalendarSection />
+            {/* Swamiji Section */}
+            <section id="" className="bg-neutral-900 py-16 md:py-24 overflow-hidden border-b border-warm-cream/5">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                  <div className="lg:col-span-5 order-2 lg:order-1">
+                    <SwamijiPortrait />
+                  </div>
+                  <div className="lg:col-span-7 order-1 lg:order-2">
+                    <SectionHeading subtitle="The Living Tradition" title="Sri Siddheswarananda Bharathi Swamy" dark />
+                    <div className="space-y-6 text-warm-cream/60 leading-relaxed text-lg italic font-serif border-l-2 border-sacred-red pl-8 mb-12">
+                      "Spiritual realization is not about acquiring new things, but about revealing the eternal truth that is already within you."
+                    </div>
+                    <p className="text-warm-cream/40 text-lg leading-relaxed mb-8">
+                      As the current Peethadhipathi, Swamiji continues the divine lineage with his profound wisdom in Vedas, Shastras, and modern science, bridging the gap for the contemporary seeker.
+                    </p>
+                    <button className="sacred-button !bg-warm-cream !text-neutral-900 border-none">Discourses & Teachings</button>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-          {/* Activities Section */}
-          <section id="activities" className="bg-neutral-950 py-16 md:py-24 border-t border-white/5">
-            <div className="max-w-7xl mx-auto px-4">
-              <SectionHeading subtitle="Our Efforts" title="Compassion in Action" centered dark />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {ACTIVITIES.map((activity, index) => (
-                  <SpotlightCard
-                    key={activity.title}
-                    spotlightColor="rgba(212, 175, 55, 0.15)"
-                    className="group relative bg-white/5 rounded-3xl p-4 shadow-sm hover:shadow-2xl transition-all duration-500 border border-white/10"
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-                      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                      viewport={{ once: true, amount: 0.1 }}
-                      transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                      whileHover={{ y: -10 }}
+            <TeachingsSlider />
+            <DiscoursesSection />
+            <DeitiesSection onBook={openBookSeva} onSchedule={openSchedule} />
+            <TimelineSection />
+            <MiraclesSection />
+            <HomamSection />
+            <CalendarSection />
+
+            {/* Activities Section */}
+            <section id="activities" className="bg-neutral-950 py-16 md:py-24 border-t border-white/5">
+              <div className="max-w-7xl mx-auto px-4">
+                <SectionHeading subtitle="Our Efforts" title="Compassion in Action" centered dark />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {ACTIVITIES.map((activity, index) => (
+                    <SpotlightCard
+                      key={activity.title}
+                      spotlightColor="rgba(212, 175, 55, 0.15)"
+                      className="group relative bg-white/5 rounded-3xl p-4 shadow-sm hover:shadow-2xl transition-all duration-500 border border-white/10"
                     >
-                      <div className="relative overflow-hidden mb-8 aspect-[4/5] rounded-2xl cinematic-grade">
-                        <img
-                          src={activity.image}
-                          alt={activity.title}
-                          className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-sacred-red/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="absolute top-4 left-4 h-12 w-12 bg-warm-cream/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                          <activity.icon className="text-sacred-red" size={20} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                        whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        viewport={{ once: true, amount: 0.1 }}
+                        transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+                        whileHover={{ y: -10 }}
+                      >
+                        <div className="relative overflow-hidden mb-8 aspect-[4/5] rounded-2xl cinematic-grade">
+                          <img
+                            src={activity.image}
+                            alt={activity.title}
+                            className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-sacred-red/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          <div className="absolute top-4 left-4 h-12 w-12 bg-warm-cream/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                            <activity.icon className="text-sacred-red" size={20} />
+                          </div>
                         </div>
-                      </div>
-                      <div className="px-2 pb-4">
-                        <h3 className="text-2xl font-serif mb-4 text-warm-cream group-hover:text-spiritual-gold transition-colors">{activity.title}</h3>
-                        <p className="text-warm-cream/60 text-sm leading-relaxed group-hover:text-warm-cream/90 transition-colors">
-                          {activity.description}
-                        </p>
-                        <div className="mt-6 flex items-center gap-2 text-sacred-red opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="font-ui text-[10px] tracking-widest uppercase font-bold">Read Details</span>
-                          <ChevronRight size={14} />
+                        <div className="px-2 pb-4">
+                          <h3 className="text-2xl font-serif mb-4 text-warm-cream group-hover:text-spiritual-gold transition-colors">{activity.title}</h3>
+                          <p className="text-warm-cream/60 text-sm leading-relaxed group-hover:text-warm-cream/90 transition-colors">
+                            {activity.description}
+                          </p>
+                          <div className="mt-6 flex items-center gap-2 text-sacred-red opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="font-ui text-[10px] tracking-widest uppercase font-bold">Read Details</span>
+                            <ChevronRight size={14} />
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  </SpotlightCard>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Gallery Highlight */}
-          <section id="gallery" className="bg-warm-cream py-16 md:py-24">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex justify-between items-end mb-12">
-                <div>
-                  <SectionHeading subtitle="Visual Journey" title="Sacred Moments" />
+                      </motion.div>
+                    </SpotlightCard>
+                  ))}
                 </div>
-                <button className="hidden md:block font-ui text-xs tracking-widest uppercase text-sacred-red border-b border-sacred-red/30 pb-2 mb-10">
-                  Drag to Explore Divinity
-                </button>
               </div>
+            </section>
 
-              <div className="w-full h-[600px] relative cursor-grab active:cursor-grabbing overflow-hidden rounded-3xl cinematic-grade shadow-2xl">
-                <CircularGallery items={GALLERY_IMAGES} bend={3} borderRadius={0.05} scrollSpeed={2} />
+            {/* Gallery Highlight */}
+            <section id="gallery" className="bg-warm-cream py-16 md:py-24">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="flex justify-between items-end mb-12">
+                  <div>
+                    <SectionHeading subtitle="Visual Journey" title="Sacred Moments" />
+                  </div>
+                  <button className="hidden md:block font-ui text-xs tracking-widest uppercase text-sacred-red border-b border-sacred-red/30 pb-2 mb-10">
+                    Drag to Explore Divinity
+                  </button>
+                </div>
+
+                <div className="w-full h-[600px] relative cursor-grab active:cursor-grabbing overflow-hidden rounded-3xl cinematic-grade shadow-2xl">
+                  <CircularGallery items={GALLERY_IMAGES} bend={3} borderRadius={0.05} scrollSpeed={2} />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <InteractiveDarshan />
+            <InteractiveDarshan />
 
-          {/* Donation Banner */}
-          <section id="donate" className="relative py-16 md:py-24 bg-sacred-red">
-            <div className="absolute inset-0 opacity-10">
-              <div className="w-full h-full" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            </div>
-            <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2 }}
-              >
-                <h2 className="text-4xl md:text-6xl text-warm-cream font-serif mb-8">Support the Mission</h2>
-                <p className="text-warm-cream/70 text-lg mb-12 max-w-2xl mx-auto">
-                  Your contributions help us maintain the Peetham, run the Veda Patasala, and expand our social service activities. Become a part of this divine legacy.
-                </p>
-                <button className="px-12 py-5 bg-warm-cream text-sacred-red font-ui text-sm tracking-[0.2em] uppercase font-bold hover:scale-105 transition-transform">
-                  Make a Donation
-                </button>
-              </motion.div>
-            </div>
-          </section>
+            <InteractiveDarshan2 />
 
-          <div className="bg-neutral-900 overflow-hidden py-14 border-b border-warm-cream/5">
-            <ScrollVelocity
-              texts={['Sri Siddheswari Peetham • Courtallam • Silence is Peace • Mouna Swamy Mutt • Sanatana Dharma • ']}
-              velocity={30}
-              className="font-serif text-3xl italic text-warm-cream/20 mx-24 tracking-widest"
-              numCopies={4}
-            />
+            {/* Donation Banner */}
+            <section id="donate" className="relative py-16 md:py-24 bg-sacred-red">
+              <div className="absolute inset-0 opacity-10">
+                <div className="w-full h-full" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+              </div>
+              <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <h2 className="text-4xl md:text-6xl text-warm-cream font-serif mb-8">Support the Mission</h2>
+                  <p className="text-warm-cream/70 text-lg mb-12 max-w-2xl mx-auto">
+                    Your contributions help us maintain the Peetham, run the Veda Patasala, and expand our social service activities. Become a part of this divine legacy.
+                  </p>
+                  <button className="px-12 py-5 bg-warm-cream text-sacred-red font-ui text-sm tracking-[0.2em] uppercase font-bold hover:scale-105 transition-transform">
+                    Make a Donation
+                  </button>
+                </motion.div>
+              </div>
+            </section>
+
+            <div className="bg-neutral-900 overflow-hidden py-14 border-b border-warm-cream/5">
+              <ScrollVelocity
+                texts={['Sri Siddheswari Peetham • Courtallam • Silence is Peace • Mouna Swamy Mutt • Sanatana Dharma • ']}
+                velocity={30}
+                className="font-serif text-3xl italic text-warm-cream/20 mx-24 tracking-widest"
+                numCopies={4}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <footer className="fixed bottom-0 left-0 w-full z-0 h-[60vh] bg-neutral-900 pt-16 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between overflow-y-auto">
+      </div>
+      <footer ref={footerRef} className="fixed bottom-0 left-0 right-0 z-0 w-full bg-neutral-900 pt-16 pb-12 px-4 border-t border-warm-cream/5 flex flex-col justify-between">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
@@ -2833,6 +3030,13 @@ export default function App() {
               <li><a href="#calendar" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Calendar</a></li>
               <li><a href="#activities-page" onClick={(e) => { e.preventDefault(); goToActivitiesPage(); }} className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Activities</a></li>
               <li><a href="#homam" className="text-warm-cream/40 hover:text-warm-cream/80 transition-colors text-sm">Homam</a></li>
+              <li>
+                <a href="#booking-status"
+                  onClick={(e) => { e.preventDefault(); setPage('booking-status'); window.history.replaceState(null, '', '#booking-status'); window.scrollTo({ top: 0, behavior: 'auto' }); }}
+                  className="text-spiritual-gold/60 hover:text-spiritual-gold transition-colors text-sm font-semibold">
+                  My Bookings
+                </a>
+              </li>
             </ul>
           </div>
 

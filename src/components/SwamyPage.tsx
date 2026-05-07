@@ -616,7 +616,7 @@ export default function SwamyPage({ swamiIndex, onBack, onSelectSwami, onDonate 
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.35 }}
-        className="relative z-10 min-h-screen bg-warm-cream mb-[60vh]"
+        className="relative z-10 min-h-screen bg-warm-cream"
         style={{ overflowX: 'clip' }}
       >
         {/* ── Floating back button — desktop only, fixed top-left beside CardNav pill ── */}

@@ -96,6 +96,30 @@
     scrollbar-color: #f97316 transparent;
   }
 
+  /* Activity modal scrollbar — 6px, brand red */
+  .activity-modal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .activity-modal-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+  }
+
+  .activity-modal-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(160, 45, 35, 0.65);
+    border-radius: 10px;
+  }
+
+  .activity-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #A02d23;
+  }
+
+  .activity-modal-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160, 45, 35, 0.65) rgba(255, 255, 255, 0.04);
+  }
+
   .cinematic-grade {
     @apply relative overflow-hidden;
   }

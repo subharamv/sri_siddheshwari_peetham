@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard, CalendarDays, Clock, Leaf, LogOut, Menu, X,
@@ -307,6 +307,13 @@ function DeitiesSection({ onNavigateToSevas }: { onNavigateToSevas: () => void }
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editSevas, setEditSevas] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [showUnmapped, setShowUnmapped] = useState(true);
+
+  // Sevas not assigned to any deity
+  const unmappedSevas = useMemo(() => {
+    const assigned = new Set(deities.flatMap(d => d.sevas ?? []));
+    return sevas.filter(sv => !assigned.has(sv.name));
+  }, [sevas, deities]);
 
   useEffect(() => {
     (async () => {
@@ -355,6 +362,80 @@ function DeitiesSection({ onNavigateToSevas }: { onNavigateToSevas: () => void }
           >
             <Plus size={12} /> Go to Sevas
           </button>
+        </div>
+      )}
+
+      {/* ── Unmapped sevas panel ───────────────────────────── */}
+      {!loading && sevas.length > 0 && (
+        <div
+          className="rounded-xl border overflow-hidden"
+          style={{
+            background: unmappedSevas.length > 0 ? 'rgba(160,45,35,0.06)' : 'rgba(5,150,105,0.05)',
+            borderColor: unmappedSevas.length > 0 ? 'rgba(160,45,35,0.25)' : 'rgba(5,150,105,0.2)',
+          }}
+        >
+          <button
+            className="w-full flex items-center justify-between px-5 py-3 text-left"
+            onClick={() => setShowUnmapped(v => !v)}
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              {unmappedSevas.length > 0 ? (
+                <span className="font-ui text-[10px] tracking-widest uppercase text-sacred-red/80">
+                  Sevas Not Assigned to Any Deity
+                </span>
+              ) : (
+                <span className="font-ui text-[10px] tracking-widest uppercase text-emerald-400/80">
+                  All Sevas Assigned
+                </span>
+              )}
+              <span
+                className="font-ui text-[9px] font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  background: unmappedSevas.length > 0 ? 'rgba(160,45,35,0.25)' : 'rgba(5,150,105,0.2)',
+                  color: unmappedSevas.length > 0 ? '#fca5a5' : '#4ade80',
+                }}
+              >
+                {unmappedSevas.length} / {sevas.length}
+              </span>
+              {unmappedSevas.length === 0 && (
+                <span className="font-sans text-[10px] text-emerald-400/60">
+                  Every seva is linked to at least one deity
+                </span>
+              )}
+            </div>
+            {showUnmapped
+              ? <ChevronUp size={13} className="text-warm-cream/40" />
+              : <ChevronDown size={13} className="text-warm-cream/40" />
+            }
+          </button>
+
+          {showUnmapped && unmappedSevas.length > 0 && (
+            <div className="px-5 pb-4 border-t" style={{ borderColor: 'rgba(160,45,35,0.15)' }}>
+              <p className="font-sans text-[11px] text-warm-cream/45 mt-3 mb-3">
+                These sevas have not been added to any deity. Click Edit on a deity card above to assign them.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {unmappedSevas.map(sv => (
+                  <div
+                    key={sv.name}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(160,45,35,0.18)' }}
+                  >
+                    <div>
+                      <p className="font-sans text-xs text-warm-cream/80 leading-none">{sv.name}</p>
+                      <p className="font-sans text-[10px] text-spiritual-gold/70 mt-0.5">₹{sv.price.toLocaleString('en-IN')}</p>
+                    </div>
+                    <span
+                      className="px-1.5 py-0.5 rounded font-ui text-[8px] tracking-wider uppercase"
+                      style={{ background: 'rgba(160,45,35,0.2)', color: '#fca5a5' }}
+                    >
+                      unassigned
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

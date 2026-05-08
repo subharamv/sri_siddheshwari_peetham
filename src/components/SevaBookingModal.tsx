@@ -105,6 +105,34 @@ const FESTIVAL_DAYS: Record<string, string> = {
   '2026-10-12': 'Navaratri', '2026-11-08': 'Deepavali', '2027-03-06': 'Maha Shivaratri',
 };
 
+// Maps each seva name to its scheduled slot id(s) per the weekly timetable
+const SEVA_TO_SLOT_MAP: Record<string, string[]> = {
+  'Abhishekam':             ['s1'],
+  'Milk Abhishekam':        ['s1'],
+  'Alankaram Archana':      ['s2'],
+  'Special Puja':           ['s2'],
+  'Special Friday Puja':    ['s2'],
+  'Archana':                ['s2'],
+  'Sahasranama Parayana':   ['s3'],
+  'Sundara Kanda Parayana': ['s9'],
+  'Bhagavad Gita Parayana': ['s9'],
+  'Ramayana Parayana':      ['s9'],
+  'Rudrabhishekam':         ['s4'],
+  'Danda Puja':             ['s13'],
+  'Madhyahna Puja':         ['s5'],
+  'Naga Puja':              ['s6'],
+  'Ganapathi Homam':        ['s6'],
+  'Kali Puja':              ['s6'],
+  'Pratyangira Homam':      ['s6'],
+  'Narasimha Homam':        ['s6'],
+  'Sandhya Arati':          ['s7'],
+  'Bhajans':                ['slot-1778150277178'],
+  'Hanuman Chalisa':        ['s10'],
+  'Naga Kavacham':          ['s11'],
+  'Modaka Offering':        ['s12'],
+  'Sayana Arati':           ['s8'],
+};
+
 const INDIAN_STATES = [
   'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa',
   'Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala',
@@ -279,13 +307,21 @@ const labelCls = 'block font-ui text-[9px] tracking-[0.2em] uppercase text-spiri
 const selectCls = `${inputCls} appearance-none cursor-pointer`;
 
 // ── MiniCalendar ──────────────────────────────────────────────────────────────
+const STATUS_DOT: Record<string, string> = {
+  'available':   'bg-emerald-400',
+  'filling':     'bg-amber-400',
+  'almost-full': 'bg-orange-400',
+  'full':        'bg-red-400',
+};
+
 function MiniCalendar({
   year, month, selectedDate, onSelectDate, onPrevMonth, onNextMonth,
-  today,
+  today, getDateStatus,
 }: {
   year: number; month: number; selectedDate: Date | null;
   onSelectDate: (d: number) => void; onPrevMonth: () => void; onNextMonth: () => void;
   today: Date;
+  getDateStatus?: (y: number, m: number, d: number) => 'available' | 'filling' | 'almost-full' | 'full' | null;
 }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
@@ -332,12 +368,13 @@ function MiniCalendar({
           const selected = isSelected(day);
           const festival = festivalLabel(day);
           const todayDay = isToday(day);
+          const status = !past && !selected && getDateStatus ? getDateStatus(year, month, day) : null;
           return (
             <button
               key={i}
               onClick={() => !past && onSelectDate(day)}
               disabled={past}
-              title={festival || undefined}
+              title={festival ?? (status === 'full' ? 'Fully booked' : status === 'almost-full' ? 'Almost full' : status === 'filling' ? 'Filling fast' : status === 'available' ? 'Available' : undefined)}
               className={[
                 'relative mx-auto w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all',
                 selected ? 'bg-sacred-red text-white font-bold ring-2 ring-sacred-red/30' :
@@ -348,17 +385,31 @@ function MiniCalendar({
               ].filter(Boolean).join(' ')}
             >
               <span className="font-ui text-[11px]">{day}</span>
+              {/* festival gold dot — center bottom */}
               {festival && (
                 <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-spiritual-gold" />
+              )}
+              {/* availability dot — top-right corner */}
+              {status && (
+                <span className={`absolute top-0 right-0 w-2 h-2 rounded-full border border-neutral-900 ${STATUS_DOT[status]}`} />
               )}
             </button>
           );
         })}
       </div>
 
-      <p className="text-warm-cream/20 font-ui text-[8px] tracking-widest uppercase text-center mt-2">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-spiritual-gold/60 mr-1 align-middle" />festival days
-      </p>
+      {/* Legends row */}
+      <div className="flex items-center gap-3 justify-center mt-3 flex-wrap">
+        <span className="text-warm-cream/20 font-ui text-[7px] tracking-widest uppercase flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-spiritual-gold/60" />festival
+        </span>
+        {(['available', 'filling', 'almost-full', 'full'] as const).map(s => (
+          <span key={s} className="text-warm-cream/20 font-ui text-[7px] tracking-widest uppercase flex items-center gap-1">
+            <span className={`inline-block w-1.5 h-1.5 rounded-full ${STATUS_DOT[s]}`} />
+            {s === 'almost-full' ? 'almost full' : s === 'filling' ? 'filling fast' : s}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -435,7 +486,7 @@ function ScheduleView({
         <div>
           <p className="font-ui text-[9px] tracking-[0.25em] uppercase text-spiritual-gold/50 font-semibold mb-3">Select Date</p>
           <MiniCalendar year={year} month={month} selectedDate={selectedDate}
-            onSelectDate={onSelectDate} onPrevMonth={onPrevMonth} onNextMonth={onNextMonth} today={today} />
+            onSelectDate={onSelectDate} onPrevMonth={onPrevMonth} onNextMonth={onNextMonth} today={today} getDateStatus={undefined} />
         </div>
 
         {/* Slots */}
@@ -567,14 +618,68 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
   const [sevaType, setSevaType] = useState<'online' | 'offline'>('offline');
 
   // Slot availability from DB (declared after sevaType)
-  const [dbSlots, setDbSlots] = useState<Array<{ id: string; time: string; name: string; price: number; sort_order: number; max_bookings: number; is_active: boolean }>>([]);
+  const [dbSlots, setDbSlots] = useState<Array<{ id: string; time: string; name: string; price: number; sort_order: number; max_bookings: number; is_active: boolean; available_days?: number[] }>>([]);
   const [slotCounts, setSlotCounts] = useState<Record<string, number>>({});
+  // month-level counts keyed dateIso → slotId → count (for calendar coloring)
+  const [monthCounts, setMonthCounts] = useState<Record<string, Record<string, number>>>({});
+  // DB-sourced deities and seva prices (fall back to statics while loading)
+  const [dbDeities, setDbDeities] = useState<DeityData[]>(ALL_DEITIES);
+  const [sevaFromDb, setSevaFromDb] = useState<Record<string, number>>(SEVA_PRICES);
 
   useEffect(() => {
     supabase.from('ref_slots').select('*').order('sort_order').then(({ data }) => {
       if (data && data.length > 0) setDbSlots(data as typeof dbSlots);
     });
   }, []);
+
+  // Load deities and seva prices from DB once on mount
+  useEffect(() => {
+    supabase.from('ref_deities').select('id, name, sevas, grad').order('name').then(({ data }) => {
+      if (data?.length) setDbDeities(data.map(d => ({
+        id: d.id as string,
+        name: d.name as string,
+        sevas: (d.sevas as string[]) ?? [],
+        grad: (d.grad as string) ?? '',
+      })));
+    });
+    supabase.from('ref_sevas').select('name, price').then(({ data }) => {
+      if (data?.length) {
+        const prices: Record<string, number> = { ...SEVA_PRICES };
+        (data as Array<{ name: string; price: number }>).forEach(s => { prices[s.name] = s.price; });
+        setSevaFromDb(prices);
+      }
+    });
+  }, []);
+
+  // Sync selectedDeity when DB deities finish loading
+  useEffect(() => {
+    if (!dbDeities.length) return;
+    setSelectedDeity(prev => dbDeities.find(d => d.id === prev.id) ?? dbDeities[0]);
+  }, [dbDeities]);
+
+  // Load booking counts for the whole visible month (powers calendar availability dots)
+  useEffect(() => {
+    if (sevaType !== 'offline') { setMonthCounts({}); return; }
+    const lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+    const start = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-01`;
+    const end   = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    supabase
+      .from('seva_bookings')
+      .select('seva_date_iso, slot_id')
+      .gte('seva_date_iso', start)
+      .lte('seva_date_iso', end)
+      .neq('payment_status', 'cancelled')
+      .not('slot_id', 'is', null)
+      .then(({ data }) => {
+        const counts: Record<string, Record<string, number>> = {};
+        (data ?? []).forEach((b: { seva_date_iso: string | null; slot_id: string | null }) => {
+          if (!b.seva_date_iso || !b.slot_id) return;
+          counts[b.seva_date_iso] ??= {};
+          counts[b.seva_date_iso][b.slot_id] = (counts[b.seva_date_iso][b.slot_id] ?? 0) + 1;
+        });
+        setMonthCounts(counts);
+      });
+  }, [calYear, calMonth, sevaType]);
 
   useEffect(() => {
     if (!selectedDate || sevaType !== 'offline') { setSlotCounts({}); return; }
@@ -606,11 +711,12 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
   useEffect(() => {
     if (!isOpen) return;
     if (initialDeity) {
-      // If the passed deity has no sevas (empty array from App.tsx DEITIES), look up from ALL_DEITIES
       const deityData: DeityData = initialDeity.sevas.length > 0
         ? initialDeity
-        : ALL_DEITIES.find(d => d.id === initialDeity.id) ?? { ...initialDeity, sevas: ['Abhishekam'] };
-      setDeitySevas([{ deity: deityData, seva: deityData.sevas[0], price: SEVA_PRICES[deityData.sevas[0]] || 251 }]);
+        : dbDeities.find(d => d.id === initialDeity.id)
+          ?? ALL_DEITIES.find(d => d.id === initialDeity.id)
+          ?? { ...initialDeity, sevas: ['Abhishekam'] };
+      setDeitySevas([{ deity: deityData, seva: deityData.sevas[0], price: sevaFromDb[deityData.sevas[0]] || 251 }]);
     } else {
       setDeitySevas([]);
     }
@@ -657,18 +763,18 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
     setSelectedSlot(null);
   };
 
-  // Deity management
+  // Deity management — uses DB-sourced lists with static fallback
   const addDeity = () => {
-    const unused = ALL_DEITIES.find(d => !deitySevas.some(ds => ds.deity.id === d.id));
-    if (unused) setDeitySevas(p => [...p, { deity: unused, seva: unused.sevas[0] || '', price: SEVA_PRICES[unused.sevas[0]] || 251 }]);
+    const unused = dbDeities.find(d => !deitySevas.some(ds => ds.deity.id === d.id));
+    if (unused) setDeitySevas(p => [...p, { deity: unused, seva: unused.sevas[0] || '', price: sevaFromDb[unused.sevas[0]] || 251 }]);
   };
   const removeDeity = (idx: number) => setDeitySevas(p => p.filter((_, i) => i !== idx));
   const updateDeity = (idx: number, deityId: string) => {
-    const deity = ALL_DEITIES.find(d => d.id === deityId)!;
-    setDeitySevas(p => p.map((ds, i) => i !== idx ? ds : { deity, seva: deity.sevas[0] || '', price: SEVA_PRICES[deity.sevas[0]] || 251 }));
+    const deity = dbDeities.find(d => d.id === deityId) ?? ALL_DEITIES.find(d => d.id === deityId)!;
+    setDeitySevas(p => p.map((ds, i) => i !== idx ? ds : { deity, seva: deity.sevas[0] || '', price: sevaFromDb[deity.sevas[0]] || 251 }));
   };
   const updateSeva = (idx: number, seva: string) =>
-    setDeitySevas(p => p.map((ds, i) => i !== idx ? ds : { ...ds, seva, price: SEVA_PRICES[seva] || 251, slot: undefined }));
+    setDeitySevas(p => p.map((ds, i) => i !== idx ? ds : { ...ds, seva, price: sevaFromDb[seva] || 251, slot: undefined }));
 
   const updateSlot = (idx: number, slot: TimeSlot) =>
     setDeitySevas(p => p.map((ds, i) => i !== idx ? ds : { ...ds, slot }));
@@ -754,24 +860,44 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
     downloadBookingPDF(bookingRecord);
   };
 
-  // Build slots using DB data (with limit enforcement) or fall back to BASE_SLOTS
+  // Returns only slots active on the given date's day-of-week, with live counts
   const getDbAwareSlots = (date: Date): TimeSlot[] => {
-    const source = dbSlots.length > 0 ? dbSlots.filter(s => s.is_active) : BASE_SLOTS;
+    const dow = date.getDay(); // 0=Sun … 6=Sat
+    const source = dbSlots.length > 0
+      ? dbSlots.filter(s => s.is_active && (!s.available_days?.length || s.available_days.includes(dow)))
+      : BASE_SLOTS;
     return source.map(s => {
       const count = slotCounts[s.id] ?? 0;
-      const max = (s as { max_bookings?: number }).max_bookings ?? 50;
+      const max = s.max_bookings ?? 50;
       return { ...s, bookedCount: count, max_bookings: max, available: !isSlotPast(s.time, date) && count < max };
     });
   };
-  const slots = selectedDate ? (() => {
-    const all = getDbAwareSlots(selectedDate);
-    if (deitySevas.length === 0) return all;
-    const sevaNames = deitySevas.map(ds => ds.seva.toLowerCase());
-    const filtered = all.filter(slot =>
-      sevaNames.some(sn => slot.name.toLowerCase().includes(sn) || sn.includes(slot.name.toLowerCase()))
+
+  // Computes per-date availability status for the calendar dots.
+  // When sevas are selected it looks at only those sevas' mapped slots.
+  const getDateStatus = useCallback((y: number, m: number, d: number): 'available' | 'filling' | 'almost-full' | 'full' | null => {
+    if (!dbSlots.length) return null;
+    const dow = new Date(y, m, d).getDay();
+    const dateIso = toKey(y, m, d);
+    const mappedIds = deitySevas.flatMap(ds => SEVA_TO_SLOT_MAP[ds.seva] ?? []);
+    const relevant = dbSlots.filter(s =>
+      s.is_active &&
+      (!s.available_days?.length || s.available_days.includes(dow)) &&
+      (mappedIds.length === 0 || mappedIds.includes(s.id))
     );
-    return filtered.length > 0 ? filtered : all;
-  })() : [];
+    if (!relevant.length) return null;
+    const dayCounts = monthCounts[dateIso] ?? {};
+    const totalMax    = relevant.reduce((n, s) => n + (s.max_bookings ?? 50), 0);
+    const totalBooked = relevant.reduce((n, s) => n + (dayCounts[s.id] ?? 0), 0);
+    if (!totalMax) return null;
+    const pct = totalBooked / totalMax;
+    if (pct >= 1)    return 'full';
+    if (pct >= 0.75) return 'almost-full';
+    if (pct >= 0.4)  return 'filling';
+    return 'available';
+  }, [dbSlots, monthCounts, deitySevas]);
+
+  const slots = selectedDate ? getDbAwareSlots(selectedDate) : [];
   const nextBtnText = currentBookingStep === 5 ? `Pay ₹${total.toLocaleString('en-IN')}` : 'Continue';
 
   if (!isOpen) return null;
@@ -889,29 +1015,29 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
                             <div>
                               <label className={labelCls}>Select Deity</label>
                               <select value={selectedDeity.id} onChange={e => {
-                                const d = ALL_DEITIES.find(x => x.id === e.target.value)!;
+                                const d = dbDeities.find(x => x.id === e.target.value) ?? ALL_DEITIES.find(x => x.id === e.target.value)!;
                                 setSelectedDeity(d);
                               }} className={selectCls}>
-                                {ALL_DEITIES.map(d => (
+                                {dbDeities.map(d => (
                                   <option key={d.id} value={d.id} style={{ background: '#1c0b05' }}>{d.name}</option>
                                 ))}
                               </select>
                             </div>
                             <div>
                               <label className={labelCls}>Select Seva</label>
-                              <select 
+                              <select
                                 className={selectCls}
                                 onChange={e => {
                                   const s = e.target.value;
                                   if (!s) return;
-                                  setDeitySevas(p => [...p, { deity: selectedDeity, seva: s, price: SEVA_PRICES[s] || 251 }]);
+                                  setDeitySevas(p => [...p, { deity: selectedDeity, seva: s, price: sevaFromDb[s] || 251 }]);
                                   e.target.value = '';
                                 }}
                               >
                                 <option value="" style={{ background: '#1c0b05' }}>Choose Seva...</option>
                                 {selectedDeity.sevas.map(s => (
                                   <option key={s} value={s} disabled={deitySevas.some(ds => ds.deity.id === selectedDeity.id && ds.seva === s)} style={{ background: '#1c0b05' }}>
-                                    {s} — ₹{(SEVA_PRICES[s] || 251).toLocaleString('en-IN')}
+                                    {s} — ₹{(sevaFromDb[s] || 251).toLocaleString('en-IN')}
                                   </option>
                                 ))}
                               </select>
@@ -967,32 +1093,51 @@ export default function SevaBookingModal({ isOpen, onClose, initialDeity, mode =
                           <div className="space-y-6">
                             <div>
                               <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-spiritual-gold/50 font-semibold mb-3">Select Date</p>
-                              <MiniCalendar year={calYear} month={calMonth} selectedDate={selectedDate}
-                                onSelectDate={handleSelectDate} onPrevMonth={prevMonth} onNextMonth={nextMonth} today={today} />
+                              <MiniCalendar
+                                year={calYear} month={calMonth} selectedDate={selectedDate}
+                                onSelectDate={handleSelectDate} onPrevMonth={prevMonth} onNextMonth={nextMonth}
+                                today={today} getDateStatus={getDateStatus}
+                              />
                             </div>
-                            
+
                             {selectedDate && (
                               <div className="space-y-4 pt-4" style={{ borderTop: '1px solid rgba(212,175,55,0.1)' }}>
-                                <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-spiritual-gold/50 font-semibold">Assign Slots</p>
+                                <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-spiritual-gold/50 font-semibold">
+                                  Slots for {selectedDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
+                                </p>
                                 {deitySevas.map((ds, idx) => {
-                                  const allDb = getDbAwareSlots(selectedDate);
-                                  const sevaName = ds.seva.toLowerCase();
-                                  const filteredDb = allDb.filter(s => s.name.toLowerCase().includes(sevaName) || sevaName.includes(s.name.toLowerCase()));
-                                  const recommended = filteredDb.length > 0 ? filteredDb : allDb;
+                                  const allDay = getDbAwareSlots(selectedDate);
+                                  // Narrow to this seva's scheduled slot(s) for the selected day
+                                  const mappedIds = SEVA_TO_SLOT_MAP[ds.seva] ?? [];
+                                  const mapped = mappedIds.length > 0 ? allDay.filter(s => mappedIds.includes(s.id)) : [];
+                                  const toShow = mapped.length > 0 ? mapped : allDay;
+                                  const notScheduledToday = mappedIds.length > 0 && mapped.length === 0;
                                   return (
                                     <div key={idx} className="space-y-2">
                                       <div className="flex items-center justify-between">
                                         <p className="text-warm-cream/60 font-ui text-[9px] uppercase tracking-widest">
-                                          {ds.deity.name.split(' ').slice(-1)[0]} · {ds.seva}
+                                          {ds.deity.name} · <span className="text-spiritual-gold/80">{ds.seva}</span>
                                         </p>
                                         {ds.slot && (
-                                          <span className="text-spiritual-gold font-ui text-[9px] font-bold">Selected</span>
+                                          <span className="text-emerald-400 font-ui text-[9px] font-bold">✓ Selected</span>
                                         )}
                                       </div>
-                                      <SlotList 
-                                        slots={recommended} 
-                                        selected={ds.slot || null} 
-                                        onSelect={(s) => updateSlot(idx, s)} 
+
+                                      {notScheduledToday ? (
+                                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                                          style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                                          <AlertCircle size={12} className="text-amber-400 flex-shrink-0" />
+                                          <p className="text-amber-400/80 font-ui text-[9px] leading-relaxed">
+                                            <span className="font-bold">{ds.seva}</span> is not scheduled on {selectedDate.toLocaleDateString('en-IN', { weekday: 'long' })}s.
+                                            Choose another date or select a different slot below.
+                                          </p>
+                                        </div>
+                                      ) : null}
+
+                                      <SlotList
+                                        slots={toShow}
+                                        selected={ds.slot || null}
+                                        onSelect={(s) => updateSlot(idx, s)}
                                       />
                                     </div>
                                   );

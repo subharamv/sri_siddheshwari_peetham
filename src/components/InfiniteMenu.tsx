@@ -451,6 +451,7 @@ class InfiniteGridMenu {
   private instancePositions: vec3[] = [];
   private DISC_INSTANCE_COUNT = 0;
   private atlasSize = 1;
+  private _rafId = 0;
   private _time = 0;
   private _deltaTime = 0;
   private _deltaFrames = 0;
@@ -493,7 +494,15 @@ class InfiniteGridMenu {
     this._frames += this._deltaFrames;
     this.animate(this._deltaTime);
     this.render();
-    requestAnimationFrame(t => this.run(t));
+    this._rafId = requestAnimationFrame(t => this.run(t));
+  }
+
+  public destroy(): void {
+    cancelAnimationFrame(this._rafId);
+    if (this.gl && this.tex) {
+      this.gl.deleteTexture(this.tex);
+      this.tex = null;
+    }
   }
 
   private init(onInit?: InitCallback): void {
@@ -550,9 +559,21 @@ class InfiniteGridMenu {
     canvas.height = this.atlasSize * cellSize;
     Promise.all(this.items.map(item => new Promise<HTMLImageElement>(resolve => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => resolve(img);
-      img.onerror = () => resolve(img);
+      img.onerror = () => {
+        const placeholder = new Image();
+        const c = document.createElement('canvas');
+        c.width = cellSize; c.height = cellSize;
+        const cx = c.getContext('2d')!;
+        cx.fillStyle = '#A02d23';
+        cx.fillRect(0, 0, cellSize, cellSize);
+        cx.fillStyle = '#fff';
+        cx.font = `${cellSize * 0.08}px sans-serif`;
+        cx.textAlign = 'center';
+        cx.fillText(item.title || '?', cellSize / 2, cellSize / 2);
+        placeholder.src = c.toDataURL();
+        resolve(placeholder);
+      };
       img.src = item.image;
     }))).then(images => {
       images.forEach((img, i) => {
@@ -562,7 +583,7 @@ class InfiniteGridMenu {
       });
       gl.bindTexture(gl.TEXTURE_2D, this.tex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-      gl.generateMipmap(gl.TEXTURE_2D);
+      if (canvas.width > 0 && (canvas.width & (canvas.width - 1)) === 0 && (canvas.height & (canvas.height - 1)) === 0) gl.generateMipmap(gl.TEXTURE_2D);
     });
   }
 
@@ -711,19 +732,22 @@ const InfiniteMenu: FC<InfiniteMenuProps> = ({ items = [], scale = 1.0, onItemCl
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    let sketch: InfiniteGridMenu | null = null;
+    const sketches: InfiniteGridMenu[] = [];
     const handleActiveItem = (index: number) => {
       if (!items.length) return;
       setActiveItem(items[index % items.length]);
     };
     if (canvas) {
-      const defaultItem: MenuItem = { image: 'https://srisiddheshwaripeetham.com/courtallam-temple-gopuram-and-peetham-campus.png', link: '', title: '', description: '' };
-      sketch = new InfiniteGridMenu(canvas, items.length ? items : [defaultItem], handleActiveItem, setIsMoving, sk => sk.run(), scale);
+      const sketch = new InfiniteGridMenu(canvas, items.length ? items : [], handleActiveItem, setIsMoving, sk => sk.run(), scale);
+      sketches.push(sketch);
     }
-    const handleResize = () => { if (sketch) sketch.resize(); };
+    const handleResize = () => { sketches.forEach(s => s.resize()); };
     window.addEventListener('resize', handleResize);
     handleResize();
-    return () => { window.removeEventListener('resize', handleResize); };
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      sketches.forEach(s => s.destroy());
+    };
   }, [items, scale]);
 
   const handleButtonClick = () => {
